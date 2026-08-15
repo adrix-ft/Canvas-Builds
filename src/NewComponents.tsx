@@ -1,6 +1,7 @@
 import { useConversation, ConversationProvider } from "@elevenlabs/react";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
   X,
@@ -15,6 +16,8 @@ import {
   Code
 } from "lucide-react";
 import { useAppContext } from "./AppContext";
+import { supabase } from "./supabaseClient";
+import { getProductIcon } from "./iconHelper";
 
 export const ToastContainer = () => {
   const { toasts, removeToast } = useAppContext();
@@ -41,7 +44,7 @@ export const ToastContainer = () => {
             <span className="font-medium text-sm">{toast.message}</span>
             <button
               onClick={() => removeToast(toast.id)}
-              className="ml-2 hover:opacity-70"
+              className="ml-2 hover:opacity-70 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -104,11 +107,12 @@ export const CartDrawer = () => {
               </h2>
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-[var(--color-bg-secondary)] transition-colors"
+                className="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-[var(--color-bg-secondary)] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5 text-[var(--color-text-primary)]" />
               </button>
             </div>
+
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full opacity-50 text-[var(--color-text-primary)]">
@@ -142,7 +146,7 @@ export const CartDrawer = () => {
                     <button
                       onClick={() => removeFromCart(index)}
                       disabled={isCheckingOut}
-                      className="w-8 h-8 text-rose-400 hover:bg-rose-50 rounded-full flex items-center justify-center transition-colors shrink-0 disabled:opacity-50"
+                      className="w-8 h-8 text-rose-400 hover:bg-rose-50 rounded-full flex items-center justify-center transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -150,6 +154,7 @@ export const CartDrawer = () => {
                 ))
               )}
             </div>
+
             {cart.length > 0 && (
               <div className="p-6 bg-white border-t border-[var(--color-bg-secondary)]/50 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
                 <div className="flex justify-between items-center mb-4">
@@ -163,7 +168,7 @@ export const CartDrawer = () => {
                 <button
                   onClick={handleCheckout}
                   disabled={isCheckingOut}
-                  className="w-full bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white py-4 rounded-xl font-bold transition-all hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                  className="w-full bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white py-4 rounded-xl font-bold transition-all hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none cursor-pointer"
                 >
                   {isCheckingOut ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -192,7 +197,7 @@ export const FloatingChat = () => {
 const FloatingChatInner = () => {
   const { addToast } = useAppContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+
   const conversation = useConversation({
     onConnect: () => {
       console.log("Connected to ElevenLabs agent");
@@ -205,11 +210,11 @@ const FloatingChatInner = () => {
       addToast("Voice session encountered an error.", "info");
     },
   });
-  
+
   const { status, isSpeaking } = conversation;
   const isConnecting = status === "connecting";
   const isConnected = status === "connected";
-  
+
   const toggleVoiceAgent = async () => {
     try {
       if (isConnected) {
@@ -225,16 +230,14 @@ const FloatingChatInner = () => {
           return;
         }
         
-        // Request microphone explicitly with constraints to stabilize sample rates
         await navigator.mediaDevices.getUserMedia({ 
-          audio: {
+           audio: {
             echoCancellation: true,
             noiseSuppression: true,
             autoGainControl: true
           } 
-        });
+         });
         
-        // Start session
         await conversation.startSession({
           agentId: agentId,
         });
@@ -275,7 +278,7 @@ const FloatingChatInner = () => {
             <button
               onClick={toggleVoiceAgent}
               disabled={isConnecting}
-              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[var(--color-bg-primary)] transition-colors text-left group disabled:opacity-50"
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[var(--color-bg-primary)] transition-colors text-left group disabled:opacity-50 cursor-pointer"
             >
               <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                 <Headphones className="w-5 h-5" />
@@ -292,7 +295,7 @@ const FloatingChatInner = () => {
             
             <button
               onClick={handleWhatsApp}
-              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[var(--color-bg-primary)] transition-colors text-left group"
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[var(--color-bg-primary)] transition-colors text-left group cursor-pointer"
             >
               <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 shrink-0 transition-colors group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center">
                 <MessageCircle className="w-5 h-5" />
@@ -323,7 +326,7 @@ const FloatingChatInner = () => {
           isConnected
             ? "shadow-rose-500/40"
             : "shadow-black/20"
-        } border-2 border-white hover:scale-110 transition-transform group relative pointer-events-auto`}
+        } border-2 border-white hover:scale-110 transition-transform group relative pointer-events-auto cursor-pointer`}
         title={isConnected ? "Click to end call" : "Open support menu"}
       >
         <div
@@ -367,6 +370,7 @@ export const AnimatedCounter = ({
       const incrementTime = 30; // ms
       const totalSteps = Math.ceil(totalMilSecDur / incrementTime);
       const step = end / totalSteps;
+
       const timer = setInterval(() => {
         start += step;
         if (start > end) {
@@ -376,6 +380,7 @@ export const AnimatedCounter = ({
           setCount(Math.floor(start));
         }
       }, incrementTime);
+
       return () => clearInterval(timer);
     }
   }, [isInView, value, duration]);
@@ -438,7 +443,7 @@ export const BundleSection = () => {
                 emoji: <Gift className="w-6 h-6 text-white" />,
               })
             }
-            className="w-full md:w-auto bg-[var(--color-accent-pink)] hover:bg-white hover:text-[var(--color-text-primary)] text-white px-8 py-3.5 rounded-full font-bold text-base transition-all duration-300 shadow-lg hover:scale-105"
+            className="w-full md:w-auto bg-[var(--color-accent-pink)] hover:bg-white hover:text-[var(--color-text-primary)] text-white px-8 py-3.5 rounded-full font-bold text-base transition-all duration-300 shadow-lg hover:scale-105 cursor-pointer"
           >
             Add to Cart
           </button>
@@ -506,9 +511,30 @@ export const MeetCreator = () => {
   );
 };
 
-export const SearchModal = ({ products }: { products: any[] }) => {
-  const { isSearchOpen, setIsSearchOpen, addToCart } = useAppContext();
+export const SearchModal = () => {
+  const { isSearchOpen, setIsSearchOpen } = useAppContext();
   const [query, setQuery] = useState("");
+  const [products, setProducts] = useState<any[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      const { data } = await supabase.from("products").select("*");
+      if (data) {
+        const formatted = data.map((item) => ({
+          id: item.id,
+          category: item.category,
+          title: item.title,
+          price: item.price,
+          gradient: item.gradient || "from-pink-200 to-rose-100",
+          emoji: getProductIcon(item.icon_name),
+        }));
+        setProducts(formatted);
+      }
+    };
+    if (isSearchOpen) fetchCatalog();
+  }, [isSearchOpen]);
+
   const filtered = query
     ? products.filter(
         (p) =>
@@ -518,7 +544,7 @@ export const SearchModal = ({ products }: { products: any[] }) => {
     : [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-20 px-4">
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={() => setIsSearchOpen(false)}
@@ -541,7 +567,7 @@ export const SearchModal = ({ products }: { products: any[] }) => {
           />
           <button
             onClick={() => setIsSearchOpen(false)}
-            className="p-1 hover:bg-white rounded-full transition-colors text-[var(--color-text-primary)]/60"
+            className="p-1 hover:bg-white rounded-full transition-colors text-[var(--color-text-primary)]/60 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -557,7 +583,7 @@ export const SearchModal = ({ products }: { products: any[] }) => {
                 <div
                   key={p.id}
                   onClick={() => {
-                    addToCart(p);
+                    navigate(`/product/${p.id}`);
                     setIsSearchOpen(false);
                   }}
                   className="flex items-center gap-4 p-3 hover:bg-white rounded-xl transition-colors cursor-pointer border border-transparent hover:border-[var(--color-bg-secondary)]/50 group"

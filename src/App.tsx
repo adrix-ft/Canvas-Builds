@@ -7,14 +7,13 @@ import {
   useNavigate,
   Link,
   useLocation,
+  useParams,
 } from "react-router-dom";
 import {
   motion,
   AnimatePresence,
   useScroll,
   useTransform,
-  useMotionValue,
-  useSpring,
 } from "framer-motion";
 import { useAppContext } from "./AppContext";
 import {
@@ -23,7 +22,6 @@ import {
   FloatingChat,
   AnimatedCounter,
   BundleSection,
-  MeetCreator,
   SearchModal,
 } from "./NewComponents";
 import {
@@ -32,20 +30,12 @@ import {
   ShoppingCart,
   Heart,
   Star,
-  Truck,
-  ShieldCheck,
-  RefreshCw,
-  Headphones,
   ArrowRight,
   Mail,
-  CheckCircle,
-  CreditCard,
   Menu,
   X,
   Play,
   Sparkles,
-  Gift,
-  Download,
   ChevronRight,
   Quote,
   Github,
@@ -53,103 +43,28 @@ import {
   ChevronDown,
   MessageCircle,
   Check,
-  Moon,
-  Sun,
   Code,
-  GraduationCap,
   Terminal,
   Users,
   Book,
   Plane
 } from "lucide-react";
+import { supabase } from "./supabaseClient";
+import { getProductIcon } from "./iconHelper";
 
-const CATEGORIES = ["All", "Love", "Friendship", "Anniversary", "Apology"];
-
-const PRODUCTS = [
-  {
-    id: 1,
-    category: "Love",
-    title: "Girlfriend Day Special",
-    price: "Rs. 249",
-    originalPrice: "Rs. 399",
-    rating: "4.9",
-    emoji: <Heart className="w-12 h-12 text-pink-500 fill-current" />,
-    gradient: "from-pink-200 to-rose-100",
-    tag: "Bestseller",
-  },
-  {
-    id: 2,
-    category: "Friendship",
-    title: "Bestie Birthday Surprise",
-    price: "Rs. 199",
-    originalPrice: "Rs. 299",
-    rating: "4.8",
-    emoji: <Users className="w-12 h-12 text-[var(--color-text-primary)]" />,
-    gradient: "from-[var(--color-bg-secondary)] to-[var(--color-bg-primary)]",
-  },
-  {
-    id: 3,
-    category: "Anniversary",
-    title: "Our Journey Timeline",
-    price: "Rs. 299",
-    originalPrice: "Rs. 499",
-    rating: "5.0",
-    emoji: <Code className="w-12 h-12 text-[var(--color-accent-purple)]" />,
-    gradient: "from-[var(--color-accent-purple)]/20 to-[var(--color-accent-purple)]/40",
-    tag: "Premium",
-  },
-  {
-    id: 4,
-    category: "Apology",
-    title: 'Cute "I am Sorry" Page',
-    price: "Rs. 149",
-    originalPrice: "Rs. 249",
-    rating: "4.7",
-    emoji: <Heart className="w-12 h-12 text-orange-400" />,
-    gradient: "from-orange-100 to-amber-50",
-  },
-  {
-    id: 5,
-    category: "Love",
-    title: "100 Reasons Why I Love You",
-    price: "Rs. 199",
-    originalPrice: "Rs. 349",
-    rating: "4.9",
-    emoji: <Mail className="w-12 h-12 text-rose-400" />,
-    gradient: "from-rose-100 to-pink-50",
-  },
-  {
-    id: 6,
-    category: "Friendship",
-    title: "Squad Goals Gallery",
-    price: "Rs. 249",
-    originalPrice: "Rs. 399",
-    rating: "4.8",
-    emoji: <Users className="w-12 h-12 text-purple-500" />,
-    gradient: "from-purple-100 to-fuchsia-50",
-  },
-  {
-    id: 7,
-    category: "Anniversary",
-    title: "Digital Memory Book",
-    price: "Rs. 279",
-    originalPrice: "Rs. 449",
-    rating: "5.0",
-    emoji: <Book className="w-12 h-12 text-amber-500" />,
-    gradient: "from-amber-100 to-orange-50",
-    tag: "Trending",
-  },
-  {
-    id: 8,
-    category: "Love",
-    title: "Long Distance Countdown",
-    price: "Rs. 199",
-    originalPrice: "Rs. 299",
-    rating: "4.6",
-    emoji: <Plane className="w-12 h-12 text-cyan-500" />,
-    gradient: "from-blue-100 to-cyan-50",
-  },
-];
+export type ProductItem = {
+  id: number;
+  category: string;
+  title: string;
+  price: string;
+  originalPrice?: string;
+  rating: string;
+  emoji: React.ReactNode;
+  gradient: string;
+  tag?: string;
+  youtube_url?: string | null;
+  file_url?: string | null;
+};
 
 const INITIAL_TESTIMONIALS = [
   {
@@ -198,11 +113,6 @@ const FAQS = [
   },
 ];
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.1 } },
-};
-
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   show: {
@@ -242,8 +152,7 @@ const MagneticButton = ({ children, className, onClick }: any) => {
 };
 
 const Navbar = () => {
-  const { cart, setIsCartOpen, setIsSearchOpen, isDarkMode, toggleDarkMode } =
-    useAppContext();
+  const { cart, setIsCartOpen, setIsSearchOpen, isDarkMode } = useAppContext();
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -318,7 +227,7 @@ const Navbar = () => {
             <div className="flex items-center gap-1 sm:gap-3">
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="hover:bg-[var(--color-bg-primary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 hover:text-[var(--color-accent-pink)]"
+                className="hover:bg-[var(--color-bg-primary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 hover:text-[var(--color-accent-pink)] cursor-pointer"
               >
                 <Search className="w-5 h-5" />
               </button>
@@ -327,7 +236,7 @@ const Navbar = () => {
               </button>
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative hover:bg-[var(--color-bg-primary)] p-2 sm:p-2.5 rounded-full transition-colors group text-[var(--color-text-primary)]/80 hover:text-[var(--color-accent-pink)]"
+                className="relative hover:bg-[var(--color-bg-primary)] p-2 sm:p-2.5 rounded-full transition-colors group text-[var(--color-text-primary)]/80 hover:text-[var(--color-accent-pink)] cursor-pointer"
               >
                 <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 {cart.length > 0 && (
@@ -375,7 +284,7 @@ const Navbar = () => {
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 bg-white hover:bg-[var(--color-bg-secondary)] rounded-full transition-colors text-[var(--color-text-primary)] shadow-sm"
+                  className="p-2 bg-white hover:bg-[var(--color-bg-secondary)] rounded-full transition-colors text-[var(--color-text-primary)] shadow-sm cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -438,11 +347,9 @@ const Hero = () => {
       
       {/* Rich Background Textures */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* Soft atmospheric gradient splashes */}
         <div className="absolute top-[10%] left-[20%] w-[35rem] h-[35rem] bg-blue-500/[0.08] rounded-full blur-[130px]"></div>
         <div className="absolute bottom-[20%] right-[15%] w-[35rem] h-[35rem] bg-indigo-500/[0.06] rounded-full blur-[130px]"></div>
         
-        {/* Crisp Dot Matrix Pattern */}
         <div 
           className="absolute inset-0 opacity-[0.55]" 
           style={{ 
@@ -450,8 +357,6 @@ const Hero = () => {
             backgroundSize: '28px 28px' 
           }}
         ></div>
-        
-        {/* Soft vignette/fade gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white"></div>
       </div>
 
@@ -489,163 +394,267 @@ const Hero = () => {
   );
 };
 
-const ContextAwareModalAddToCart = ({
-  product,
-}: {
-  product: (typeof PRODUCTS)[0];
-}) => {
-  const { addToCart, addToast } = useAppContext();
-  return (
-    <div className="flex flex-1 gap-3 min-w-[240px]">
-      <MagneticButton
-        onClick={() => addToCart(product)}
-        className="flex-1 h-[48px] md:h-[56px] bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white rounded-xl font-bold text-lg transition-all shadow-xl shadow-[var(--color-text-primary)]/20 hover:-translate-y-1 flex items-center justify-center gap-2"
-      >
-        <ShoppingCart className="w-5 h-5" /> Add to Cart
-      </MagneticButton>
-      <button
-        onClick={() => addToast("Added to favorites!", "info")}
-        className="w-[48px] h-[48px] md:w-[56px] md:h-[56px] bg-[var(--color-bg-primary)] hover:bg-[var(--color-bg-secondary)] text-[var(--color-accent-pink)] rounded-xl flex items-center justify-center transition-colors shrink-0"
-      >
-        <Heart className="w-5 h-5 md:w-6 md:h-6" />
-      </button>
-    </div>
-  );
-};
+// --- NEW PRODUCT PAGE COMPONENT ---
+const ProductPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useAppContext();
+  const [product, setProduct] = useState<ProductItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-const ProductModal = ({
-  product,
-  onClose,
-}: {
-  product: (typeof PRODUCTS)[0];
-  onClose: () => void;
-}) => {
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("products")
+          .select("*") 
+          .eq("id", Number(id))
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setProduct({
+            id: data.id,
+            category: data.category,
+            title: data.title,
+            price: data.price,
+            originalPrice: data.original_price,
+            rating: data.rating || "5.0",
+            gradient: data.gradient || "from-pink-200 to-rose-100",
+            tag: data.tag,
+            youtube_url: data.youtube_url,
+            file_url: data.file_url,
+            emoji: getProductIcon(data.icon_name),
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching product:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="pt-32 pb-20 min-h-screen flex justify-center items-center">
+        <div className="w-8 h-8 border-4 border-[var(--color-accent-pink)] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="pt-32 pb-20 min-h-screen flex flex-col items-center justify-center">
+        <h2 className="text-2xl font-bold mb-4">Product not found</h2>
+        <button onClick={() => navigate('/store')} className="text-[var(--color-accent-pink)] hover:underline cursor-pointer">
+          Return to Store
+        </button>
+      </div>
+    );
+  }
+
+  const getEmbedDetails = (url?: string | null) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[2].length === 11) {
+      return {
+        videoId: match[2],
+        embedUrl: `https://www.youtube.com/embed/${match[2]}?rel=0`
+      };
+    }
+    return null;
+  };
+
+  const embedDetails = getEmbedDetails(product.youtube_url);
+
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-[var(--color-text-primary)]/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ scale: 0.95, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          onClick={(e) => e.stopPropagation()}
-          className="bg-white w-full max-w-4xl rounded-[2rem] overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]"
+    <div className="pt-24 pb-20 min-h-screen bg-[var(--color-bg-primary)]">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Back Navigation */}
+        <button 
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors mb-8 font-medium cursor-pointer"
         >
-          <div
-            className={`w-full md:w-1/2 bg-gradient-to-br ${product.gradient} p-8 flex flex-col items-center justify-center relative min-h-[300px] md:min-h-full overflow-hidden group`}
-          >
-            <button
-              onClick={onClose}
-              className="absolute top-4 left-4 w-8 h-8 bg-white/50 hover:bg-white rounded-full flex items-center justify-center md:hidden transition-colors z-50"
+          <ChevronRight className="w-4 h-4 rotate-180" />
+          Back to Products
+        </button>
+
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+          
+          {/* Left Column: Media & Demo */}
+          <div className="w-full lg:w-[55%] flex flex-col gap-4">
+            <div className={`w-full aspect-[16/9] rounded-2xl overflow-hidden relative shadow-lg border border-[var(--color-bg-secondary)]/50 ${embedDetails ? 'bg-black' : `bg-gradient-to-br ${product.gradient}`}`}>
+              {embedDetails ? (
+                isPlaying ? (
+                  <iframe
+                    src={`${embedDetails.embedUrl}&autoplay=1`}
+                    title={product.title}
+                    className="w-full h-full absolute inset-0 border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div 
+                    className="relative w-full h-full cursor-pointer group" 
+                    onClick={() => setIsPlaying(true)}
+                  >
+                    <img 
+                      src={`https://img.youtube.com/vi/${embedDetails.videoId}/maxresdefault.jpg`} 
+                      alt="Video Thumbnail" 
+                      className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300">
+                      <div className="w-16 h-16 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <Play className="w-6 h-6 text-white fill-white ml-1" />
+                      </div>
+                    </div>
+                  </div>
+                )
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-[6rem] drop-shadow-2xl">
+                  {product.emoji}
+                </div>
+              )}
+            </div>
+            
+            <button 
+              onClick={() => {
+                if (product.file_url) {
+                  window.open(product.file_url, "_blank");
+                } else {
+                  alert("Live demo link is not available for this template yet.");
+                }
+              }}
+              className="w-full py-3.5 rounded-xl border border-[var(--color-bg-secondary)] bg-white/50 hover:bg-white text-[var(--color-text-primary)] font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
             >
-              <X className="w-4 h-4 text-[var(--color-text-primary)]" />
+              <Play className="w-4 h-4" /> Live Demo
             </button>
-            <div className="w-48 sm:w-56 h-[80%] max-h-[400px] bg-white/20 backdrop-blur-md rounded-[2rem] border-4 border-white/40 shadow-2xl relative overflow-hidden flex flex-col items-center p-4">
-              <div className="w-12 h-3 bg-white/50 rounded-full mb-6 mt-2"></div>
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 4,
-                  ease: "easeInOut",
-                }}
-                className="text-[4rem] sm:text-[5rem] drop-shadow-2xl relative z-10 mb-4 flex justify-center items-center"
-              >
-                {product.emoji}
-              </motion.div>
-              <div className="w-full space-y-2 mt-auto">
-                <div className="w-[80%] h-2 bg-white/40 rounded-full mx-auto"></div>
-                <div className="w-[60%] h-2 bg-white/40 rounded-full mx-auto"></div>
-              </div>
-            </div>
           </div>
-          <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col overflow-y-auto">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-[10px] font-black tracking-widest uppercase text-[var(--color-accent-purple)]/80 mb-2">
-                  {product.category}
-                </p>
-                <h2 className="text-2xl md:text-3xl font-serif font-bold text-[var(--color-text-primary)]">
-                  {product.title}
-                </h2>
-              </div>
-              <button
-                onClick={onClose}
-                className="hidden md:flex w-8 h-8 bg-[var(--color-bg-primary)] hover:bg-[var(--color-bg-secondary)] rounded-full items-center justify-center transition-colors"
-              >
-                <X className="w-4 h-4 text-[var(--color-text-primary)]" />
-              </button>
-            </div>
-            <div className="flex items-center gap-2 mb-6">
-              <div className="flex text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-current" />
-                ))}
-              </div>
-              <span className="text-sm font-bold text-[var(--color-text-primary)]">
-                {product.rating} (120+ Reviews)
+
+          {/* Right Column: Details & Options */}
+          <div className="w-full lg:w-[45%] flex flex-col">
+            {product.tag && (
+              <span className="bg-cyan-500 text-white text-[10px] font-bold px-3 py-1 rounded-full w-fit uppercase tracking-wider mb-4">
+                {product.tag}
               </span>
-            </div>
-            <div className="flex items-end gap-3 mb-8">
-              <span className="text-3xl font-bold text-[var(--color-text-primary)] leading-none">
-                {product.price}
-              </span>
-              <span className="text-lg font-bold text-[var(--color-text-primary)]/40 line-through mb-1">
-                {product.originalPrice}
-              </span>
-              <span className="bg-[var(--color-accent-pink)]/20 text-[var(--color-accent-pink)] text-xs font-bold px-2 py-1 rounded-md mb-1 ml-2">
-                Save 35%
-              </span>
-            </div>
-            <div className="space-y-4 mb-8 flex-1">
-              <h4 className="font-bold text-[var(--color-text-primary)]">
-                What's Included:
-              </h4>
+            )}
+            
+            <h1 className="text-3xl sm:text-4xl font-bold font-serif text-[var(--color-text-primary)] mb-4">
+              {product.title}
+            </h1>
+            
+            <p className="text-[var(--color-text-primary)]/70 text-sm sm:text-base leading-relaxed mb-8">
+              A beautifully crafted {product.category.toLowerCase()} website template featuring smooth animations, interactive elements, and a responsive design to make your special person smile.
+            </p>
+
+            <div className="mb-10">
+              <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-4">What's Included</h3>
               <ul className="space-y-3">
                 {[
-                  "Fully responsive source code",
-                  "Customizable colors & text",
-                  "Easy setup guide (PDF)",
-                  "Free hosting instructions",
+                  "Beautiful, responsive design",
+                  "Smooth animations & transitions",
+                  "Easily customizable text & images",
+                  "Background music support",
+                  "Mobile & Desktop optimized",
+                  "Clean, well-structured code"
                 ].map((feature, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-3 text-sm text-[var(--color-text-primary)]/70 font-medium"
-                  >
-                    <div className="w-5 h-5 rounded-full bg-[var(--color-bg-primary)] flex items-center justify-center shrink-0">
-                      <Check className="w-3 h-3 text-[var(--color-accent-pink)]" />
-                    </div>
+                  <li key={i} className="flex items-center gap-3 text-sm text-[var(--color-text-primary)]/80 font-medium">
+                    <Check className="w-4 h-4 text-blue-500 shrink-0" />
                     {feature}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="flex flex-wrap w-full gap-3 mt-auto pt-4 border-t border-[var(--color-bg-secondary)]/50">
-              <ContextAwareModalAddToCart product={product} />
+
+            <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-6">Choose Your Option</h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Option 1: Ready Website */}
+              <div className="border border-[var(--color-bg-secondary)] bg-white rounded-2xl p-5 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div className="flex items-center gap-2 text-[var(--color-text-primary)] font-bold mb-2">
+                  <Book className="w-4 h-4 text-cyan-500" /> Ready Website
+                </div>
+                <div className="text-3xl font-black text-[var(--color-text-primary)] mb-4">₹399</div>
+                
+                <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2.5 mb-4">
+                  <p className="text-[10px] sm:text-xs text-blue-700 font-medium leading-tight">
+                    <span className="font-bold mr-1">ⓘ</span>
+                    Fully done for you. Get your live website link & QR within 24 hours.
+                  </p>
+                </div>
+
+                <ul className="space-y-2 mb-6 flex-1">
+                  {["Fully deployed website", "Personalized text & content", "No setup required", "Shareable live link"].map((feat, i) => (
+                    <li key={i} className="flex items-center gap-2 text-[11px] sm:text-xs text-[var(--color-text-primary)]/70">
+                      <Check className="w-3 h-3 text-blue-500 shrink-0" /> {feat}
+                    </li>
+                  ))}
+                </ul>
+
+                <button 
+                  onClick={() => window.open(`https://wa.me/917906568743?text=Hi,%20I%20want%20to%20order%20the%20Ready%20Website%20for%20${product.title}`, "_blank")}
+                  className="w-full py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-sm rounded-xl transition-colors mt-auto cursor-pointer"
+                >
+                  Order Your Website
+                </button>
+              </div>
+
+              {/* Option 2: Premium Code */}
+              <div className="border border-[var(--color-bg-secondary)] bg-white rounded-2xl p-5 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                <div className="flex items-center gap-2 text-[var(--color-text-primary)] font-bold mb-2">
+                  <Code className="w-4 h-4 text-[var(--color-accent-purple)]" /> Premium Code
+                </div>
+                <div className="text-3xl font-black text-[var(--color-text-primary)] mb-4">{product.price.replace('Rs.', '₹')}</div>
+                
+                <div className="bg-amber-50/50 border border-amber-100 rounded-lg p-2.5 mb-4">
+                  <p className="text-[10px] sm:text-xs text-amber-700 font-medium leading-tight">
+                    <span className="font-bold mr-1">ⓘ</span>
+                    Requires a laptop or desktop to edit the Premium Code.
+                  </p>
+                </div>
+
+                <ul className="space-y-2 mb-6 flex-1">
+                  {["Complete source code", "Easily editable content", "Setup instructions included", "Lifetime access"].map((feat, i) => (
+                    <li key={i} className="flex items-center gap-2 text-[11px] sm:text-xs text-[var(--color-text-primary)]/70">
+                      <Check className="w-3 h-3 text-blue-500 shrink-0" /> {feat}
+                    </li>
+                  ))}
+                </ul>
+
+                <button 
+                  onClick={() => addToCart(product)}
+                  className="w-full py-2.5 bg-[var(--color-accent-purple)] hover:bg-[#6b46c1] text-white font-bold text-sm rounded-xl transition-colors mt-auto cursor-pointer"
+                >
+                  Get Premium Code
+                </button>
+              </div>
             </div>
+
           </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </div>
+      </div>
+    </div>
   );
 };
 
 const ProductCard = ({
-  product,
-  onClick,
+  product
 }: {
-  product: (typeof PRODUCTS)[0];
-  onClick: () => void;
+  product: ProductItem;
 }) => {
+  const navigate = useNavigate();
   return (
     <motion.div
       variants={fadeUp}
-      onClick={onClick}
+      onClick={() => navigate(`/product/${product.id}`)}
       className="group cursor-pointer flex flex-col w-full bg-white rounded-2xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_30px_-4px_rgba(0,0,0,0.1)] transition-all duration-500 hover:-translate-y-1 border border-black/[0.04]"
     >
       <div
@@ -683,18 +692,53 @@ const ProductCard = ({
 };
 
 const PopularProducts = () => {
+  const [products, setProducts] = useState<ProductItem[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
-  const [selectedProduct, setSelectedProduct] = useState<
-    (typeof PRODUCTS)[0] | null
-  >(null);
-  const [showAll, setShowAll] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .order("id", { ascending: true });
+
+        if (error) throw error;
+
+        if (data) {
+          const formatted: ProductItem[] = data.map((item) => ({
+            id: item.id,
+            category: item.category,
+            title: item.title,
+            price: item.price,
+            originalPrice: item.original_price,
+            rating: item.rating || "5.0",
+            gradient: item.gradient || "from-pink-200 to-rose-100",
+            tag: item.tag,
+            youtube_url: item.youtube_url,
+            file_url: item.file_url,
+            emoji: getProductIcon(item.icon_name),
+          }));
+          setProducts(formatted);
+        }
+      } catch (err) {
+        console.error("Error fetching templates from Supabase:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCatalog();
+  }, []);
+
   const filteredProducts =
     activeCategory === "All"
-      ? PRODUCTS
-      : PRODUCTS.filter((p) => p.category === activeCategory);
-  const displayedProducts = showAll
-    ? filteredProducts
-    : filteredProducts.slice(0, 6);
+      ? products
+      : products.filter((p) => p.category.toLowerCase() === activeCategory.toLowerCase());
+
+  const categories = ["All", ...Array.from(new Set(products.map((p) => p.category)))];
 
   return (
     <div
@@ -714,57 +758,42 @@ const PopularProducts = () => {
           </h2>
         </div>
         <div className="flex overflow-x-auto hide-scrollbar w-full md:w-auto gap-2 pb-2 md:pb-0 snap-x">
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => {
-                setActiveCategory(cat);
-                setShowAll(false);
-              }}
-              className={`snap-start px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${activeCategory === cat ? "bg-[var(--color-text-primary)] text-white shadow-lg shadow-[var(--color-text-primary)]/20 scale-105" : "bg-white/80 text-[var(--color-text-primary)]/60 hover:bg-white hover:text-[var(--color-text-primary)] border border-[var(--color-bg-secondary)]/50"}`}
+              onClick={() => setActiveCategory(cat)}
+              className={`snap-start px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 cursor-pointer ${activeCategory === cat ? "bg-[var(--color-text-primary)] text-white shadow-lg shadow-[var(--color-text-primary)]/20 scale-105" : "bg-white/80 text-[var(--color-text-primary)]/60 hover:bg-white hover:text-[var(--color-text-primary)] border border-[var(--color-bg-secondary)]/50"}`}
             >
               {cat}
             </button>
           ))}
         </div>
       </div>
-      <motion.div
-        layout
-        className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8 min-h-[400px]"
-      >
-        <AnimatePresence mode="popLayout">
-          {displayedProducts.map((p) => (
-            <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.8, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: -20 }}
-              transition={{ duration: 0.3, type: "spring" }}
-              key={p.id}
-            >
-              <ProductCard product={p} onClick={() => setSelectedProduct(p)} />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
-      {filteredProducts.length > 6 && (
-        <div className="flex justify-center mt-10">
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="px-8 py-3 bg-white text-[var(--color-text-primary)] font-bold rounded-full shadow-sm hover:shadow-md transition-all border border-[var(--color-bg-secondary)]/50 flex items-center gap-2"
-          >
-            {showAll ? "Show Less" : "View More"}
-            <ArrowRight
-              className={`w-4 h-4 transition-transform ${showAll ? "-rotate-90" : "rotate-90"}`}
-            />
-          </button>
+
+      {loading ? (
+        <div className="flex justify-center items-center min-h-[300px]">
+          <div className="w-8 h-8 border-4 border-[var(--color-accent-pink)] border-t-transparent rounded-full animate-spin"></div>
         </div>
-      )}
-      {selectedProduct && (
-        <ProductModal
-          product={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-        />
+      ) : (
+        <motion.div
+          layout
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8 min-h-[300px]"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredProducts.map((p) => (
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: -20 }}
+                transition={{ duration: 0.3, type: "spring" }}
+                key={p.id}
+              >
+                <ProductCard product={p} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
     </div>
   );
@@ -904,7 +933,7 @@ const PromoBanners = () => (
             We can customize your template and host it for you. Get a
             ready-to-share link!
           </p>
-          <MagneticButton className="bg-white text-[var(--color-text-primary)] px-5 sm:px-8 py-2.5 sm:py-4 rounded-full text-[11px] sm:text-sm font-bold flex items-center gap-2 sm:gap-3 hover:bg-[var(--color-text-primary)] hover:text-white transition-all duration-300 w-fit shadow-sm border border-[var(--color-bg-secondary)]/50 mt-2 sm:mt-0">
+          <MagneticButton className="bg-white text-[var(--color-text-primary)] px-5 sm:px-8 py-2.5 sm:py-4 rounded-full text-[11px] sm:text-sm font-bold flex items-center gap-2 sm:gap-3 hover:bg-[var(--color-text-primary)] hover:text-white transition-all duration-300 w-fit shadow-sm border border-[var(--color-bg-secondary)]/50 mt-2 sm:mt-0 cursor-pointer">
             Contact Us <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
           </MagneticButton>
         </div>
@@ -949,7 +978,7 @@ const FAQSection = () => {
           >
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
-              className="w-full flex items-center justify-between p-5 sm:p-6 text-left"
+              className="w-full flex items-center justify-between p-5 sm:p-6 text-left cursor-pointer"
             >
               <span className="font-bold text-[var(--color-text-primary)] text-[15px] sm:text-lg pr-4">
                 {faq.q}
@@ -1034,13 +1063,13 @@ const Footer = () => {
             </h4>
             <button
               onClick={() => setLegalModal("terms")}
-              className="text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors text-left"
+              className="text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer"
             >
               Terms of Service
             </button>
             <button
               onClick={() => setLegalModal("privacy")}
-              className="text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors text-left"
+              className="text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer"
             >
               Privacy Policy
             </button>
@@ -1123,7 +1152,6 @@ const ServicesShowcase = () => {
     <div className="py-16 bg-white/40 border-y border-[var(--color-bg-secondary)]/50 overflow-hidden w-full">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="text-4xl sm:text-5xl font-serif text-[var(--color-text-primary)] mb-6 tracking-tight">
             Bring your favorite moments to life
@@ -1133,7 +1161,6 @@ const ServicesShowcase = () => {
           </p>
         </div>
 
-        {/* Alternating Sections */}
         <div className="space-y-32">
           {services.map((service) => {
             const isImagePath =
@@ -1149,7 +1176,6 @@ const ServicesShowcase = () => {
                   service.align === 'left' ? 'lg:flex-row-reverse' : ''
                 }`}
               >
-                {/* Image/Visual Side */}
                 <motion.div 
                   initial={{ opacity: 0, x: service.align === 'right' ? -50 : 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -1158,10 +1184,8 @@ const ServicesShowcase = () => {
                   className="w-full lg:w-1/2"
                 >
                   <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-square bg-[var(--color-bg-primary)] rounded-2xl overflow-hidden flex items-center justify-center shadow-xl border border-[var(--color-bg-secondary)]/50 group">
-                    {/* Subtle Background Elements */}
                     <div className={`absolute inset-0 ${service.color} opacity-10 blur-3xl rounded-full scale-150`}></div>
                     
-                    {/* Main Image */}
                     {isImagePath ? (
                       <motion.img 
                         whileHover={{ scale: 1.05 }}
@@ -1181,7 +1205,6 @@ const ServicesShowcase = () => {
                   </div>
                 </motion.div>
 
-                {/* Text Side */}
                 <motion.div 
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -1334,7 +1357,7 @@ const ReviewsPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[var(--color-text-primary)]/10"
+              className="w-full bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[var(--color-text-primary)]/10 cursor-pointer"
             >
               Submit Review
             </button>
@@ -1369,7 +1392,7 @@ const AboutPage = () => (
       <div className="bg-gradient-to-br from-white via-white to-[var(--color-accent-pink)]/20 rounded-[2.5rem] p-6 sm:p-12 shadow-2xl border border-white relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[var(--color-accent-pink)]/15 to-[var(--color-accent-purple)]/20 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Left Side: Bio Content & Direct Contact Options (Span 7 cols) */}
+        {/* Left Side: Bio Content & Direct Contact Options */}
         <div className="lg:col-span-7 relative z-10 flex flex-col justify-center lg:pr-8">
           <div className="inline-flex items-center gap-2 bg-[var(--color-bg-primary)] px-3.5 py-1 rounded-full text-[var(--color-accent-purple)] font-bold text-xs uppercase tracking-wider mb-4 border border-[var(--color-bg-secondary)] w-fit">
             <Code className="w-3.5 h-3.5" /> Student & Freelancer
@@ -1392,7 +1415,6 @@ const AboutPage = () => (
             </div>
           </div>
 
-          {/* Integrated Direct Contact Links */}
           <div className="flex flex-wrap gap-4">
             <a
               href="mailto:adrashyadav07o8@gmail.com"
@@ -1424,7 +1446,7 @@ const AboutPage = () => (
           </div>
         </div>
 
-        {/* Right Side: Fixed Absolute Character Display for all screen sizes */}
+        {/* Right Side: Representation */}
         <div className="lg:col-span-5 relative flex items-end justify-center min-h-[320px] sm:min-h-[380px] lg:min-h-[440px] mt-8 lg:mt-0">
           <div className="w-48 h-48 sm:w-56 sm:h-56 bg-white/60 rounded-full absolute top-1/2 -translate-y-1/2 right-4 blur-2xl pointer-events-none"></div>
           
@@ -1473,13 +1495,14 @@ export default function App() {
         <ToastContainer />
         <CartDrawer />
         <AnimatePresence>
-          {isSearchOpen && <SearchModal products={PRODUCTS} />}
+          {isSearchOpen && <SearchModal />}
         </AnimatePresence>
         <LegalModal />
         <main>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/store" element={<StorePage />} />
+            <Route path="/product/:id" element={<ProductPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/about" element={<AboutPage />} />
