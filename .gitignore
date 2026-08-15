@@ -1,0 +1,17 @@
+# Node dependencies
+node_modules/
+*/node_modules/
+
+# Environment files with private keys
+.env
+*.env
+.env.local
+
+# Build outputs
+dist/
+build/
+
+# Editor & OS files
+.DS_Store
+Thumbs.db
+.vscode/

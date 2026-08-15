@@ -1,0 +1,10 @@
+{
+  "name": "Template Gallery",
+  "description": "A light-themed template gallery matching the provided screenshots",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
