@@ -10,29 +10,28 @@ export const UnsubscribePage = () => {
 
   const handleUnsubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !email.includes("@")) return;
+    if (!email.trim()) return;
 
     setStatus("loading");
-    
+
     try {
-      // Delete the email from the subscribers table
-      const { error, count } = await supabase
-        .from("subscribers")
-        .delete({ count: "exact" })
-        .eq("email", email.trim());
+      // Securely call the backend RPC function
+      const { data: success, error } = await supabase.rpc("unsubscribe_user", {
+        target_email: email.trim()
+      });
 
       if (error) throw error;
 
-      if (count === 0) {
+      if (!success) {
         setStatus("error");
         setMessage("We couldn't find that email in our list.");
       } else {
         setStatus("success");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error unsubscribing:", err);
       setStatus("error");
-      setMessage("Something went wrong. Please try again.");
+      setMessage("Something went wrong. Please try again later.");
     }
   };
 

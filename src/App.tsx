@@ -1,3 +1,4 @@
+import { DemoUnavailablePage } from './DemoUnavailablePage';
 import { LegalModal } from "./LegalModal";
 import React, { useState, useEffect, useRef } from "react";
 import { UnsubscribePage } from "./UnsubscribePage";
@@ -816,7 +817,7 @@ const ProductCard = ({
 const ProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useAppContext();
+  const { addToCart, addToast } = useAppContext();
   const [product, setProduct] = useState<ProductItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -948,7 +949,8 @@ const ProductPage = () => {
                 if (product.file_url) {
                   window.open(product.file_url, "_blank");
                 } else {
-                  alert("Live demo link is not available for this template yet.");
+                  // Replaced the toast with our new redirect, passing the template name!
+                  navigate("/demo-unavailable", { state: { productName: product.title } });
                 }
               }}
               className="w-full py-3.5 rounded-xl border border-[var(--color-bg-secondary)] bg-white/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 text-[var(--color-text-primary)] font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
@@ -2061,7 +2063,30 @@ const ScrollHandler = () => {
   }, [pathname, hash]);
   return null;
 };
-
+const NotFoundPage = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="pt-32 pb-20 min-h-[70vh] flex flex-col items-center justify-center px-4 bg-[var(--color-bg-primary)]">
+      <div className="text-center">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[var(--color-bg-secondary)] dark:bg-slate-800 text-[var(--color-text-primary)]/50 mb-6">
+          <Search className="w-10 h-10" />
+        </div>
+        <h1 className="text-5xl sm:text-7xl font-serif font-bold text-[var(--color-text-primary)] mb-4">
+          404
+        </h1>
+        <p className="text-lg text-[var(--color-text-primary)]/70 mb-8 max-w-md mx-auto">
+          Oops! It looks like you've wandered off the map. The page you're looking for doesn't exist.
+        </p>
+        <button
+          onClick={() => navigate('/')}
+          className="bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-mint)] text-white dark:bg-slate-100 dark:text-slate-900 px-8 py-3.5 rounded-xl font-bold transition-colors shadow-md cursor-pointer"
+        >
+          Return Home
+        </button>
+      </div>
+    </div>
+  );
+};
 export default function App() {
   const { isSearchOpen } = useAppContext();
   return (
@@ -2081,6 +2106,7 @@ export default function App() {
           <LegalModal />
           <main>
             <Routes>
+              <Route path="/demo-unavailable" element={<DemoUnavailablePage />} />
               <Route path="/" element={<LandingPage />} />
               <Route path="/store" element={<StorePage />} />
               <Route path="/product/:id" element={<ProductPage />} />
@@ -2088,6 +2114,7 @@ export default function App() {
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/unsubscribe" element={<UnsubscribePage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
           <FloatingChat />
