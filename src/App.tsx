@@ -51,7 +51,10 @@ import {
   Sun,
   Moon,
   Clock,
-  MapPin
+  MapPin,
+  Zap,
+  Shield,
+  Layers
 } from "lucide-react";
 import { supabase } from "./supabaseClient";
 import { getProductIcon } from "./iconHelper";
@@ -178,24 +181,17 @@ const Navbar = () => {
       >
         <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8">
           <div
-            className={`flex justify-between items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-full px-4 sm:px-8 transition-all duration-300 ${isScrolled ? "h-14 sm:h-16 shadow-lg shadow-[var(--color-accent-pink)]/10 border border-white dark:border-slate-800" : "h-14 sm:h-16 shadow-sm border border-[var(--color-bg-secondary)]/50 dark:border-slate-800"}`}
+            className={`flex justify-between items-center bg-[var(--color-bg-primary)]/90 backdrop-blur-xl rounded-full px-4 sm:px-8 transition-all duration-300 ${isScrolled ? "h-14 sm:h-16 shadow-sm border border-[var(--color-text-primary)]/5" : "h-14 sm:h-16"}`}
           >
             <Link
               to="/"
               className="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0 group"
             >
-              <div className="relative w-9 h-9 sm:w-11 sm:h-11 bg-white dark:bg-slate-800 text-[var(--color-text-primary)] rounded-lg sm:rounded-xl flex items-center justify-center font-serif text-xl sm:text-2xl font-black transform transition-all duration-500 group-hover:rotate-[8deg] group-hover:scale-105 shadow-md overflow-hidden border border-[var(--color-text-primary)]/10">
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/80 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out backdrop-blur-[1px] z-10"></div>
-                <span className="relative z-0 drop-shadow-sm">CB</span>
+              <div className="relative w-9 h-9 bg-white text-[var(--color-text-primary)] rounded-lg flex items-center justify-center font-serif text-xl font-black shadow-sm border border-black/5">
+                CB
               </div>
-              <span className="text-xl sm:text-2xl tracking-tight flex items-baseline relative drop-shadow-sm">
-                <span className="bg-gradient-to-b from-[#2a1b16] to-[#6d4c41] dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent font-serif font-black">
-                  Canvas
-                </span>
-                <span className="text-[var(--color-accent-pink)] italic tracking-tighter ml-1 relative font-serif font-black">
-                  Builds
-                  <span className="absolute -bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-[var(--color-accent-pink)] to-[var(--color-accent-purple)] rounded-full opacity-90 shadow-[0_2px_4px_rgba(236,72,153,0.3)]"></span>
-                </span>
+              <span className="text-xl tracking-tight flex items-baseline font-bold text-[var(--color-text-primary)]">
+                Canvas<span className="text-[var(--color-accent-mint)]">Builds</span>
               </span>
             </Link>
 
@@ -210,12 +206,12 @@ const Navbar = () => {
                 <Link
                   key={i}
                   to={item.path}
-                  className={`text-sm font-medium transition-colors relative group py-2 ${pathname === item.path ? "text-[var(--color-accent-pink)] font-bold" : "text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)]"}`}
+                  className={`text-sm font-semibold transition-colors relative py-2 ${pathname === item.path ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-primary)]/60 hover:text-[var(--color-text-primary)]"}`}
                 >
                   {item.name}
-                  <span
-                    className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-[var(--color-accent-pink)] transition-all duration-300 group-hover:w-full rounded-full ${pathname === item.path ? "w-full" : ""}`}
-                  ></span>
+                  {pathname === item.path && (
+                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--color-accent-mint)] rounded-full"></span>
+                  )}
                 </Link>
               ))}
             </div>
@@ -224,7 +220,7 @@ const Navbar = () => {
               {/* Theme Toggle Button */}
               <button
                 onClick={toggleDarkMode}
-                className="hover:bg-[var(--color-bg-primary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 hover:text-[var(--color-accent-pink)] cursor-pointer"
+                className="hover:bg-[var(--color-bg-secondary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 cursor-pointer"
                 title="Toggle Theme"
               >
                 {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
@@ -232,26 +228,26 @@ const Navbar = () => {
 
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="hover:bg-[var(--color-bg-primary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 hover:text-[var(--color-accent-pink)] cursor-pointer"
+                className="hover:bg-[var(--color-bg-secondary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 cursor-pointer"
               >
                 <Search className="w-5 h-5" />
               </button>
-              <button className="hidden sm:flex hover:bg-[var(--color-bg-primary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 hover:text-[var(--color-accent-pink)]">
+              <button className="hidden sm:flex hover:bg-[var(--color-bg-secondary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80">
                 <User className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative hover:bg-[var(--color-bg-primary)] p-2 sm:p-2.5 rounded-full transition-colors group text-[var(--color-text-primary)]/80 hover:text-[var(--color-accent-pink)] cursor-pointer"
+                className="relative hover:bg-[var(--color-bg-secondary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 cursor-pointer"
               >
-                <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <ShoppingCart className="w-5 h-5" />
                 {cart.length > 0 && (
-                  <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 bg-[var(--color-accent-purple)] text-white text-[9px] sm:text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm border border-white">
+                  <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 bg-[var(--color-accent-mint)] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
                     {cart.length}
                   </span>
                 )}
               </button>
               <button
-                className="lg:hidden p-2 text-[var(--color-text-primary)]/80 hover:bg-[var(--color-bg-primary)] hover:text-[var(--color-accent-pink)] rounded-full transition-colors"
+                className="lg:hidden p-2 text-[var(--color-text-primary)]/80 hover:bg-[var(--color-bg-secondary)] rounded-full"
                 onClick={() => setIsMobileMenuOpen(true)}
               >
                 <Menu className="w-6 h-6" />
@@ -278,9 +274,9 @@ const Navbar = () => {
               className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-[var(--color-bg-primary)] shadow-2xl flex flex-col rounded-l-[2rem] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-4 sm:p-5 flex justify-between items-center border-b border-[var(--color-bg-secondary)]/50 bg-white/50 backdrop-blur-md">
+              <div className="p-4 sm:p-5 flex justify-between items-center border-b border-[var(--color-bg-secondary)]/50 bg-[var(--color-bg-primary)]/50 backdrop-blur-md">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-[var(--color-accent-pink)] text-white rounded-lg flex items-center justify-center font-serif text-xl font-bold">
+                  <div className="w-8 h-8 bg-[var(--color-accent-mint)] text-white rounded-lg flex items-center justify-center font-serif text-xl font-bold">
                     A
                   </div>
                   <span className="font-bold text-xl tracking-tight text-[var(--color-text-primary)] font-serif">
@@ -289,7 +285,7 @@ const Navbar = () => {
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 bg-white hover:bg-[var(--color-bg-secondary)] rounded-full transition-colors text-[var(--color-text-primary)] shadow-sm cursor-pointer"
+                  className="p-2 bg-[var(--color-bg-primary)] hover:bg-[var(--color-bg-secondary)] rounded-full transition-colors text-[var(--color-text-primary)] shadow-sm cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -300,7 +296,7 @@ const Navbar = () => {
                     setIsSearchOpen(true);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="flex items-center gap-3 bg-white/60 backdrop-blur-sm p-3.5 rounded-2xl mb-2 border border-white cursor-pointer hover:bg-white transition-colors"
+                  className="flex items-center gap-3 bg-[var(--color-bg-primary)]/60 backdrop-blur-sm p-3.5 rounded-2xl mb-2 border border-[var(--color-bg-secondary)] cursor-pointer hover:bg-[var(--color-bg-primary)] transition-colors"
                 >
                   <Search className="w-5 h-5 text-[var(--color-text-primary)]/50" />
                   <input
@@ -326,7 +322,7 @@ const Navbar = () => {
                     <Link
                       to={item.path}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center justify-between text-[15px] font-bold p-4 rounded-2xl transition-colors ${pathname === item.path ? "bg-white text-[var(--color-accent-pink)] shadow-sm" : "text-[var(--color-text-primary)]/80 hover:bg-white/50"}`}
+                      className={`flex items-center justify-between text-[15px] font-bold p-4 rounded-2xl transition-colors ${pathname === item.path ? "bg-[var(--color-bg-secondary)] text-[var(--color-accent-mint)] shadow-sm" : "text-[var(--color-text-primary)]/80 hover:bg-[var(--color-bg-secondary)]/50"}`}
                     >
                       {item.name}
                       <ChevronRight className="w-4 h-4 opacity-50" />
@@ -342,43 +338,312 @@ const Navbar = () => {
   );
 };
 
-const Hero = () => {
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 500], [0, 150]);
-  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+// --- CLEAN FIGMA-STYLE CURSORS ---
+const Cursor = ({ color, name, x, y, delay, img, durationX = 12, durationY = 15, moveX = 40, moveY = -40 }: any) => (
+  <motion.div
+    initial={{ opacity: 0, x: 0, y: 20 }}
+    animate={{ opacity: 1, x: [0, moveX, -moveX / 2, 0], y: [0, moveY, -moveY / 2, 0] }}
+    transition={{
+      opacity: { duration: 0.8, delay },
+      x: { duration: durationX, repeat: Infinity, ease: "easeInOut", delay },
+      y: { duration: durationY, repeat: Infinity, ease: "easeInOut", delay }
+    }}
+    className="absolute pointer-events-none hidden md:flex flex-col items-start drop-shadow-md"
+    style={{ left: x, top: y }}
+  >
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="drop-shadow-sm z-30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5.5 3.5L18.5 10.5L11.5 12.5L8.5 19.5L5.5 3.5Z" fill={color} stroke="white" strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+    <div className="flex items-center gap-2 bg-white px-2.5 py-1 rounded-full shadow-sm border border-slate-100 ml-3 -mt-1">
+      {img && <img src={img} alt={name} className="w-4 h-4 rounded-full object-cover" />}
+      <span className="text-[10px] font-bold text-slate-800">{name}</span>
+    </div>
+  </motion.div>
+);
 
+const Hero = () => {
   return (
-    <div className="relative overflow-hidden min-h-[90vh] sm:min-h-[85vh] flex items-center justify-center w-full pt-10 sm:pt-0">
+    <div className="relative overflow-hidden min-h-[90vh] flex flex-col items-center justify-center w-full pt-20 bg-[var(--color-bg-primary)]">
+      
+      {/* 1. Blueprint Grid Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-blueprint-grid opacity-100 pointer-events-none" 
+        style={{ 
+          maskImage: 'radial-gradient(ellipse 60% 50% at 50% 45%, black 20%, transparent 100%)', 
+          WebkitMaskImage: 'radial-gradient(ellipse 60% 50% at 50% 45%, black 20%, transparent 100%)' 
+        }}
+      ></div>
+
+      {/* 2. Cursors - ALL IN BACKGROUND (Under Text) */}
+      <div className="absolute inset-0 max-w-[1200px] mx-auto z-10 pointer-events-none">
+        <Cursor color="#10b981" name="Adarsh" x="20%" y="25%" delay={0.2} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Adarsh" moveX={30} moveY={40} durationX={14} />
+        <Cursor color="#ec4899" name="Akshara" x="75%" y="20%" delay={1.2} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Akshara" moveX={-30} moveY={30} durationX={12} />
+        <Cursor color="#8b5cf6" name="Guest_42" x="10%" y="60%" delay={2.0} moveX={40} moveY={-20} durationX={15} />
+        <Cursor color="#f59e0b" name="Guest_849" x="80%" y="65%" delay={0.8} moveX={-40} moveY={-30} durationY={16} />
+        <Cursor color="#06b6d4" name="Guest_07" x="35%" y="75%" delay={1.5} moveX={20} moveY={-40} durationX={11} />
+        <Cursor color="#3b82f6" name="Guest_12" x="60%" y="15%" delay={0.5} moveX={-20} moveY={20} durationX={13} />
+      </div>
+
+      {/* 3. Main Content (Foreground) */}
       <motion.div
-        style={{ y, opacity }}
-        className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full pt-28 sm:pt-20"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-4xl mx-auto px-4 relative z-20 w-full text-center flex flex-col items-center pointer-events-none"
       >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-center text-center gap-6 sm:gap-8"
-        >
-          <h1 className="text-4xl leading-[1.2] sm:text-6xl lg:text-[5.5rem] sm:leading-[1.1] font-serif text-[var(--color-text-primary)] tracking-tight">
-            Share Your Love <br />
-            <span className="italic text-[var(--color-accent-pink)]">
-              Through Code
-            </span>
-          </h1>
-          <p className="text-[var(--color-text-primary)]/70 text-base sm:text-lg leading-relaxed max-w-2xl font-light px-2 sm:px-0">
-            Crafting elegant, digital experiences to celebrate your most
-            cherished moments. No coding required. Just pure, aesthetic
-            expressions of love.
-          </p>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-[var(--color-bg-secondary)] shadow-sm mb-8">
+          <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
+          <span className="text-[10px] font-bold text-[var(--color-text-primary)] uppercase tracking-widest">
+            Create a website in minutes
+          </span>
+        </div>
+
+        <h1 className="text-6xl sm:text-8xl font-extrabold text-[var(--color-text-primary)] tracking-tight leading-[1.1] mb-6 drop-shadow-sm">
+          Canvas<span className="relative inline-block ml-3">
+            <span className="relative z-10 text-[var(--color-accent-mint)]">Builds</span>
+            <svg className="absolute w-full h-3 -bottom-1 left-0 text-[var(--color-accent-mint)]/30" viewBox="0 0 100 10" preserveAspectRatio="none">
+              <path d="M0 5 Q 50 15 100 5" stroke="currentColor" strokeWidth="6" fill="transparent" strokeLinecap="round" />
+            </svg>
+          </span>
+        </h1>
+        
+        <p className="text-[var(--color-text-primary)]/60 dark:text-slate-400 text-lg sm:text-xl leading-relaxed max-w-xl font-medium mb-10">
+          Crafting aesthetic, code-driven digital gifts for the people you cherish most.
+        </p>
+
+        <div className="flex items-center gap-4 pointer-events-auto">
           <Link
             to="/store"
-            className="mt-4 bg-[var(--color-text-primary)] text-white dark:bg-slate-100 dark:text-slate-900 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium transition-all duration-300 flex items-center justify-center w-full sm:w-auto gap-3 hover:bg-[var(--color-accent-pink)] hover:shadow-lg hover:-translate-y-0.5"
+            className="bg-[var(--color-text-primary)] text-[var(--color-bg-primary)] px-10 py-4 rounded-xl font-bold transition-all shadow-lg hover:-translate-y-0.5 hover:shadow-xl flex items-center gap-2"
           >
-            Explore Collection
-            <ArrowRight className="w-4 h-4" />
+            Explore Templates <ArrowRight className="w-4 h-4" />
           </Link>
-        </motion.div>
+        </div>
       </motion.div>
+
+      {/* 4. SVG Logo Strip */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="w-full max-w-5xl mx-auto px-6 mt-24 relative z-20 flex flex-col sm:flex-row items-center justify-between gap-8 pt-8 border-t border-[var(--color-text-primary)]/5 pointer-events-none"
+      >
+        <p className="text-sm font-bold text-[var(--color-text-primary)]/40 uppercase tracking-widest text-center sm:text-left">
+          More than 10,000+ <br/> happy users
+        </p>
+        <div className="flex items-center justify-center gap-8 sm:gap-12 flex-wrap opacity-40 grayscale">
+          {/* React Logo */}
+          <div className="flex items-center gap-2 font-bold text-xl text-[var(--color-text-primary)]">
+            <svg width="28" height="28" viewBox="-11.5 -10.23174 23 20.46348" xmlns="http://www.w3.org/2000/svg"><circle cx="0" cy="0" r="2.05" fill="currentColor"/><g stroke="currentColor" strokeWidth="1" fill="none"><ellipse rx="11" ry="4.2"/><ellipse rx="11" ry="4.2" transform="rotate(60)"/><ellipse rx="11" ry="4.2" transform="rotate(120)"/></g></svg>
+            React
+          </div>
+          {/* Vercel Logo */}
+          <div className="flex items-center gap-2 font-bold text-xl text-[var(--color-text-primary)] tracking-tighter">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M12 4L24 20H0L12 4Z"/></svg>
+            Vercel
+          </div>
+          {/* GitHub Logo */}
+          <div className="flex items-center gap-2 font-bold text-xl text-[var(--color-text-primary)]">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12C2 16.418 4.865 20.166 8.839 21.493C9.339 21.585 9.522 21.276 9.522 21.011C9.522 20.774 9.513 19.986 9.508 19.124C6.726 19.728 6.139 17.96 6.139 17.96C5.684 16.806 5.029 16.498 5.029 16.498C4.123 15.879 5.101 15.892 5.101 15.892C6.102 15.962 6.629 16.915 6.629 16.915C7.518 18.435 8.956 17.995 9.541 17.742C9.631 17.078 9.898 16.638 10.193 16.388C7.973 16.136 5.636 15.277 5.636 11.472C5.636 10.388 6.023 9.499 6.653 8.796C6.551 8.544 6.214 7.534 6.749 6.166C6.749 6.166 7.578 5.901 9.492 7.198C10.28 6.979 11.139 6.87 11.992 6.866C12.845 6.87 13.704 6.979 14.493 7.198C16.406 5.901 17.234 6.166 17.234 6.166C17.77 7.534 17.433 8.544 17.332 8.796C17.963 9.499 18.348 10.388 18.348 11.472C18.348 15.289 16.009 16.133 13.784 16.38C14.154 16.699 14.484 17.329 14.484 18.283C14.484 19.648 14.472 20.745 14.472 21.011C14.472 21.279 14.652 21.59 15.161 21.492C19.132 20.163 22 16.417 22 12C22 6.477 17.523 2 12 2Z"/></svg>
+            GitHub
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// --- CLEANED CHARACTER SHOWCASE SECTION ---
+const services = [
+  {
+    id: "anniversary",
+    title: "Celebrate Milestones",
+    description: "Create unforgettable digital memories for your anniversaries. From timeline journeys to interactive memory books, make every year count.",
+    icon: <Heart className="w-6 h-6 text-[var(--color-accent-pink)]" />,
+    image: "/assets/anniversary.png", 
+    align: "right",
+  },
+  {
+    id: "friendship",
+    title: "Best Friends Forever",
+    description: "Because standard cards are boring. Build a custom 'Squad Goals' gallery or a hilarious inside-joke compilation for your best friend.",
+    icon: <Users className="w-6 h-6 text-[var(--color-accent-purple)]" />,
+    image: "/assets/friend.png", 
+    align: "left",
+  },
+  {
+    id: "special",
+    title: "Apologies & Surprises",
+    description: "Messed up? Say sorry with a cute, interactive page. Or just send a '100 Reasons Why I Love You' site to brighten their day randomly.",
+    icon: <Sparkles className="w-6 h-6 text-[var(--color-accent-mint)]" />,
+    image: "/assets/apology.png", 
+    align: "right",
+  },
+];
+
+const ServicesShowcase = () => {
+  return (
+    <div className="py-24 bg-[var(--color-bg-primary)] border-t border-[var(--color-text-primary)]/5 overflow-hidden w-full relative z-10">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+        
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <h2 className="text-4xl sm:text-5xl font-extrabold text-[var(--color-text-primary)] mb-6 tracking-tight">
+            Bring your favorite moments to life
+          </h2>
+          <p className="text-[var(--color-text-primary)]/60 text-lg font-medium">
+            With Canvas Builds, you unlock beautiful, code-driven templates that spark joy and help you express exactly how you feel.
+          </p>
+        </div>
+
+        <div className="space-y-24 sm:space-y-32">
+          {services.map((service) => {
+            const isImagePath = typeof service.image === "string" && (service.image.startsWith("/") || service.image.startsWith("http") || service.image.includes("."));
+            
+            return (
+              <div 
+                key={service.id}
+                className={`flex flex-col lg:flex-row items-center gap-12 lg:gap-20 ${
+                  service.align === 'left' ? 'lg:flex-row-reverse' : ''
+                }`}
+              >
+                <motion.div 
+                  initial={{ opacity: 0, x: service.align === 'right' ? -30 : 30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="w-full lg:w-1/2"
+                >
+                  <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-square bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden flex items-center justify-center shadow-sm border border-[var(--color-bg-secondary)] group">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[var(--color-bg-secondary)]/50 to-transparent pointer-events-none"></div>
+                    
+                    {isImagePath ? (
+                      <motion.img 
+                        src={service.image} 
+                        alt={service.title} 
+                        className="relative z-10 w-full h-full object-cover object-[75%] transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <motion.div 
+                        className="text-[8rem] sm:text-[12rem] relative z-10 drop-shadow-xl transition-transform duration-700 leading-none select-none flex justify-center items-center group-hover:scale-105"
+                      >
+                        {service.image}
+                      </motion.div>
+                    )}
+                  </div>
+                </motion.div>
+
+                <motion.div 
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center mb-8 shadow-sm border border-[var(--color-bg-secondary)]">
+                    {service.icon}
+                  </div>
+                  <h3 className="text-3xl sm:text-4xl font-extrabold text-[var(--color-text-primary)] mb-4">
+                    {service.title}
+                  </h3>
+                  <p className="text-[var(--color-text-primary)]/60 text-lg leading-relaxed mb-8 max-w-md">
+                    {service.description}
+                  </p>
+                  <Link 
+                    to="/store"
+                    className="text-[var(--color-text-primary)] font-bold flex items-center gap-2 group hover:text-[var(--color-accent-mint)] transition-colors"
+                  >
+                    Explore Templates
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </motion.div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- NEW INTEGRATIONS SECTION ---
+const IntegrationsSection = () => {
+  const row1 = ["💖", "🚀", "💻", "✨", "💌", "💝", "🎉"];
+  const row2 = ["🔥", "📸", "🎵", "⭐", "🎁", "🎨", "📱"];
+  
+  return (
+    <div className="bg-[var(--color-bg-primary)] pb-24 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1200px] mx-auto bg-[#273e3d] dark:bg-slate-900 rounded-[3rem] p-10 sm:p-20 text-center relative overflow-hidden">
+        
+        {/* Dark Blueprint Grid inside the box */}
+        <div 
+          className="absolute inset-0 z-0 opacity-100 pointer-events-none"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+            `,
+            backgroundSize: '80px 80px',
+            backgroundPosition: 'center top',
+            maskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 100%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 100%)'
+          }}
+        ></div>
+
+        <div className="relative z-10 max-w-2xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm bg-white/10 text-[10px] font-bold text-white uppercase tracking-widest mb-6 border border-white/10">
+            <Shield className="w-3 h-3" /> Integrations
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+            Don't replace. Integrate.
+          </h2>
+          <p className="text-white/70 font-medium mb-12">
+            We understand the hassle of replacing the long used tools in your process. That's why we integrate tools you use in your day-to-day work.
+          </p>
+          <a href="/faq" className="text-white font-bold underline underline-offset-4 hover:text-[#E2FB6C] transition-colors">
+            All Integrations →
+          </a>
+        </div>
+
+        {/* Animated Marquee Rows */}
+        <div 
+          className="relative z-10 w-full overflow-hidden flex flex-col gap-6"
+          style={{ 
+            maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)', 
+            WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)' 
+          }}
+        >
+          {/* Top Row - Scrolling Left */}
+          <div className="flex whitespace-nowrap">
+            <motion.div
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 35 }}
+              className="flex gap-6 px-3"
+            >
+              {[...row1, ...row1, ...row1, ...row1].map((emoji, i) => (
+                <div key={`r1-${i}`} className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 bg-white rounded-3xl flex items-center justify-center text-3xl sm:text-4xl shadow-xl transition-transform hover:scale-105 cursor-pointer">
+                  {emoji}
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Bottom Row - Scrolling Right */}
+          <div className="flex whitespace-nowrap">
+            <motion.div
+              animate={{ x: ["-50%", "0%"] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 45 }}
+              className="flex gap-6 px-3"
+            >
+              {[...row2, ...row2, ...row2, ...row2].map((emoji, i) => (
+                <div key={`r2-${i}`} className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 bg-white rounded-3xl flex items-center justify-center text-3xl sm:text-4xl shadow-xl transition-transform hover:scale-105 cursor-pointer">
+                  {emoji}
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };
@@ -903,10 +1168,10 @@ const PromoBanners = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ type: "spring", stiffness: 50 }}
-        className="bg-gradient-to-br from-[var(--color-bg-secondary)] to-[var(--color-bg-primary)] dark:from-slate-900 dark:to-slate-950 rounded-[2rem] sm:rounded-2xl p-6 sm:p-12 flex flex-col justify-center relative overflow-hidden group min-h-[260px] sm:min-h-[380px] shadow-lg shadow-[var(--color-bg-secondary)]/30 border border-white dark:border-slate-800"
+        className="bg-gradient-to-br from-[var(--color-bg-secondary)] to-[var(--color-bg-primary)] dark:from-slate-900 dark:to-slate-950 rounded-[2rem] sm:rounded-2xl p-6 sm:p-12 flex flex-col justify-center relative overflow-hidden group min-h-[260px] sm:min-h-[380px] shadow-lg shadow-[var(--color-bg-secondary)]/30 border border-[var(--color-bg-secondary)]/50 dark:border-slate-800"
       >
         <div className="relative z-10 w-2/3 sm:w-2/3">
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 dark:bg-slate-800 backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-white dark:border-slate-700 mb-3 sm:mb-5">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 dark:bg-slate-800 backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-[var(--color-bg-secondary)]/50 dark:border-slate-700 mb-3 sm:mb-5">
             <span className="text-[8px] sm:text-[10px] font-black tracking-widest text-[var(--color-accent-purple)] dark:text-purple-300 uppercase">
               Request
             </span>
@@ -927,7 +1192,7 @@ const PromoBanners = () => (
           </MagneticButton>
         </div>
         <div className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center pointer-events-none">
-          <div className="w-32 h-32 sm:w-64 sm:h-64 bg-white/50 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 -right-5 sm:-right-10 blur-xl sm:blur-2xl"></div>
+          <div className="w-32 h-32 sm:w-64 sm:h-64 bg-[var(--color-bg-primary)]/50 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 -right-5 sm:-right-10 blur-xl sm:blur-2xl"></div>
           <img 
             src="/assets/custom.png" 
             alt="Custom Template Request" 
@@ -942,7 +1207,7 @@ const PromoBanners = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ type: "spring", stiffness: 50, delay: 0.1 }}
-        className="bg-gradient-to-br from-[var(--color-bg-secondary)] to-[var(--color-bg-primary)] dark:from-slate-900 dark:to-slate-950 rounded-[2rem] sm:rounded-2xl p-6 sm:p-12 flex flex-col justify-center relative overflow-hidden group min-h-[260px] sm:min-h-[380px] shadow-lg shadow-[var(--color-bg-secondary)]/30 border border-white dark:border-slate-800"
+        className="bg-gradient-to-br from-[var(--color-bg-secondary)] to-[var(--color-bg-primary)] dark:from-slate-900 dark:to-slate-950 rounded-[2rem] sm:rounded-2xl p-6 sm:p-12 flex flex-col justify-center relative overflow-hidden group min-h-[260px] sm:min-h-[380px] shadow-lg shadow-[var(--color-bg-secondary)]/30 border border-[var(--color-bg-secondary)]/50 dark:border-slate-800"
       >
         <div className="relative z-10 w-2/3 sm:w-2/3">
           <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 dark:bg-slate-800 backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-white dark:border-slate-700 mb-3 sm:mb-5">
@@ -966,7 +1231,7 @@ const PromoBanners = () => (
           </MagneticButton>
         </div>
         <div className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center pointer-events-none">
-          <div className="w-32 h-32 sm:w-64 sm:h-64 bg-white/60 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 -right-5 sm:-right-10 blur-xl sm:blur-2xl"></div>
+          <div className="w-32 h-32 sm:w-64 sm:h-64 bg-[var(--color-bg-primary)]/60 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 -right-5 sm:-right-10 blur-xl sm:blur-2xl"></div>
           <img 
             src="/assets/admin.png" 
             alt="Support Admin" 
@@ -1151,283 +1416,11 @@ const FAQSection = () => {
   );
 };
 
-const Footer = () => {
-  const { setLegalModal } = useAppContext();
-  const navigate = useNavigate();
-
-  const handleNavClick = (path: string) => {
-    navigate(path);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  return (
-    <footer
-      id="contact"
-      className="bg-[var(--color-bg-secondary)]/30 dark:bg-slate-950 border-t border-[var(--color-bg-secondary)] dark:border-slate-800 mt-16 md:mt-24 pt-16 pb-12 transition-colors"
-    >
-      <div className="max-w-[1400px] mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pb-16 border-b border-[var(--color-bg-secondary)] dark:border-slate-800">
-          
-          {/* Brand Info Column */}
-          <div className="md:col-span-4 flex flex-col gap-4 text-left items-start">
-            <div 
-              onClick={() => handleNavClick("/")}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <span className="text-2xl tracking-tight flex items-baseline">
-                <span className="font-serif font-black text-[var(--color-text-primary)]">
-                  Canvas
-                </span>
-                <span className="text-[var(--color-accent-pink)] italic tracking-tighter ml-1 font-serif font-black">
-                  Builds
-                </span>
-              </span>
-            </div>
-            <p className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 leading-relaxed font-light max-w-sm">
-              Canvas Builds is India's premier digital gifting platform. Create a customisable website gift for your girlfriend, boyfriend, or best friend for birthdays, anniversaries, and every big moment.
-            </p>
-            <div className="flex gap-3 mt-2">
-              <div className="relative group">
-                <a
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-[var(--color-bg-secondary)] dark:bg-slate-800 flex items-center justify-center text-[var(--color-text-primary)] transition-all duration-300 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] hover:text-white shadow-sm"
-                >
-                  <Instagram className="w-5 h-5" />
-                </a>
-              </div>
-              <div className="relative group">
-                <a
-                  href="https://wa.me/917906568743"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-[var(--color-bg-secondary)] dark:bg-slate-800 flex items-center justify-center text-[var(--color-text-primary)] transition-all duration-300 hover:bg-[#25D366] hover:text-white shadow-sm"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                </a>
-              </div>
-              <div className="relative group">
-                <a
-                  href="https://github.com/adrix-ft"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-[var(--color-bg-secondary)] dark:bg-slate-800 flex items-center justify-center text-[var(--color-text-primary)] transition-all duration-300 hover:bg-[#333] hover:text-white shadow-sm"
-                >
-                  <Github className="w-5 h-5" />
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Links Columns Grid */}
-          <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8 text-left">
-            <div className="flex flex-col gap-3">
-              <h4 className="font-bold text-[var(--color-text-primary)] text-xs uppercase tracking-widest mb-1">
-                Product
-              </h4>
-              <button onClick={() => handleNavClick("/store")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
-                Templates
-              </button>
-              <button onClick={() => handleNavClick("/faq")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
-                How it works
-              </button>
-              <button onClick={() => handleNavClick("/reviews")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
-                Reviews
-              </button>
-            </div>
-            <div className="flex flex-col gap-3">
-              <h4 className="font-bold text-[var(--color-text-primary)] text-xs uppercase tracking-widest mb-1">
-                Company
-              </h4>
-              <button onClick={() => handleNavClick("/about")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
-                About
-              </button>
-              <a href="https://wa.me/917906568743" target="_blank" rel="noreferrer" className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors">
-                Collab
-              </a>
-              <a href="https://wa.me/917906568743" target="_blank" rel="noreferrer" className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors">
-                Earn with us
-              </a>
-            </div>
-            <div className="flex flex-col gap-3">
-              <h4 className="font-bold text-[var(--color-text-primary)] text-xs uppercase tracking-widest mb-1">
-                Support
-              </h4>
-              <a href="mailto:adrashyadav07o8@gmail.com" className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors">
-                Contact
-              </a>
-              <button onClick={() => setLegalModal("terms")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
-                Terms of Service
-              </button>
-              <button onClick={() => setLegalModal("privacy")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
-                Privacy Policy
-              </button>
-            </div>
-            <div className="flex flex-col gap-3">
-              <h4 className="font-bold text-[var(--color-text-primary)] text-xs uppercase tracking-widest mb-1">
-                Resources
-              </h4>
-              <button onClick={() => handleNavClick("/store")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
-                Website for girlfriend
-              </button>
-              <button onClick={() => handleNavClick("/store")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
-                Website for boyfriend
-              </button>
-              <button onClick={() => handleNavClick("/store")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
-                Anniversary website
-              </button>
-              <button onClick={() => handleNavClick("/store")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
-                Birthday website
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row justify-between items-center pt-8 gap-4 text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500">
-          <div>
-            © {new Date().getFullYear()} Canvas Builds. Made with ❤️ by Adarsh.
-          </div>
-          <div>
-            <a href="mailto:adrashyadav07o8@gmail.com" className="hover:text-[var(--color-accent-pink)] transition-colors">
-              adrashyadav07o8@gmail.com
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-};
-
-const services = [
-  {
-    id: "anniversary",
-    title: "Celebrate Milestones",
-    description: "Create unforgettable digital memories for your anniversaries. From timeline journeys to interactive memory books, make every year count.",
-    icon: <Heart className="w-6 h-6 text-rose-500" />,
-    color: "bg-rose-100",
-    image: "/assets/anniversary.png", 
-    badge1: "Interactive Timeline",
-    badge2: "Memory Gallery",
-    align: "right",
-  },
-  {
-    id: "friendship",
-    title: "Best Friends Forever",
-    description: "Because standard cards are boring. Build a custom 'Squad Goals' gallery or a hilarious inside-joke compilation for your best friend.",
-    icon: <Users className="w-6 h-6 text-purple-500" />,
-    color: "bg-purple-100",
-    image: "/assets/friend.png", 
-    badge1: "Inside Jokes",
-    badge2: "Photo Dump",
-    align: "left",
-  },
-  {
-    id: "special",
-    title: "Apologies & Surprises",
-    description: "Messed up? Say sorry with a cute, interactive page. Or just send a '100 Reasons Why I Love You' site to brighten their day randomly.",
-    icon: <Sparkles className="w-6 h-6 text-amber-500" />,
-    color: "bg-amber-100",
-    image: "/assets/apology.png", 
-    badge1: "Forgiveness Guaranteed*",
-    badge2: "Cute Animations",
-    align: "right",
-  },
-];
-
-const ServicesShowcase = () => {
-  return (
-    <div className="py-16 bg-white/40 dark:bg-slate-900/40 border-y border-[var(--color-bg-secondary)]/50 dark:border-slate-800 overflow-hidden w-full">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="text-center max-w-3xl mx-auto mb-20">
-          <h2 className="text-4xl sm:text-5xl font-serif text-[var(--color-text-primary)] mb-6 tracking-tight">
-            Bring your favorite moments to life
-          </h2>
-          <p className="text-[var(--color-text-primary)]/75 text-lg sm:text-xl font-light">
-            With Canvas Builds, you unlock beautiful, code-driven templates that spark joy and help you express exactly how you feel.
-          </p>
-        </div>
-
-        <div className="space-y-32">
-          {services.map((service) => {
-            const isImagePath =
-              typeof service.image === "string" &&
-              (service.image.startsWith("/") ||
-                service.image.startsWith("http") ||
-                service.image.includes("."));
-
-            return (
-              <div 
-                key={service.id}
-                className={`flex flex-col lg:flex-row items-center gap-12 lg:gap-24 ${
-                  service.align === 'left' ? 'lg:flex-row-reverse' : ''
-                }`}
-              >
-                <motion.div 
-                  initial={{ opacity: 0, x: service.align === 'right' ? -50 : 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
-                  className="w-full lg:w-1/2"
-                >
-                  <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-square bg-[var(--color-bg-primary)] rounded-2xl overflow-hidden flex items-center justify-center shadow-xl border border-[var(--color-bg-secondary)]/50 group">
-                    <div className={`absolute inset-0 ${service.color} opacity-10 blur-3xl rounded-full scale-150`}></div>
-                    
-                    {isImagePath ? (
-                      <motion.img 
-                        src={service.image} 
-                        alt={service.title} 
-                        className="relative z-10 w-full h-full object-cover object-[75%] transition-transform duration-500"
-                      />
-                    ) : (
-                      <motion.div 
-                        className="text-[8rem] sm:text-[12rem] relative z-10 drop-shadow-2xl transition-transform duration-500 leading-none select-none flex justify-center items-center"
-                      >
-                        {service.image}
-                      </motion.div>
-                    )}
-
-                  </div>
-                </motion.div>
-
-                <motion.div 
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left"
-                >
-                  <div className={`w-12 h-12 rounded-2xl ${service.color} flex items-center justify-center mb-6 shadow-sm border border-white`}>
-                    {service.icon}
-                  </div>
-                  <h3 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--color-text-primary)] mb-6">
-                    {service.title}
-                  </h3>
-                  <p className="text-[var(--color-text-primary)]/75 text-lg leading-relaxed mb-8 max-w-md">
-                    {service.description}
-                  </p>
-                  <Link 
-                    to="/store"
-                    className="bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white dark:bg-slate-100 dark:text-slate-900 font-bold py-3.5 px-8 rounded-full transition-all shadow-lg shadow-[var(--color-text-primary)]/10 flex items-center gap-2 group hover:-translate-y-1"
-                  >
-                    Explore Templates
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </motion.div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const LandingPage = () => (
-  <div className="flex flex-col items-center w-full">
+  <div className="flex flex-col items-center w-full bg-[var(--color-bg-primary)]">
     <Hero />
     <ServicesShowcase />
+    <IntegrationsSection />
   </div>
 );
 
@@ -1613,7 +1606,7 @@ const FAQPage = () => (
 );
 
 const AboutPage = () => (
-  <div className="pt-32 pb-24 min-h-[85vh] flex flex-col items-center">
+  <div className="pt-32 pb-24 min-h-[85vh] flex flex-col items-center bg-[var(--color-bg-primary)]">
     <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 w-full">
       
       {/* Header Section */}
@@ -1705,6 +1698,152 @@ const AboutPage = () => (
   </div>
 );
 
+const Footer = () => {
+  const { setLegalModal } = useAppContext();
+  const navigate = useNavigate();
+
+  const handleNavClick = (path: string) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  return (
+    <footer
+      id="contact"
+      className="bg-[#073127] dark:bg-slate-950 border-t border-black/10 mt-16 md:mt-24 pt-16 pb-12 transition-colors"
+    >
+      <div className="max-w-[1400px] mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pb-16 border-b border-white/10">
+          
+          {/* Brand Info Column */}
+          <div className="md:col-span-4 flex flex-col gap-4 text-left items-start">
+            <div 
+              onClick={() => handleNavClick("/")}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <div className="relative w-9 h-9 bg-white text-[var(--color-text-primary)] rounded-lg flex items-center justify-center font-serif text-xl font-black shadow-sm border border-black/5">
+                CB
+              </div>
+              <span className="text-2xl tracking-tight flex items-baseline font-bold text-white">
+                Canvas<span className="text-[var(--color-accent-mint)]">Builds</span>
+              </span>
+            </div>
+            <p className="text-sm text-white/70 leading-relaxed font-light max-w-sm">
+              Canvas Builds is India's premier digital gifting platform. Create a customisable website gift for your girlfriend, boyfriend, or best friend for birthdays, anniversaries, and every big moment.
+            </p>
+            <div className="flex gap-3 mt-2">
+              <div className="relative group">
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] shadow-sm"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+              </div>
+              <div className="relative group">
+                <a
+                  href="https://wa.me/917906568743"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-[#25D366] shadow-sm"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                </a>
+              </div>
+              <div className="relative group">
+                <a
+                  href="https://github.com/adrix-ft"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-[#333] shadow-sm"
+                >
+                  <Github className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Links Columns Grid */}
+          <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8 text-left">
+            <div className="flex flex-col gap-3">
+              <h4 className="font-bold text-white text-xs uppercase tracking-widest mb-1">
+                Product
+              </h4>
+              <button onClick={() => handleNavClick("/store")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
+                Templates
+              </button>
+              <button onClick={() => handleNavClick("/faq")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
+                How it works
+              </button>
+              <button onClick={() => handleNavClick("/reviews")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
+                Reviews
+              </button>
+            </div>
+            <div className="flex flex-col gap-3">
+              <h4 className="font-bold text-white text-xs uppercase tracking-widest mb-1">
+                Company
+              </h4>
+              <button onClick={() => handleNavClick("/about")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
+                About
+              </button>
+              <a href="https://wa.me/917906568743" target="_blank" rel="noreferrer" className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors">
+                Collab
+              </a>
+              <a href="https://wa.me/917906568743" target="_blank" rel="noreferrer" className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors">
+                Earn with us
+              </a>
+            </div>
+            <div className="flex flex-col gap-3">
+              <h4 className="font-bold text-white text-xs uppercase tracking-widest mb-1">
+                Support
+              </h4>
+              <a href="mailto:adrashyadav07o8@gmail.com" className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors">
+                Contact
+              </a>
+              <button onClick={() => setLegalModal("terms")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
+                Terms of Service
+              </button>
+              <button onClick={() => setLegalModal("privacy")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
+                Privacy Policy
+              </button>
+            </div>
+            <div className="flex flex-col gap-3">
+              <h4 className="font-bold text-white text-xs uppercase tracking-widest mb-1">
+                Resources
+              </h4>
+              <button onClick={() => handleNavClick("/store")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
+                Website for girlfriend
+              </button>
+              <button onClick={() => handleNavClick("/store")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
+                Website for boyfriend
+              </button>
+              <button onClick={() => handleNavClick("/store")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
+                Anniversary website
+              </button>
+              <button onClick={() => handleNavClick("/store")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
+                Birthday website
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row justify-between items-center pt-8 gap-4 text-xs text-white/50">
+          <div>
+            © {new Date().getFullYear()} Canvas Builds. Made with ❤️ by Adarsh.
+          </div>
+          <div>
+            <a href="mailto:adrashyadav07o8@gmail.com" className="hover:text-[#E2FB6C] transition-colors">
+              adrashyadav07o8@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
 const ScrollHandler = () => {
   const { pathname, hash } = useLocation();
   useEffect(() => {
@@ -1728,7 +1867,7 @@ export default function App() {
   return (
     <Router>
       <ScrollHandler />
-      <div className="min-h-screen bg-[var(--color-bg-primary)] font-sans selection:bg-[var(--color-bg-secondary)] selection:text-[var(--color-text-primary)] overflow-x-hidden text-[var(--color-text-primary)] relative">
+      <div className="min-h-screen bg-[var(--color-bg-primary)] font-sans selection:bg-[var(--color-accent-mint)] selection:text-white overflow-x-hidden text-[var(--color-text-primary)] transition-colors duration-500">
         
         {/* Main Application Content */}
         <div className="relative z-10">

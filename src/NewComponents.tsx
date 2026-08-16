@@ -267,14 +267,14 @@ const FloatingChatInner = () => {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="mb-4 bg-white/95 backdrop-blur-xl border border-[var(--color-bg-secondary)] shadow-2xl rounded-[1.5rem] p-3 flex flex-col gap-2 min-w-[260px] pointer-events-auto origin-bottom-right"
+            className="mb-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-[var(--color-bg-secondary)] shadow-2xl rounded-[1.5rem] p-3 flex flex-col gap-2 min-w-[260px] pointer-events-auto origin-bottom-right"
           >
-            <div className="px-3 py-2 border-b border-[var(--color-bg-secondary)]/50">
+            <div className="px-3 py-2 border-b border-[var(--color-bg-secondary)]">
               <h4 className="font-bold text-[var(--color-text-primary)] text-sm flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                <span className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400 animate-pulse"></span>
                 AI Voice Assistant
               </h4>
-              <p className="text-[11px] text-slate-500 font-medium mt-0.5 leading-relaxed">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1 leading-relaxed">
                 Talk to our AI agent to find templates, ask pricing questions, or get instant help!
               </p>
             </div>
@@ -282,16 +282,16 @@ const FloatingChatInner = () => {
             <button
               onClick={toggleVoiceAgent}
               disabled={isConnecting}
-              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[var(--color-bg-primary)] transition-colors text-left group disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[var(--color-bg-secondary)] transition-colors text-left group disabled:opacity-50 cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                 <Headphones className="w-5 h-5" />
               </div>
               <div>
                 <div className="font-bold text-[var(--color-text-primary)] text-[13px]">
                   {isConnecting ? "Connecting..." : "Talk with AI Agent"}
                 </div>
-                <div className="text-[10px] text-slate-500 font-medium">
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
                   {isConnecting ? "Establishing audio stream..." : "Click to start live voice chat"}
                 </div>
               </div>
@@ -299,14 +299,14 @@ const FloatingChatInner = () => {
             
             <button
               onClick={handleWhatsApp}
-              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[var(--color-bg-primary)] transition-colors text-left group cursor-pointer"
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[var(--color-bg-secondary)] transition-colors text-left group cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 shrink-0 transition-colors group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0 transition-colors group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center">
                 <MessageCircle className="w-5 h-5" />
               </div>
               <div>
                 <div className="font-bold text-[var(--color-text-primary)] text-[13px]">WhatsApp Chat</div>
-                <div className="text-[10px] text-slate-500 font-medium">Message a human agent directly</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Message a human agent directly</div>
               </div>
             </button>
           </motion.div>
@@ -325,12 +325,12 @@ const FloatingChatInner = () => {
           }
         }}
         className={`w-14 h-14 ${
-          isConnected ? "bg-rose-500" : "bg-[var(--color-text-primary)]"
-        } text-white rounded-full flex items-center justify-center shadow-2xl ${
+          isConnected ? "bg-rose-500" : "bg-[var(--color-text-primary)] text-[var(--color-bg-primary)]"
+        } rounded-full flex items-center justify-center shadow-2xl ${
           isConnected
-            ? "shadow-rose-500/40"
-            : "shadow-black/20"
-        } border-2 border-white hover:scale-110 transition-transform group relative pointer-events-auto cursor-pointer`}
+            ? "shadow-rose-500/40 text-white"
+            : "shadow-black/20 dark:shadow-black/60"
+        } border-2 border-transparent hover:scale-110 transition-transform group relative pointer-events-auto cursor-pointer`}
         title={isConnected ? "Click to end call" : "Open support menu"}
       >
         <div
@@ -348,7 +348,7 @@ const FloatingChatInner = () => {
         )}
 
         {isConnected && (
-          <span className="absolute -top-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white shadow-sm animate-pulse"></span>
+          <span className="absolute -top-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-[var(--color-bg-primary)] shadow-sm animate-pulse"></span>
         )}
       </motion.button>
     </div>

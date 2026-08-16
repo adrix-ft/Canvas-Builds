@@ -51,7 +51,7 @@ app.post('/api/create-test-checkout', async (req, res) => {
     const { items, customerEmail } = req.body;
     
     // Simulate order creation or generate a mock payment session ID
-    const mockOrderId = `test_order_${Math.random().toString(36.substring(2, 9)}`
+    const mockOrderId = `test_order_${Math.random().toString(36).substring(2, 9)}`;
     
     console.log(`[TEST MODE] Processing order for ${customerEmail || 'Guest'} with ${items.length} items.`);
 

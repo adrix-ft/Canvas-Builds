@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* Force Tailwind v4 to use our manual toggle button instead of the OS theme */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -9,110 +8,26 @@
   --color-ring: hsl(var(--ring));
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
-
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
-    }
-  }
 }
 
 @layer base {
   :root {
-    /* Slightly tinted off-white background so white cards pop! */
-    --color-bg-primary: #f8fafc;      
-    --color-bg-secondary: #e2e8f0;    
-    --color-text-primary: #000000;    
-    --color-accent-pink: #0055FF;     
-    --color-accent-purple: #0F172A;   
-
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --radius: 0.5rem;
+    /* Updated Classic Clause Palette: Crisp Warm White & Deep Forest Green */
+    --color-bg-primary: #f6f6f4;      
+    --color-bg-secondary: #e2e6e3;    
+    --color-text-primary: #042416;    
+    --color-accent-pink: #ec4899;     
+    --color-accent-purple: #8b5cf6;   
+    --color-accent-mint: #10b981;
   }
   .dark {
-    /* Deep slate background so slate-900 cards pop! */
-    --color-bg-primary: #020617;
-    --color-bg-secondary: #1e293b;
+    /* Dark Mode Equivalent */
+    --color-bg-primary: #04100c;
+    --color-bg-secondary: #0a241c;
     --color-text-primary: #f8fafc;
-    --color-accent-pink: #3b82f6;     
-    --color-accent-purple: #cbd5e1;   
-
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --color-accent-pink: #f472b6;     
+    --color-accent-purple: #a78bfa;   
+    --color-accent-mint: #34d399;
   }
 }
 
@@ -121,7 +36,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-500;
   }
 }
 
@@ -134,23 +49,17 @@
       scrollbar-width: none;
   }
 
-  /* Global Background Textures */
-  .bg-grid-pattern {
-    background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px);
-    background-size: 32px 32px;
+  /* Thin, precise background grid */
+  .bg-blueprint-grid {
+    background-image: 
+      linear-gradient(to right, rgba(4, 36, 22, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(4, 36, 22, 0.08) 1px, transparent 1px);
+    background-size: 80px 80px;
+    background-position: center top;
   }
-  .dark .bg-grid-pattern {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  }
-
-  .bg-noise {
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.3;
-    pointer-events: none;
-    mix-blend-mode: multiply;
-  }
-  .dark .bg-noise {
-    opacity: 0.15;
-    mix-blend-mode: screen;
+  .dark .bg-blueprint-grid {
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
   }
 }
