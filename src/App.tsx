@@ -1,5 +1,6 @@
 import { LegalModal } from "./LegalModal";
 import React, { useState, useEffect, useRef } from "react";
+import { UnsubscribePage } from "./UnsubscribePage";
 import {
   BrowserRouter as Router,
   Routes,
@@ -2060,6 +2061,7 @@ export default function App() {
               <Route path="/reviews" element={<ReviewsPage />} />
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/unsubscribe" element={<UnsubscribePage />} />
             </Routes>
           </main>
           <FloatingChat />

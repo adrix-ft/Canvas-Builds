@@ -1,116 +1,111 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import nodemailer from "npm:nodemailer";
 
-// Access the secure environment variables
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-const GMAIL_USER = Deno.env.get("GMAIL_USER");
-const GMAIL_PASSWORD = Deno.env.get("GMAIL_PASSWORD");
-
-// Configure the Gmail SMTP transporter
+// Initialize Nodemailer with Gmail App Password
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: GMAIL_USER,
-    pass: GMAIL_PASSWORD,
+    user: Deno.env.get("GMAIL_USER"),
+    pass: Deno.env.get("GMAIL_PASSWORD"),
   },
 });
 
 serve(async (req) => {
   try {
+    // 1. Parse the Webhook Payload (The new product row)
     const payload = await req.json();
-    const newProduct = payload.record;
+    const product = payload.record;
 
-    // Connect using service role key to bypass RLS
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
-    const { data: subscribers, error: dbError } = await supabase
+    // 2. Fetch all subscribers safely using the Service Role Key
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data: subscribers, error } = await supabase
       .from("subscribers")
       .select("email");
 
-    if (dbError) throw new Error(`Database error: ${dbError.message}`);
-    if (!subscribers || subscribers.length === 0) {
-      console.log("No subscribers found in database.");
-      return new Response("No subscribers to email.", { status: 200 });
+    if (error || !subscribers || subscribers.length === 0) {
+      return new Response(JSON.stringify({ message: "No subscribers found" }), { status: 200 });
     }
 
-    const emailList = subscribers.map((sub) => sub.email);
+    // 3. Extract emails and chunk them into batches of 90 (Gmail SMTP limit is ~100 per send)
+    const emails = subscribers.map((sub) => sub.email);
+    const chunkSize = 90;
+    const emailChunks = [];
+    
+    for (let i = 0; i < emails.length; i += chunkSize) {
+      emailChunks.push(emails.slice(i, i + chunkSize));
+    }
 
-    // Modern HTML Email Template
-    const emailHTML = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f6f6f4; margin: 0; padding: 40px 20px; color: #042416;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-        
-        <!-- Header -->
-        <tr>
-          <td style="padding: 40px 40px 20px; text-align: center;">
-            <div style="display: inline-block; background-color: #042416; color: #ffffff; font-weight: bold; font-size: 24px; padding: 12px 20px; border-radius: 12px; letter-spacing: -0.5px;">
-              Canvas<span style="color: #10b981;">Builds</span>
-            </div>
-          </td>
-        </tr>
+    // 4. Build the HTML Aesthetic Template
+    // Using inline CSS because most email clients strip external stylesheets
+    const htmlTemplate = `
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-w-width: 600px; margin: 0 auto; background-color: #f6f6f4; padding: 40px 20px; border-radius: 16px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #042416; margin: 0; font-size: 28px; font-weight: 900;">
+            Canvas<span style="color: #10b981;">Builds</span>
+          </h1>
+          <p style="color: #042416; opacity: 0.6; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-top: 5px;">
+            New Template Dropped
+          </p>
+        </div>
 
-        <!-- Body -->
-        <tr>
-          <td style="padding: 20px 40px;">
-            <h1 style="margin: 0 0 16px; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">We just dropped something special. ✨</h1>
-            <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #4a5568;">Hey there,</p>
-            <p style="margin: 0 0 32px; font-size: 16px; line-height: 1.6; color: #4a5568;">You're getting this email because you subscribed to updates from Canvas Builds. We've just released a beautiful new digital gift template to help you celebrate your favorite moments.</p>
+        <div style="background-color: #ffffff; border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+          <div style="display: inline-block; background-color: #f3f4f6; color: #ec4899; font-size: 10px; font-weight: bold; padding: 4px 12px; border-radius: 99px; text-transform: uppercase; margin-bottom: 15px;">
+            ${product.category || 'New Arrival'}
+          </div>
+          
+          <h2 style="color: #042416; font-size: 24px; margin-top: 0; margin-bottom: 10px;">
+            ${product.title}
+          </h2>
+          
+          <p style="color: #4b5563; font-size: 16px; line-height: 1.5; margin-bottom: 25px;">
+            We just released a brand new digital gift template! Beautifully crafted, responsive, and ready to make your special person smile.
+          </p>
 
-            <!-- Product Card -->
-            <div style="background: linear-gradient(135deg, #fce7f3 0%, #ffe4e6 100%); border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 32px; border: 1px solid #fbcfe8;">
-              <span style="background-color: #ec4899; color: #ffffff; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;">New ${newProduct.category || 'Template'}</span>
-              <h2 style="margin: 20px 0 12px; font-size: 32px; font-weight: 800; color: #1a202c;">${newProduct.title}</h2>
-              <p style="margin: 0; font-size: 20px; font-weight: bold; color: #ec4899;">${newProduct.price}</p>
-            </div>
+          <div style="margin-bottom: 30px;">
+            <span style="font-size: 24px; font-weight: bold; color: #042416;">${product.price}</span>
+            ${product.original_price ? `<span style="font-size: 14px; text-decoration: line-through; color: #9ca3af; margin-left: 10px;">${product.original_price}</span>` : ''}
+          </div>
 
-            <p style="margin: 0 0 32px; font-size: 16px; line-height: 1.6; color: #4a5568; text-align: center;">Ready to personalize it and surprise someone special?</p>
+          <a href="https://canvas-builds.vercel.app/product/${product.id}" style="display: block; width: 100%; text-align: center; background-color: #042416; color: #ffffff; padding: 14px 0; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 16px;">
+            View Live Demo
+          </a>
+        </div>
 
-            <!-- CTA Button -->
-            <div style="text-align: center; margin-bottom: 40px;">
-              <a href="https://canvas-builds.vercel.app/store" style="display: inline-block; background-color: #042416; color: #ffffff; font-weight: bold; font-size: 16px; text-decoration: none; padding: 18px 36px; border-radius: 12px;">Explore the Template &rarr;</a>
-            </div>
-          </td>
-        </tr>
-
-        <!-- Footer -->
-        <tr>
-          <td style="background-color: #f8fafc; padding: 32px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <p style="margin: 0 0 12px; font-size: 14px; color: #718096; font-weight: 500;">Crafting aesthetic, code-driven digital gifts.</p>
-            <p style="margin: 0; font-size: 12px; color: #a0aec0; line-height: 1.5;">&copy; ${new Date().getFullYear()} Canvas Builds. All rights reserved.<br>Based in India, built with ❤️</p>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
+        <div style="text-align: center; margin-top: 30px;">
+          <p style="color: #9ca3af; font-size: 12px; margin-bottom: 5px;">
+            You are receiving this because you subscribed on Canvas Builds.
+          </p>
+          <a href="https://canvas-builds.vercel.app/unsubscribe" style="color: #10b981; font-size: 12px; text-decoration: underline;">
+            Unsubscribe instantly
+          </a>
+        </div>
+      </div>
     `;
 
-    // Send the email via Gmail SMTP
-    const info = await transporter.sendMail({
-      from: `"Canvas Builds" <${GMAIL_USER}>`,
-      to: GMAIL_USER, // Send a copy to yourself
-      bcc: emailList, // BCC hides everyone's emails from each other
-      subject: `🎉 New Template Dropped: ${newProduct.title}`,
-      html: emailHTML,
+    // 5. Send out the batches simultaneously
+    const sendPromises = emailChunks.map((chunk) => {
+      return transporter.sendMail({
+        from: '"Canvas Builds" <' + Deno.env.get("GMAIL_USER") + '>',
+        to: Deno.env.get("GMAIL_USER"), // Send to yourself
+        bcc: chunk, // Hide everyone else's emails in Bcc
+        subject: `New Template: ${product.title} ✨`,
+        html: htmlTemplate,
+      });
     });
 
-    console.log("Message sent via Gmail:", info.messageId);
+    await Promise.all(sendPromises);
 
-    return new Response(JSON.stringify({ success: true, messageId: info.messageId }), {
+    return new Response(JSON.stringify({ success: true, batchesSent: emailChunks.length }), {
       headers: { "Content-Type": "application/json" },
-      status: 200,
     });
-  } catch (error: any) {
-    console.error("Function error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { "Content-Type": "application/json" },
-      status: 500,
-    });
+
+  } catch (error) {
+    console.error("Email error:", error);
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 });
