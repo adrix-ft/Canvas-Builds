@@ -45,6 +45,25 @@ app.post('/api/checkout', async (req, res) => {
     res.status(500).json({ error: 'Failed to process checkout' });
   }
 });
+// Example Express backend route for test checkout
+app.post('/api/create-test-checkout', async (req, res) => {
+  try {
+    const { items, customerEmail } = req.body;
+    
+    // Simulate order creation or generate a mock payment session ID
+    const mockOrderId = `test_order_${Math.random().toString(36.substring(2, 9)}`
+    
+    console.log(`[TEST MODE] Processing order for ${customerEmail || 'Guest'} with ${items.length} items.`);
+
+    res.status(200).json({
+      success: true,
+      orderId: mockOrderId,
+      message: "Test checkout session created successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // Start Server
 const PORT = process.env.PORT || 5000;

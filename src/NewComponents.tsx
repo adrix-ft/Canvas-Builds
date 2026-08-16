@@ -67,9 +67,10 @@ export const CartDrawer = () => {
   const [isCheckingOut, setIsCheckingOut] = React.useState(false);
 
   const subtotal = cart.reduce((acc, item) => {
-    const priceStr = item.price.toString().replace(/[^0-9.]/g, "");
-    const priceNum = parseFloat(priceStr);
-    return acc + (isNaN(priceNum) ? 0 : priceNum);
+    const cleanString = item.price.toString().replace(/,/g, "");
+    const match = cleanString.match(/\d+(\.\d+)?/);
+    const priceNum = match ? parseFloat(match[0]) : 0;
+    return acc + priceNum;
   }, 0);
 
   const handleCheckout = () => {
@@ -78,7 +79,7 @@ export const CartDrawer = () => {
       setIsCheckingOut(false);
       clearCart();
       setIsCartOpen(false);
-      addToast("Payment successful! Check your email.", "success");
+      addToast("Test Mode: Order placed successfully! 🚀", "success");
     }, 1500);
   };
 
@@ -90,7 +91,7 @@ export const CartDrawer = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
             onClick={() => setIsCartOpen(false)}
           />
           <motion.div
@@ -98,21 +99,23 @@ export const CartDrawer = () => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-full sm:w-[400px] bg-[var(--color-bg-primary)] z-[101] shadow-2xl flex flex-col border-l border-[var(--color-bg-secondary)]"
+            className="fixed top-0 right-0 bottom-0 w-full sm:w-[400px] bg-[var(--color-bg-primary)] z-[101] shadow-2xl flex flex-col border-l border-[var(--color-bg-secondary)] dark:border-slate-800"
           >
-            <div className="p-6 border-b border-[var(--color-bg-secondary)]/50 flex justify-between items-center bg-white/50 backdrop-blur-md">
+            {/* Header */}
+            <div className="p-6 border-b border-[var(--color-bg-secondary)]/50 dark:border-slate-800 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
               <h2 className="text-2xl font-serif font-bold text-[var(--color-text-primary)] flex items-center gap-2">
                 <ShoppingCart className="w-6 h-6 text-[var(--color-accent-pink)]" />{" "}
                 Your Cart
               </h2>
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-[var(--color-bg-secondary)] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-secondary)] dark:hover:bg-slate-700 transition-colors cursor-pointer text-[var(--color-text-primary)]"
               >
-                <X className="w-5 h-5 text-[var(--color-text-primary)]" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
+            {/* Cart Items List */}
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full opacity-50 text-[var(--color-text-primary)]">
@@ -128,25 +131,25 @@ export const CartDrawer = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     key={index}
-                    className="flex gap-4 bg-white p-3 rounded-2xl shadow-sm border border-[var(--color-bg-secondary)]/30 items-center"
+                    className="flex gap-4 bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-sm border border-[var(--color-bg-secondary)]/30 dark:border-slate-800 items-center"
                   >
                     <div
-                      className={`w-16 h-16 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center text-3xl shrink-0`}
+                      className={`w-16 h-16 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center text-2xl shrink-0 text-white`}
                     >
-                      {item.emoji}
+                      {React.isValidElement(item.emoji) ? item.emoji : <Gift className="w-8 h-8 text-white" />}
                     </div>
                     <div className="flex-1">
                       <h4 className="font-bold text-[var(--color-text-primary)] text-sm line-clamp-1">
                         {item.title}
                       </h4>
-                      <p className="text-[var(--color-accent-purple)] font-bold mt-1">
+                      <p className="text-[var(--color-accent-purple)] dark:text-purple-300 font-bold mt-1">
                         {item.price}
                       </p>
                     </div>
                     <button
                       onClick={() => removeFromCart(index)}
                       disabled={isCheckingOut}
-                      className="w-8 h-8 text-rose-400 hover:bg-rose-50 rounded-full flex items-center justify-center transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
+                      className="w-8 h-8 text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-full flex items-center justify-center transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -155,8 +158,9 @@ export const CartDrawer = () => {
               )}
             </div>
 
+            {/* Subtotal & Checkout Footer */}
             {cart.length > 0 && (
-              <div className="p-6 bg-white border-t border-[var(--color-bg-secondary)]/50 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
+              <div className="p-6 bg-white dark:bg-slate-900 border-t border-[var(--color-bg-secondary)]/50 dark:border-slate-800 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-[var(--color-text-primary)] font-medium text-lg">
                     Subtotal
@@ -168,14 +172,14 @@ export const CartDrawer = () => {
                 <button
                   onClick={handleCheckout}
                   disabled={isCheckingOut}
-                  className="w-full bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white py-4 rounded-xl font-bold transition-all hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none cursor-pointer"
+                  className="w-full bg-[var(--color-text-primary)] text-white dark:bg-slate-800 dark:hover:bg-[var(--color-accent-pink)] hover:bg-[var(--color-accent-purple)] py-4 rounded-xl font-bold transition-all hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none cursor-pointer"
                 >
                   {isCheckingOut ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <Check className="w-5 h-5" />
                   )}
-                  {isCheckingOut ? "Processing..." : "Secure Checkout"}
+                  {isCheckingOut ? "Processing..." : "Secure Checkout (Test Mode)"}
                 </button>
               </div>
             )}
@@ -390,119 +394,112 @@ export const AnimatedCounter = ({
 
 export const BundleSection = () => {
   const { addToCart } = useAppContext();
-  return (
-    <div
-      className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative"
-      id="bundles"
-    >
-      <div className="bg-gradient-to-br from-[var(--color-accent-purple)] to-[var(--color-text-primary)] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 relative overflow-hidden shadow-2xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 lg:gap-12">
-        <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gradient-to-br from-[var(--color-accent-pink)]/20 to-transparent rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-gradient-to-tr from-[var(--color-bg-secondary)]/20 to-transparent rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
-        <div className="relative z-10 flex-1 text-center md:text-left flex flex-col justify-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 mb-4 self-center md:self-start">
-            <Gift className="w-3.5 h-3.5 text-[var(--color-accent-pink)]" />
-            <span className="text-white font-bold text-[10px] uppercase tracking-widest">
-              Special Offer
-            </span>
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-serif text-white mb-3">
-            The Ultimate Anniversary Bundle
-          </h2>
-          <p className="text-white/80 text-sm sm:text-base mb-6 max-w-lg mx-auto md:mx-0 line-clamp-2">
-            Get our top 3 most popular romantic templates (Girlfriend, Anniversary, & Proposal) for a fraction of the price.
-          </p>
-          <div className="flex flex-row items-center justify-center md:justify-start gap-4 mb-6 md:mb-0">
-            <div className="flex items-end gap-2">
-              <span className="text-3xl sm:text-4xl font-bold text-[var(--color-bg-secondary)]">Rs. 499</span>
-              <span className="text-sm sm:text-base text-white/50 line-through mb-1">Rs. 899</span>
-            </div>
-            <span className="bg-rose-500/80 text-white px-2.5 py-0.5 rounded-full text-xs font-bold ml-2">
-              Save 40%
-            </span>
-          </div>
-        </div>
-        <div className="relative z-10 shrink-0 w-full md:w-auto flex flex-col items-center">
-          <div className="flex -space-x-4 mb-6">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[var(--color-bg-secondary)] to-orange-200 rounded-2xl shadow-xl border-2 border-white/20 flex items-center justify-center z-10 -rotate-12">
-               <Heart className="w-8 h-8 text-rose-500 fill-current" />
-            </div>
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-[var(--color-accent-pink)] to-rose-300 rounded-2xl shadow-2xl border-2 border-white flex items-center justify-center z-30 -mt-4">
-               <Star className="w-10 h-10 text-white fill-current" />
-            </div>
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[var(--color-accent-purple)] to-purple-400 rounded-2xl shadow-xl border-2 border-white/20 flex items-center justify-center z-20 rotate-12">
-               <Gift className="w-8 h-8 text-white" />
-            </div>
-          </div>
-          <button
-            onClick={() =>
-              addToCart({
-                id: 999,
-                title: "Ultimate Anniversary Bundle",
-                price: "Rs. 499",
-                gradient: "from-[var(--color-accent-purple)] to-[var(--color-text-primary)]",
-                emoji: <Gift className="w-6 h-6 text-white" />,
-              })
-            }
-            className="w-full md:w-auto bg-[var(--color-accent-pink)] hover:bg-white hover:text-[var(--color-text-primary)] text-white px-8 py-3.5 rounded-full font-bold text-base transition-all duration-300 shadow-lg hover:scale-105 cursor-pointer"
-          >
-            Add to Cart
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+  const [bundleProducts, setBundleProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export const MeetCreator = () => {
+  useEffect(() => {
+    const fetchBundleData = async () => {
+      try {
+        setLoading(true);
+        // Fetch products from your database table
+        const { data, error } = await supabase.from("products").select("*").limit(3);
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          setBundleProducts(data);
+        }
+      } catch (err) {
+        console.error("Error fetching bundle products:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBundleData();
+  }, []);
+
+  if (loading || bundleProducts.length === 0) return null;
+
+  // Extract titles to show in the itemized list
+  const includedTitles = bundleProducts.map((p) => p.title);
+
   return (
-    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-      <div className="bg-white rounded-[2rem] sm:rounded-[3rem] p-8 sm:p-12 lg:p-16 shadow-xl border border-[var(--color-bg-secondary)]/50 overflow-hidden relative">
-        <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-[var(--color-bg-primary)] to-transparent"></div>
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 lg:gap-16">
-          <div className="w-40 h-40 sm:w-64 sm:h-64 shrink-0 rounded-full bg-gradient-to-br from-[var(--color-accent-pink)] to-[var(--color-accent-purple)] p-2 shadow-2xl">
-            <div className="w-full h-full bg-white rounded-full flex items-center justify-center overflow-hidden relative">
-              <Code className="w-16 h-16 sm:w-24 sm:h-24 text-[var(--color-accent-pink)] relative z-10" />
-              <div className="absolute inset-0 bg-[var(--color-accent-pink)]/10"></div>
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16" id="bundles">
+      <div className="flex items-center gap-2 mb-6">
+        <span className="w-2 h-5 bg-amber-500 rounded-full"></span>
+        <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--color-text-primary)] tracking-wide uppercase">
+          Exclusive Template Bundles
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-[var(--color-bg-secondary)] dark:border-slate-800 shadow-xl relative overflow-hidden flex flex-col sm:flex-row items-center gap-6 group transition-all">
+          
+          {/* Ambient background glow */}
+          <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          {/* Stacked Cards Preview Art using live product data */}
+          <div className="relative shrink-0 flex items-center justify-center w-full sm:w-44 h-48">
+            <div className="absolute w-28 h-40 bg-gradient-to-br from-rose-500 to-red-700 rounded-xl shadow-lg transform -rotate-12 -translate-x-6 border border-white/20 opacity-75 flex items-center justify-center text-white font-bold text-xs p-2 text-center">
+              {bundleProducts[0]?.title || "Template 1"}
+            </div>
+            <div className="absolute w-28 h-40 bg-gradient-to-br from-purple-500 to-indigo-700 rounded-xl shadow-xl transform -rotate-6 -translate-x-2 border border-white/20 opacity-90 flex items-center justify-center text-white font-bold text-xs p-2 text-center">
+              {bundleProducts[1]?.title || "Template 2"}
+            </div>
+            <div className="absolute w-32 h-44 bg-gradient-to-br from-slate-900 to-slate-950 dark:from-slate-800 dark:to-slate-950 rounded-2xl shadow-2xl transform rotate-3 translate-x-4 border border-white/20 flex flex-col items-center justify-center p-3 text-white text-center">
+              <Heart className="w-8 h-8 text-rose-500 fill-current mb-2" />
+              <span className="font-bold text-xs line-clamp-2">Ultimate Pack</span>
             </div>
           </div>
-          <div className="text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
-              <span className="w-8 h-px bg-[var(--color-accent-pink)]"></span>
-              <span className="text-[var(--color-accent-pink)] font-bold text-xs tracking-widest uppercase">
-                Meet the Creator
+
+          {/* Details & Pricing */}
+          <div className="flex-1 flex flex-col justify-between w-full text-left">
+            <div>
+              <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">
+                BUNDLE DEAL
               </span>
+              <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--color-text-primary)] mt-3 mb-3">
+                THE ULTIMATE TEMPLATE BUNDLE
+              </h3>
+
+              {/* Dynamic Items Box from Products Table */}
+              <div className="bg-[var(--color-bg-primary)] dark:bg-slate-950/60 rounded-xl p-3.5 border border-[var(--color-bg-secondary)] dark:border-slate-800/80 mb-6">
+                <p className="text-[10px] font-bold text-[var(--color-text-primary)]/50 uppercase tracking-widest mb-2">
+                  Items Included:
+                </p>
+                <ul className="space-y-1.5">
+                  {includedTitles.map((title, idx) => (
+                    <li key={idx} className="text-xs text-[var(--color-text-primary)]/80 dark:text-slate-300 flex items-center gap-2 font-medium">
+                      <span className="text-amber-500 font-bold">+</span> {title}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-serif text-[var(--color-text-primary)] mb-4">
-              Hi, I'm Adarsh
-            </h2>
-            <p className="text-[var(--color-text-primary)]/70 text-lg leading-relaxed mb-6">
-              I started creating these templates when I wanted to do something
-              unique for my partner's birthday. The reaction was so priceless
-              that I decided to refine the code and share it with the world.
-            </p>
-            <p className="text-[var(--color-text-primary)]/70 text-lg leading-relaxed mb-8">
-              My mission is to help people express their love through beautiful,
-              aesthetic digital experiences, even if they don't know how to
-              code.
-            </p>
-            <div className="flex items-center justify-center md:justify-start gap-6">
+
+            {/* Price & Buy Button Row */}
+            <div className="flex items-center justify-between pt-2 border-t border-[var(--color-bg-secondary)] dark:border-slate-800/60">
               <div className="flex flex-col">
-                <span className="text-3xl font-bold text-[var(--color-text-primary)] font-serif">
-                  50+
+                <span className="text-xs text-[var(--color-text-primary)]/40 line-through font-semibold">
+                  Rs. 899
                 </span>
-                <span className="text-sm font-bold text-[var(--color-accent-pink)] uppercase tracking-wider">
-                  Templates
+                <span className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)]">
+                  Rs. 499
                 </span>
               </div>
-              <div className="w-px h-10 bg-[var(--color-bg-secondary)]"></div>
-              <div className="flex flex-col">
-                <span className="text-3xl font-bold text-[var(--color-text-primary)] font-serif">
-                  <AnimatedCounter value={10000} />+
-                </span>
-                <span className="text-sm font-bold text-[var(--color-accent-pink)] uppercase tracking-wider">
-                  Happy Users
-                </span>
-              </div>
+              <button
+                onClick={() =>
+                  addToCart({
+                    id: 999,
+                    title: "Ultimate Template Bundle",
+                    price: "Rs. 499",
+                    gradient: "from-slate-900 to-slate-950",
+                    emoji: <Gift className="w-6 h-6 text-white" />,
+                  })
+                }
+                className="bg-[var(--color-text-primary)] text-white dark:bg-slate-800 hover:bg-[var(--color-accent-pink)] px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all hover:scale-105 shadow-md cursor-pointer"
+              >
+                <ShoppingCart className="w-3.5 h-3.5 text-amber-400" /> Buy
+              </button>
             </div>
           </div>
         </div>
@@ -586,12 +583,12 @@ export const SearchModal = () => {
                     navigate(`/product/${p.id}`);
                     setIsSearchOpen(false);
                   }}
-                  className="flex items-center gap-4 p-3 hover:bg-white rounded-xl transition-colors cursor-pointer border border-transparent hover:border-[var(--color-bg-secondary)]/50 group"
+                  className="flex items-center gap-4 p-3 hover:bg-[var(--color-bg-secondary)] rounded-xl transition-colors cursor-pointer border border-transparent hover:border-[var(--color-bg-secondary)]/50 group"
                 >
                   <div
                     className={`w-12 h-12 rounded-lg bg-gradient-to-br ${p.gradient} flex items-center justify-center text-2xl`}
                   >
-                    {p.emoji}
+                    {React.isValidElement(p.emoji) ? p.emoji : <Gift className="w-6 h-6 text-white" />}
                   </div>
                   <div className="flex-1">
                     <h4 className="font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent-pink)] transition-colors">

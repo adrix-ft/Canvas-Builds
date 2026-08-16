@@ -47,7 +47,11 @@ import {
   Terminal,
   Users,
   Book,
-  Plane
+  Plane,
+  Sun,
+  Moon,
+  Clock,
+  MapPin
 } from "lucide-react";
 import { supabase } from "./supabaseClient";
 import { getProductIcon } from "./iconHelper";
@@ -152,16 +156,8 @@ const MagneticButton = ({ children, className, onClick }: any) => {
 };
 
 const Navbar = () => {
-  const { cart, setIsCartOpen, setIsSearchOpen, isDarkMode } = useAppContext();
+  const { cart, setIsCartOpen, setIsSearchOpen, isDarkMode, toggleDarkMode } = useAppContext();
   const { pathname } = useLocation();
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -182,18 +178,18 @@ const Navbar = () => {
       >
         <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8">
           <div
-            className={`flex justify-between items-center bg-white/90 backdrop-blur-xl rounded-full px-4 sm:px-8 transition-all duration-300 ${isScrolled ? "h-14 sm:h-16 shadow-lg shadow-[var(--color-accent-pink)]/10 border border-white" : "h-14 sm:h-16 shadow-sm border border-[var(--color-bg-secondary)]/50"}`}
+            className={`flex justify-between items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-full px-4 sm:px-8 transition-all duration-300 ${isScrolled ? "h-14 sm:h-16 shadow-lg shadow-[var(--color-accent-pink)]/10 border border-white dark:border-slate-800" : "h-14 sm:h-16 shadow-sm border border-[var(--color-bg-secondary)]/50 dark:border-slate-800"}`}
           >
             <Link
               to="/"
               className="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0 group"
             >
-              <div className="relative w-9 h-9 sm:w-11 sm:h-11 bg-white text-[var(--color-text-primary)] rounded-lg sm:rounded-xl flex items-center justify-center font-serif text-xl sm:text-2xl font-black transform transition-all duration-500 group-hover:rotate-[8deg] group-hover:scale-105 shadow-md overflow-hidden border border-[var(--color-text-primary)]/10">
+              <div className="relative w-9 h-9 sm:w-11 sm:h-11 bg-white dark:bg-slate-800 text-[var(--color-text-primary)] rounded-lg sm:rounded-xl flex items-center justify-center font-serif text-xl sm:text-2xl font-black transform transition-all duration-500 group-hover:rotate-[8deg] group-hover:scale-105 shadow-md overflow-hidden border border-[var(--color-text-primary)]/10">
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/80 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out backdrop-blur-[1px] z-10"></div>
                 <span className="relative z-0 drop-shadow-sm">CB</span>
               </div>
               <span className="text-xl sm:text-2xl tracking-tight flex items-baseline relative drop-shadow-sm">
-                <span className="bg-gradient-to-b from-[#2a1b16] to-[#6d4c41] bg-clip-text text-transparent font-serif font-black">
+                <span className="bg-gradient-to-b from-[#2a1b16] to-[#6d4c41] dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent font-serif font-black">
                   Canvas
                 </span>
                 <span className="text-[var(--color-accent-pink)] italic tracking-tighter ml-1 relative font-serif font-black">
@@ -225,6 +221,15 @@ const Navbar = () => {
             </div>
 
             <div className="flex items-center gap-1 sm:gap-3">
+              {/* Theme Toggle Button */}
+              <button
+                onClick={toggleDarkMode}
+                className="hover:bg-[var(--color-bg-primary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 hover:text-[var(--color-accent-pink)] cursor-pointer"
+                title="Toggle Theme"
+              >
+                {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
+              </button>
+
               <button
                 onClick={() => setIsSearchOpen(true)}
                 className="hover:bg-[var(--color-bg-primary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 hover:text-[var(--color-accent-pink)] cursor-pointer"
@@ -344,22 +349,6 @@ const Hero = () => {
 
   return (
     <div className="relative overflow-hidden min-h-[90vh] sm:min-h-[85vh] flex items-center justify-center w-full pt-10 sm:pt-0">
-      
-      {/* Rich Background Textures */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[10%] left-[20%] w-[35rem] h-[35rem] bg-blue-500/[0.08] rounded-full blur-[130px]"></div>
-        <div className="absolute bottom-[20%] right-[15%] w-[35rem] h-[35rem] bg-indigo-500/[0.06] rounded-full blur-[130px]"></div>
-        
-        <div 
-          className="absolute inset-0 opacity-[0.55]" 
-          style={{ 
-            backgroundImage: 'radial-gradient(#475569 1.5px, transparent 1.5px)', 
-            backgroundSize: '28px 28px' 
-          }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white"></div>
-      </div>
-
       <motion.div
         style={{ y, opacity }}
         className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full pt-28 sm:pt-20"
@@ -383,7 +372,7 @@ const Hero = () => {
           </p>
           <Link
             to="/store"
-            className="mt-4 bg-[var(--color-text-primary)] text-white px-8 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium transition-all duration-300 flex items-center justify-center w-full sm:w-auto gap-3 hover:bg-[var(--color-accent-pink)] hover:shadow-lg hover:-translate-y-0.5"
+            className="mt-4 bg-[var(--color-text-primary)] text-white dark:bg-slate-100 dark:text-slate-900 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium transition-all duration-300 flex items-center justify-center w-full sm:w-auto gap-3 hover:bg-[var(--color-accent-pink)] hover:shadow-lg hover:-translate-y-0.5"
           >
             Explore Collection
             <ArrowRight className="w-4 h-4" />
@@ -394,7 +383,6 @@ const Hero = () => {
   );
 };
 
-// --- NEW PRODUCT PAGE COMPONENT ---
 const ProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -481,7 +469,7 @@ const ProductPage = () => {
         {/* Back Navigation */}
         <button 
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors mb-8 font-medium cursor-pointer"
+          className="flex items-center gap-2 text-sm text-[var(--color-text-primary)]/75 hover:text-[var(--color-accent-pink)] transition-colors mb-8 font-medium cursor-pointer"
         >
           <ChevronRight className="w-4 h-4 rotate-180" />
           Back to Products
@@ -533,7 +521,7 @@ const ProductPage = () => {
                   alert("Live demo link is not available for this template yet.");
                 }
               }}
-              className="w-full py-3.5 rounded-xl border border-[var(--color-bg-secondary)] bg-white/50 hover:bg-white text-[var(--color-text-primary)] font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+              className="w-full py-3.5 rounded-xl border border-[var(--color-bg-secondary)] bg-white/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 text-[var(--color-text-primary)] font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
             >
               <Play className="w-4 h-4" /> Live Demo
             </button>
@@ -551,7 +539,7 @@ const ProductPage = () => {
               {product.title}
             </h1>
             
-            <p className="text-[var(--color-text-primary)]/70 text-sm sm:text-base leading-relaxed mb-8">
+            <p className="text-[var(--color-text-primary)]/75 text-sm sm:text-base leading-relaxed mb-8">
               A beautifully crafted {product.category.toLowerCase()} website template featuring smooth animations, interactive elements, and a responsive design to make your special person smile.
             </p>
 
@@ -566,7 +554,7 @@ const ProductPage = () => {
                   "Mobile & Desktop optimized",
                   "Clean, well-structured code"
                 ].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-[var(--color-text-primary)]/80 font-medium">
+                  <li key={i} className="flex items-center gap-3 text-sm text-[var(--color-text-primary)]/80 dark:text-slate-300 font-medium">
                     <Check className="w-4 h-4 text-blue-500 shrink-0" />
                     {feature}
                   </li>
@@ -578,14 +566,14 @@ const ProductPage = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Option 1: Ready Website */}
-              <div className="border border-[var(--color-bg-secondary)] bg-white rounded-2xl p-5 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              <div className="border border-[var(--color-bg-secondary)] bg-white dark:bg-slate-900 rounded-2xl p-5 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                 <div className="flex items-center gap-2 text-[var(--color-text-primary)] font-bold mb-2">
                   <Book className="w-4 h-4 text-cyan-500" /> Ready Website
                 </div>
                 <div className="text-3xl font-black text-[var(--color-text-primary)] mb-4">₹399</div>
                 
-                <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2.5 mb-4">
-                  <p className="text-[10px] sm:text-xs text-blue-700 font-medium leading-tight">
+                <div className="bg-blue-50/50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900 rounded-lg p-2.5 mb-4">
+                  <p className="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300 font-medium leading-tight">
                     <span className="font-bold mr-1">ⓘ</span>
                     Fully done for you. Get your live website link & QR within 24 hours.
                   </p>
@@ -593,7 +581,7 @@ const ProductPage = () => {
 
                 <ul className="space-y-2 mb-6 flex-1">
                   {["Fully deployed website", "Personalized text & content", "No setup required", "Shareable live link"].map((feat, i) => (
-                    <li key={i} className="flex items-center gap-2 text-[11px] sm:text-xs text-[var(--color-text-primary)]/70">
+                    <li key={i} className="flex items-center gap-2 text-[11px] sm:text-xs text-[var(--color-text-primary)]/70 dark:text-slate-400">
                       <Check className="w-3 h-3 text-blue-500 shrink-0" /> {feat}
                     </li>
                   ))}
@@ -608,14 +596,14 @@ const ProductPage = () => {
               </div>
 
               {/* Option 2: Premium Code */}
-              <div className="border border-[var(--color-bg-secondary)] bg-white rounded-2xl p-5 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+              <div className="border border-[var(--color-bg-secondary)] bg-white dark:bg-slate-900 rounded-2xl p-5 flex flex-col shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
                 <div className="flex items-center gap-2 text-[var(--color-text-primary)] font-bold mb-2">
                   <Code className="w-4 h-4 text-[var(--color-accent-purple)]" /> Premium Code
                 </div>
                 <div className="text-3xl font-black text-[var(--color-text-primary)] mb-4">{product.price.replace('Rs.', '₹')}</div>
                 
-                <div className="bg-amber-50/50 border border-amber-100 rounded-lg p-2.5 mb-4">
-                  <p className="text-[10px] sm:text-xs text-amber-700 font-medium leading-tight">
+                <div className="bg-amber-50/50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900 rounded-lg p-2.5 mb-4">
+                  <p className="text-[10px] sm:text-xs text-amber-700 dark:text-amber-300 font-medium leading-tight">
                     <span className="font-bold mr-1">ⓘ</span>
                     Requires a laptop or desktop to edit the Premium Code.
                   </p>
@@ -623,7 +611,7 @@ const ProductPage = () => {
 
                 <ul className="space-y-2 mb-6 flex-1">
                   {["Complete source code", "Easily editable content", "Setup instructions included", "Lifetime access"].map((feat, i) => (
-                    <li key={i} className="flex items-center gap-2 text-[11px] sm:text-xs text-[var(--color-text-primary)]/70">
+                    <li key={i} className="flex items-center gap-2 text-[11px] sm:text-xs text-[var(--color-text-primary)]/70 dark:text-slate-400">
                       <Check className="w-3 h-3 text-blue-500 shrink-0" /> {feat}
                     </li>
                   ))}
@@ -651,25 +639,44 @@ const ProductCard = ({
   product: ProductItem;
 }) => {
   const navigate = useNavigate();
+
+  const getVideoId = (url?: string | null) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
+
+  const videoId = getVideoId(product.youtube_url);
+
   return (
     <motion.div
       variants={fadeUp}
       onClick={() => navigate(`/product/${product.id}`)}
-      className="group cursor-pointer flex flex-col w-full bg-white rounded-2xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_30px_-4px_rgba(0,0,0,0.1)] transition-all duration-500 hover:-translate-y-1 border border-black/[0.04]"
+      className="group cursor-pointer flex flex-col w-full bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_30px_-4px_rgba(0,0,0,0.1)] transition-all duration-500 hover:-translate-y-1 border border-black/[0.04] dark:border-slate-800"
     >
       <div
-        className={`relative w-full aspect-[16/9] bg-gradient-to-br ${product.gradient} flex items-center justify-center overflow-hidden shrink-0`}
+        className={`relative w-full aspect-[16/9] flex items-center justify-center overflow-hidden shrink-0 ${!videoId ? `bg-gradient-to-br ${product.gradient}` : 'bg-black/5'}`}
       >
-        <div className="text-[2.5rem] sm:text-[5.5rem] drop-shadow-xl transform group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500 relative z-0 flex justify-center items-center">
-          {product.emoji}
-        </div>
+        {videoId ? (
+          <img 
+            src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`} 
+            alt={product.title} 
+            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="text-[2.5rem] sm:text-[5.5rem] drop-shadow-xl transform group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500 relative z-0 flex justify-center items-center">
+            {product.emoji}
+          </div>
+        )}
+        
         {product.tag && (
-          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white text-[var(--color-text-primary)] text-[8px] sm:text-[10px] font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full z-20 shadow-sm border border-black/5 uppercase tracking-wider">
+          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-[8px] sm:text-[10px] font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full z-20 shadow-sm border border-black/5 dark:border-white/10 uppercase tracking-wider">
             {product.tag}
           </div>
         )}
       </div>
-      <div className="p-2 sm:p-6 flex-1 flex flex-col bg-white z-20 relative">
+      <div className="p-2 sm:p-6 flex-1 flex flex-col bg-white dark:bg-slate-900 z-20 relative border-t border-black/5 dark:border-slate-800">
         <p className="text-[8px] sm:text-xs font-bold tracking-widest uppercase text-[var(--color-text-primary)]/50 mb-0.5 sm:mb-1.5">
           {product.category}
         </p>
@@ -745,7 +752,7 @@ const PopularProducts = () => {
       className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20 relative"
       id="templates"
     >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-10 gap-4 sticky top-14 sm:top-16 z-30 bg-[var(--color-bg-primary)]/90 backdrop-blur-md py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-10 gap-4 sticky top-16 sm:top-20 z-30 bg-[var(--color-bg-primary)] dark:bg-slate-900/95 py-4 px-6 rounded-2xl shadow-sm border border-[var(--color-bg-secondary)]/60 dark:border-slate-800 backdrop-blur-md">
         <div>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
             <span className="w-5 sm:w-8 h-px bg-[var(--color-accent-pink)]"></span>
@@ -762,7 +769,7 @@ const PopularProducts = () => {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`snap-start px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 cursor-pointer ${activeCategory === cat ? "bg-[var(--color-text-primary)] text-white shadow-lg shadow-[var(--color-text-primary)]/20 scale-105" : "bg-white/80 text-[var(--color-text-primary)]/60 hover:bg-white hover:text-[var(--color-text-primary)] border border-[var(--color-bg-secondary)]/50"}`}
+              className={`snap-start px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 cursor-pointer ${activeCategory === cat ? "bg-[var(--color-text-primary)] text-white dark:bg-slate-100 dark:text-slate-900 shadow-lg shadow-[var(--color-text-primary)]/20 scale-105" : "bg-white/80 dark:bg-slate-900 text-[var(--color-text-primary)]/60 hover:bg-white hover:text-[var(--color-text-primary)] border border-[var(--color-bg-secondary)]/50 dark:border-slate-800"}`}
             >
               {cat}
             </button>
@@ -799,72 +806,92 @@ const PopularProducts = () => {
   );
 };
 
-const Testimonials = () => (
-  <div
-    id="reviews"
-    className="py-16 sm:py-16 bg-white/40 border-y border-[var(--color-bg-secondary)]/50 overflow-hidden relative"
-  >
-    <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-r from-[var(--color-bg-primary)] to-transparent z-10 pointer-events-none"></div>
-    <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-l from-[var(--color-bg-primary)] to-transparent z-10 pointer-events-none"></div>
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: false, margin: "-100px" }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      className="text-center mb-10 sm:mb-14 px-4"
-    >
-      <h2 className="text-3xl sm:text-4xl font-serif text-[var(--color-text-primary)] mb-4">
-        Loved by Thousands
-      </h2>
-      <p className="text-[var(--color-text-primary)]/60 font-medium">
-        Hear what our happy customers have to say about their special gifts.
-      </p>
-    </motion.div>
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: false, margin: "-50px" }}
-      transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-      className="flex whitespace-nowrap"
-    >
-      <motion.div
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
-        className="flex gap-6 sm:gap-8 px-4"
-      >
-        {[...INITIAL_TESTIMONIALS, ...INITIAL_TESTIMONIALS].map((test, i) => (
-          <div
-            key={i}
-            className="w-[300px] sm:w-[400px] bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[var(--color-bg-secondary)]/50 shrink-0 flex flex-col whitespace-normal"
-          >
-            <div className="flex text-amber-400 mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-current" />
-              ))}
-            </div>
-            <p className="text-[var(--color-text-primary)]/80 font-medium leading-relaxed mb-6 flex-1 italic relative">
-              <Quote className="w-8 h-8 text-[var(--color-bg-secondary)]/40 absolute -top-2 -left-2 -z-10" />
-              "{test.text}"
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-accent-pink)] to-[var(--color-accent-purple)] flex items-center justify-center text-white font-bold">
-                {test.name.charAt(0)}
-              </div>
-              <div>
-                <h5 className="font-bold text-[var(--color-text-primary)] text-sm">
-                  {test.name}
-                </h5>
-                <p className="text-xs text-[var(--color-accent-purple)] font-medium">
-                  {test.role}
-                </p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </motion.div>
-    </motion.div>
+// --- NEW SCROLLING TESTIMONIALS ---
+const PlaceholderReview = () => (
+  <div className="w-[280px] h-[140px] sm:w-[350px] sm:h-[180px] bg-white dark:bg-slate-900 rounded-2xl border border-[var(--color-bg-secondary)] dark:border-slate-800 flex flex-col items-center justify-center shrink-0 shadow-sm relative overflow-hidden group">
+    <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-bg-secondary)]/50 to-transparent dark:from-slate-800/50 dark:to-transparent opacity-50"></div>
+    <MessageCircle className="w-8 h-8 text-[var(--color-text-primary)]/20 dark:text-slate-600 mb-2 relative z-10 group-hover:scale-110 transition-transform" />
+    <span className="text-sm font-bold text-[var(--color-text-primary)]/40 dark:text-slate-500 relative z-10">
+      Review Screenshot
+    </span>
+    <span className="text-xs text-[var(--color-text-primary)]/30 dark:text-slate-600 font-medium relative z-10 uppercase tracking-widest mt-1">
+      Placeholder
+    </span>
   </div>
 );
+
+const Testimonials = () => {
+  const row1 = Array(5).fill(null);
+  const row2 = Array(5).fill(null);
+  const row3 = Array(5).fill(null);
+
+  return (
+    <div
+      id="reviews"
+      className="py-20 sm:py-28 bg-[var(--color-bg-primary)] overflow-hidden relative"
+    >
+      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-[var(--color-bg-primary)] to-transparent z-10 pointer-events-none"></div>
+      <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[var(--color-bg-primary)] to-transparent z-10 pointer-events-none"></div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="text-center mb-12 sm:mb-20 px-4"
+      >
+        <p className="text-[var(--color-accent-pink)] font-bold text-xs sm:text-sm tracking-widest uppercase mb-4">
+          What People Are Saying
+        </p>
+        <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-[var(--color-text-primary)] mb-6 tracking-tight">
+          People who made <br className="hidden sm:block" />
+          <span className="italic text-[var(--color-accent-purple)] dark:text-purple-400">
+            something special
+          </span>
+        </h2>
+        <p className="text-[var(--color-text-primary)]/70 dark:text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto font-medium leading-relaxed">
+          These are real people who had a moment worth sharing. Here's what they said after.
+        </p>
+      </motion.div>
+
+      <div className="flex flex-col gap-4 sm:gap-6">
+        <div className="flex whitespace-nowrap">
+          <motion.div
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 45 }}
+            className="flex gap-4 sm:gap-6 px-2 sm:px-3"
+          >
+            {[...row1, ...row1].map((_, i) => (
+              <PlaceholderReview key={`r1-${i}`} />
+            ))}
+          </motion.div>
+        </div>
+        <div className="flex whitespace-nowrap">
+          <motion.div
+            animate={{ x: ["-50%", "0%"] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 55 }}
+            className="flex gap-4 sm:gap-6 px-2 sm:px-3"
+          >
+            {[...row2, ...row2].map((_, i) => (
+              <PlaceholderReview key={`r2-${i}`} />
+            ))}
+          </motion.div>
+        </div>
+        <div className="flex whitespace-nowrap">
+          <motion.div
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 40 }}
+            className="flex gap-4 sm:gap-6 px-2 sm:px-3"
+          >
+            {[...row3, ...row3].map((_, i) => (
+              <PlaceholderReview key={`r3-${i}`} />
+            ))}
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const PromoBanners = () => (
   <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
@@ -876,12 +903,11 @@ const PromoBanners = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ type: "spring", stiffness: 50 }}
-        className="bg-gradient-to-br from-[var(--color-bg-secondary)] to-[var(--color-bg-primary)] rounded-[2rem] sm:rounded-2xl p-6 sm:p-12 flex flex-col justify-center relative overflow-hidden group min-h-[260px] sm:min-h-[380px] shadow-lg shadow-[var(--color-bg-secondary)]/30 border border-white"
+        className="bg-gradient-to-br from-[var(--color-bg-secondary)] to-[var(--color-bg-primary)] dark:from-slate-900 dark:to-slate-950 rounded-[2rem] sm:rounded-2xl p-6 sm:p-12 flex flex-col justify-center relative overflow-hidden group min-h-[260px] sm:min-h-[380px] shadow-lg shadow-[var(--color-bg-secondary)]/30 border border-white dark:border-slate-800"
       >
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'30\' height=\'30\' viewBox=\'0 0 30 30\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M15 15c-1.5 0-3-1.5-3-3s1.5-3 3-3 3 1.5 3 3-1.5 3-3 3zm0-8c-2.5 0-5 2.5-5 5s2.5 5 5 5 5-2.5 5-5-2.5-5-5-5z\' fill=\'%23ffffff\' fill-opacity=\'0.4\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] opacity-30"></div>
         <div className="relative z-10 w-2/3 sm:w-2/3">
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-white mb-3 sm:mb-5">
-            <span className="text-[8px] sm:text-[10px] font-black tracking-widest text-[var(--color-accent-purple)] uppercase">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 dark:bg-slate-800 backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-white dark:border-slate-700 mb-3 sm:mb-5">
+            <span className="text-[8px] sm:text-[10px] font-black tracking-widest text-[var(--color-accent-purple)] dark:text-purple-300 uppercase">
               Request
             </span>
           </div>
@@ -895,13 +921,13 @@ const PromoBanners = () => (
           </p>
           <MagneticButton 
             onClick={() => window.open("https://wa.me/917906568743?text=Hi%20Adarsh,%20I%20would%20like%20to%20request%20a%20custom%20website%20template!", "_blank")}
-            className="bg-[var(--color-text-primary)] text-white px-5 sm:px-8 py-2.5 sm:py-4 rounded-full text-[11px] sm:text-sm font-bold flex items-center gap-2 sm:gap-3 hover:bg-[var(--color-accent-purple)] transition-all duration-300 w-fit shadow-md cursor-pointer"
+            className="bg-[var(--color-text-primary)] text-white dark:bg-slate-100 dark:text-slate-900 px-5 sm:px-8 py-2.5 sm:py-4 rounded-full text-[11px] sm:text-sm font-bold flex items-center gap-2 sm:gap-3 hover:bg-[var(--color-accent-purple)] transition-all duration-300 w-fit shadow-md cursor-pointer"
           >
             Request Now <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
           </MagneticButton>
         </div>
         <div className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center pointer-events-none">
-          <div className="w-32 h-32 sm:w-64 sm:h-64 bg-white/50 rounded-full absolute top-1/2 -translate-y-1/2 -right-5 sm:-right-10 blur-xl sm:blur-2xl"></div>
+          <div className="w-32 h-32 sm:w-64 sm:h-64 bg-white/50 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 -right-5 sm:-right-10 blur-xl sm:blur-2xl"></div>
           <img 
             src="/assets/custom.png" 
             alt="Custom Template Request" 
@@ -910,35 +936,37 @@ const PromoBanners = () => (
         </div>
       </motion.div>
 
-      {/* Right Banner (Deploy It) */}
+      {/* Right Banner (How It Works Process) */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ type: "spring", stiffness: 50, delay: 0.1 }}
-        className="bg-gradient-to-br from-[var(--color-accent-pink)]/30 to-[var(--color-accent-purple)]/10 rounded-[2rem] sm:rounded-2xl p-6 sm:p-12 flex flex-col justify-center relative overflow-hidden group min-h-[260px] sm:min-h-[380px] shadow-lg shadow-[var(--color-accent-pink)]/10 border border-white"
+        className="bg-gradient-to-br from-[var(--color-bg-secondary)] to-[var(--color-bg-primary)] dark:from-slate-900 dark:to-slate-950 rounded-[2rem] sm:rounded-2xl p-6 sm:p-12 flex flex-col justify-center relative overflow-hidden group min-h-[260px] sm:min-h-[380px] shadow-lg shadow-[var(--color-bg-secondary)]/30 border border-white dark:border-slate-800"
       >
         <div className="relative z-10 w-2/3 sm:w-2/3">
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-white mb-3 sm:mb-5">
-            <span className="text-[8px] sm:text-[10px] font-black tracking-widest text-[var(--color-accent-purple)] uppercase">
-              Done For You
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 dark:bg-slate-800 backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-white dark:border-slate-700 mb-3 sm:mb-5">
+            <span className="text-[8px] sm:text-[10px] font-black tracking-widest text-[var(--color-accent-purple)] dark:text-purple-300 uppercase">
+              Simple Process
             </span>
           </div>
-          <h3 className="text-2xl sm:text-4xl md:text-5xl font-serif text-[var(--color-text-primary)] mb-2 sm:mb-6 leading-tight">
-            Want us to
+          <h3 className="text-2xl sm:text-4xl md:text-5xl font-serif text-[var(--color-text-primary)] mb-2 sm:mb-4 leading-tight">
+            How It
             <br />
-            deploy it?
+            Works
           </h3>
-          <p className="text-[var(--color-text-primary)]/70 text-[10px] sm:text-sm mb-4 sm:mb-8 max-w-[150px] sm:max-w-[200px] font-medium leading-relaxed hidden sm:block">
-            We can customize your template and host it for you. Get a
-            ready-to-share link!
+          <p className="text-[var(--color-text-primary)]/75 text-[10px] sm:text-sm mb-4 sm:mb-8 max-w-[200px] sm:max-w-[240px] font-medium leading-relaxed hidden sm:block">
+            1. Choose your template • 2. Download the code or let us deploy • 3. Share with your special person!
           </p>
-          <MagneticButton className="bg-white text-[var(--color-text-primary)] px-5 sm:px-8 py-2.5 sm:py-4 rounded-full text-[11px] sm:text-sm font-bold flex items-center gap-2 sm:gap-3 hover:bg-[var(--color-text-primary)] hover:text-white transition-all duration-300 w-fit shadow-sm border border-[var(--color-bg-secondary)]/50 mt-2 sm:mt-0 cursor-pointer">
-            Contact Us <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+          <MagneticButton 
+            onClick={() => window.location.href = "/faq"}
+            className="bg-white text-[var(--color-text-primary)] dark:bg-slate-800 dark:text-slate-100 px-5 sm:px-8 py-2.5 sm:py-4 rounded-full text-[11px] sm:text-sm font-bold flex items-center gap-2 sm:gap-3 hover:bg-[var(--color-text-primary)] hover:text-white transition-all duration-300 w-fit shadow-sm border border-[var(--color-bg-secondary)]/50 dark:border-slate-700 mt-2 sm:mt-0 cursor-pointer"
+          >
+            View FAQ <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
           </MagneticButton>
         </div>
         <div className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center pointer-events-none">
-          <div className="w-32 h-32 sm:w-64 sm:h-64 bg-white/60 rounded-full absolute top-1/2 -translate-y-1/2 -right-5 sm:-right-10 blur-xl sm:blur-2xl"></div>
+          <div className="w-32 h-32 sm:w-64 sm:h-64 bg-white/60 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 -right-5 sm:-right-10 blur-xl sm:blur-2xl"></div>
           <img 
             src="/assets/admin.png" 
             alt="Support Admin" 
@@ -950,6 +978,116 @@ const PromoBanners = () => (
     </div>
   </div>
 );
+
+// --- NEW CONTACT SECTION ---
+const ContactSection = () => {
+  const { addToast } = useAppContext();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !message.trim()) {
+      addToast("Please enter your name and message.", "info");
+      return;
+    }
+    addToast("Message sent! We'll get back to you shortly.", "success");
+    setName("");
+    setEmail("");
+    setMessage("");
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-24 mt-16 sm:mt-24">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl sm:text-4xl font-serif text-[var(--color-text-primary)] tracking-tight">
+          Still having an issue? Contact us
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+        {/* Email */}
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 flex items-center justify-center text-[var(--color-text-primary)]/60 dark:text-slate-400">
+            <Mail className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">Email us</p>
+            <p className="text-sm font-bold text-[var(--color-text-primary)]">adrashyadav07o8@gmail.com</p>
+          </div>
+        </div>
+        {/* Reply time */}
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 flex items-center justify-center text-[var(--color-text-primary)]/60 dark:text-slate-400">
+            <Clock className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">We reply within</p>
+            <p className="text-sm font-bold text-[var(--color-text-primary)]">5 hours</p>
+          </div>
+        </div>
+        {/* Location */}
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 flex items-center justify-center text-[var(--color-text-primary)]/60 dark:text-slate-400">
+            <MapPin className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">Based in</p>
+            <p className="text-sm font-bold text-[var(--color-text-primary)]">India <span className="text-[var(--color-text-primary)]/40">IN</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-10 shadow-sm border border-[var(--color-bg-secondary)]/50 dark:border-slate-800">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-bold text-[var(--color-text-primary)] mb-2">
+              Your name
+            </label>
+            <input
+              type="text"
+              placeholder="What should we call you?"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-[var(--color-bg-primary)]/30 dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[var(--color-text-primary)] mb-2">
+              Your email
+            </label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-[var(--color-bg-primary)]/30 dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[var(--color-text-primary)] mb-2">
+              What's on your mind?
+            </label>
+            <textarea
+              rows={4}
+              placeholder="Tell us what you're thinking..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full bg-[var(--color-bg-primary)]/30 dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors resize-none"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-[var(--color-accent-pink)] hover:bg-[var(--color-accent-purple)] text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer"
+          >
+            Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -974,7 +1112,7 @@ const FAQSection = () => {
         {FAQS.map((faq, index) => (
           <div
             key={index}
-            className="bg-white/60 backdrop-blur-md border border-white shadow-sm rounded-2xl overflow-hidden transition-all duration-300"
+            className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden transition-all duration-300"
           >
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
@@ -984,7 +1122,7 @@ const FAQSection = () => {
                 {faq.q}
               </span>
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${openIndex === index ? "bg-[var(--color-text-primary)] text-white" : "bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]"}`}
+                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${openIndex === index ? "bg-[var(--color-text-primary)] text-white dark:bg-slate-100 dark:text-slate-900" : "bg-[var(--color-bg-primary)] dark:bg-slate-800 text-[var(--color-text-primary)]"}`}
               >
                 <ChevronDown
                   className={`w-4 h-4 transition-transform duration-300 ${openIndex === index ? "rotate-180" : ""}`}
@@ -1000,7 +1138,7 @@ const FAQSection = () => {
                   transition={{ duration: 0.3 }}
                   className="overflow-hidden"
                 >
-                  <div className="p-5 sm:p-6 pt-0 text-[var(--color-text-primary)]/70 font-medium text-sm sm:text-base leading-relaxed border-t border-[var(--color-bg-secondary)]/30 mt-2">
+                  <div className="p-5 sm:p-6 pt-0 text-[var(--color-text-primary)]/75 font-medium text-sm sm:text-base leading-relaxed border-t border-[var(--color-bg-secondary)]/30 dark:border-slate-800 mt-2">
                     {faq.a}
                   </div>
                 </motion.div>
@@ -1015,95 +1153,145 @@ const FAQSection = () => {
 
 const Footer = () => {
   const { setLegalModal } = useAppContext();
+  const navigate = useNavigate();
+
+  const handleNavClick = (path: string) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <footer
       id="contact"
-      className="max-w-[1400px] mx-auto px-6 py-8 md:py-12 border-t border-[var(--color-bg-secondary)]/50 mt-12 md:mt-20"
+      className="bg-[var(--color-bg-secondary)]/30 dark:bg-slate-950 border-t border-[var(--color-bg-secondary)] dark:border-slate-800 mt-16 md:mt-24 pt-16 pb-12 transition-colors"
     >
-      <div className="flex flex-col md:flex-row justify-between items-start gap-8 md:gap-8">
-        <div className="flex flex-col gap-3 md:gap-4 text-left items-start">
-          <div className="flex items-center gap-2 cursor-pointer">
-            <span className="text-xl tracking-tight flex items-baseline">
-              <span className="font-serif font-black text-[var(--color-text-primary)]">
-                Canvas
+      <div className="max-w-[1400px] mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pb-16 border-b border-[var(--color-bg-secondary)] dark:border-slate-800">
+          
+          {/* Brand Info Column */}
+          <div className="md:col-span-4 flex flex-col gap-4 text-left items-start">
+            <div 
+              onClick={() => handleNavClick("/")}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <span className="text-2xl tracking-tight flex items-baseline">
+                <span className="font-serif font-black text-[var(--color-text-primary)]">
+                  Canvas
+                </span>
+                <span className="text-[var(--color-accent-pink)] italic tracking-tighter ml-1 font-serif font-black">
+                  Builds
+                </span>
               </span>
-              <span className="text-[var(--color-accent-pink)] italic tracking-tighter ml-1 font-serif font-black">
-                Builds
-              </span>
-            </span>
+            </div>
+            <p className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 leading-relaxed font-light max-w-sm">
+              Canvas Builds is India's premier digital gifting platform. Create a customisable website gift for your girlfriend, boyfriend, or best friend for birthdays, anniversaries, and every big moment.
+            </p>
+            <div className="flex gap-3 mt-2">
+              <div className="relative group">
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-[var(--color-bg-secondary)] dark:bg-slate-800 flex items-center justify-center text-[var(--color-text-primary)] transition-all duration-300 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] hover:text-white shadow-sm"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+              </div>
+              <div className="relative group">
+                <a
+                  href="https://wa.me/917906568743"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-[var(--color-bg-secondary)] dark:bg-slate-800 flex items-center justify-center text-[var(--color-text-primary)] transition-all duration-300 hover:bg-[#25D366] hover:text-white shadow-sm"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                </a>
+              </div>
+              <div className="relative group">
+                <a
+                  href="https://github.com/adrix-ft"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-[var(--color-bg-secondary)] dark:bg-slate-800 flex items-center justify-center text-[var(--color-text-primary)] transition-all duration-300 hover:bg-[#333] hover:text-white shadow-sm"
+                >
+                  <Github className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
           </div>
-          <div className="text-sm text-[var(--color-text-primary)]/40">
-            © {new Date().getFullYear()} Canvas Builds. All rights reserved.
-          </div>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-8 md:gap-12 text-left w-full md:w-auto">
-          <div className="flex flex-col gap-3">
-            <h4 className="font-bold text-[var(--color-text-primary)]">
-              Get in Touch
-            </h4>
-            <a
-              href="mailto:adrashyadav07o8@gmail.com"
-              className="text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors flex items-center justify-start gap-2"
-            >
-              Email Us
-            </a>
-            <a
-              href="https://wa.me/917906568743"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors flex items-center justify-start gap-2"
-            >
-              <MessageCircle className="w-4 h-4" />
-              WhatsApp
-            </a>
-          </div>
-          <div className="flex flex-col gap-3">
-            <h4 className="font-bold text-[var(--color-text-primary)]">
-              Legal
-            </h4>
-            <button
-              onClick={() => setLegalModal("terms")}
-              className="text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer"
-            >
-              Terms of Service
-            </button>
-            <button
-              onClick={() => setLegalModal("privacy")}
-              className="text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer"
-            >
-              Privacy Policy
-            </button>
-          </div>
-          <div className="flex flex-col gap-3 col-span-2 sm:col-span-1">
-            <h4 className="font-bold text-[var(--color-text-primary)]">
-              Socials
-            </h4>
-            <div className="flex gap-3 justify-start">
-              <a
-                href="https://wa.me/917906568743"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-[var(--color-bg-secondary)]/50 flex items-center justify-center text-[var(--color-text-primary)] hover:bg-[var(--color-accent-pink)] hover:text-white transition-colors"
-              >
-                <MessageCircle className="w-5 h-5" />
+
+          {/* Links Columns Grid */}
+          <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8 text-left">
+            <div className="flex flex-col gap-3">
+              <h4 className="font-bold text-[var(--color-text-primary)] text-xs uppercase tracking-widest mb-1">
+                Product
+              </h4>
+              <button onClick={() => handleNavClick("/store")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
+                Templates
+              </button>
+              <button onClick={() => handleNavClick("/faq")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
+                How it works
+              </button>
+              <button onClick={() => handleNavClick("/reviews")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
+                Reviews
+              </button>
+            </div>
+            <div className="flex flex-col gap-3">
+              <h4 className="font-bold text-[var(--color-text-primary)] text-xs uppercase tracking-widest mb-1">
+                Company
+              </h4>
+              <button onClick={() => handleNavClick("/about")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
+                About
+              </button>
+              <a href="https://wa.me/917906568743" target="_blank" rel="noreferrer" className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors">
+                Collab
               </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-[var(--color-bg-secondary)]/50 flex items-center justify-center text-[var(--color-text-primary)] hover:bg-[var(--color-accent-pink)] hover:text-white transition-colors"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href="https://github.com/adrix-ft"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-[var(--color-bg-secondary)]/50 flex items-center justify-center text-[var(--color-text-primary)] hover:bg-[var(--color-accent-pink)] hover:text-white transition-colors"
-              >
-                <Github className="w-5 h-5" />
+              <a href="https://wa.me/917906568743" target="_blank" rel="noreferrer" className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors">
+                Earn with us
               </a>
             </div>
+            <div className="flex flex-col gap-3">
+              <h4 className="font-bold text-[var(--color-text-primary)] text-xs uppercase tracking-widest mb-1">
+                Support
+              </h4>
+              <a href="mailto:adrashyadav07o8@gmail.com" className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors">
+                Contact
+              </a>
+              <button onClick={() => setLegalModal("terms")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
+                Terms of Service
+              </button>
+              <button onClick={() => setLegalModal("privacy")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
+                Privacy Policy
+              </button>
+            </div>
+            <div className="flex flex-col gap-3">
+              <h4 className="font-bold text-[var(--color-text-primary)] text-xs uppercase tracking-widest mb-1">
+                Resources
+              </h4>
+              <button onClick={() => handleNavClick("/store")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
+                Website for girlfriend
+              </button>
+              <button onClick={() => handleNavClick("/store")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
+                Website for boyfriend
+              </button>
+              <button onClick={() => handleNavClick("/store")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
+                Anniversary website
+              </button>
+              <button onClick={() => handleNavClick("/store")} className="text-sm text-[var(--color-text-primary)]/70 dark:text-slate-400 hover:text-[var(--color-accent-pink)] transition-colors text-left cursor-pointer">
+                Birthday website
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row justify-between items-center pt-8 gap-4 text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500">
+          <div>
+            © {new Date().getFullYear()} Canvas Builds. Made with ❤️ by Adarsh.
+          </div>
+          <div>
+            <a href="mailto:adrashyadav07o8@gmail.com" className="hover:text-[var(--color-accent-pink)] transition-colors">
+              adrashyadav07o8@gmail.com
+            </a>
           </div>
         </div>
       </div>
@@ -1149,14 +1337,14 @@ const services = [
 
 const ServicesShowcase = () => {
   return (
-    <div className="py-16 bg-white/40 border-y border-[var(--color-bg-secondary)]/50 overflow-hidden w-full">
+    <div className="py-16 bg-white/40 dark:bg-slate-900/40 border-y border-[var(--color-bg-secondary)]/50 dark:border-slate-800 overflow-hidden w-full">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="text-4xl sm:text-5xl font-serif text-[var(--color-text-primary)] mb-6 tracking-tight">
             Bring your favorite moments to life
           </h2>
-          <p className="text-[var(--color-text-primary)]/70 text-lg sm:text-xl font-light">
+          <p className="text-[var(--color-text-primary)]/75 text-lg sm:text-xl font-light">
             With Canvas Builds, you unlock beautiful, code-driven templates that spark joy and help you express exactly how you feel.
           </p>
         </div>
@@ -1188,14 +1376,12 @@ const ServicesShowcase = () => {
                     
                     {isImagePath ? (
                       <motion.img 
-                        whileHover={{ scale: 1.05 }}
                         src={service.image} 
                         alt={service.title} 
                         className="relative z-10 w-full h-full object-cover object-[75%] transition-transform duration-500"
                       />
                     ) : (
                       <motion.div 
-                        whileHover={{ scale: 1.1, rotate: [-5, 5, 0] }}
                         className="text-[8rem] sm:text-[12rem] relative z-10 drop-shadow-2xl transition-transform duration-500 leading-none select-none flex justify-center items-center"
                       >
                         {service.image}
@@ -1218,12 +1404,12 @@ const ServicesShowcase = () => {
                   <h3 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--color-text-primary)] mb-6">
                     {service.title}
                   </h3>
-                  <p className="text-[var(--color-text-primary)]/70 text-lg leading-relaxed mb-8 max-w-md">
+                  <p className="text-[var(--color-text-primary)]/75 text-lg leading-relaxed mb-8 max-w-md">
                     {service.description}
                   </p>
                   <Link 
                     to="/store"
-                    className="bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white font-bold py-3.5 px-8 rounded-full transition-all shadow-lg shadow-[var(--color-text-primary)]/10 flex items-center gap-2 group hover:-translate-y-1"
+                    className="bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white dark:bg-slate-100 dark:text-slate-900 font-bold py-3.5 px-8 rounded-full transition-all shadow-lg shadow-[var(--color-text-primary)]/10 flex items-center gap-2 group hover:-translate-y-1"
                   >
                     Explore Templates
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -1282,17 +1468,68 @@ const ReviewsPage = () => {
     addToast("Thank you! Your review has been added.", "success");
   };
 
+  const avatarGradients = [
+    "from-blue-500 to-indigo-600",
+    "from-rose-500 to-pink-600",
+    "from-amber-400 to-orange-500",
+    "from-emerald-400 to-teal-500",
+    "from-purple-500 to-fuchsia-600",
+    "from-cyan-400 to-blue-500"
+  ];
+
   return (
     <div className="pt-24 pb-16 min-h-[70vh]">
       <Testimonials />
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-16 sm:mt-24">
-        <div className="bg-white rounded-[2rem] p-6 sm:p-10 shadow-xl border border-[var(--color-bg-secondary)]/50">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 mt-16 sm:mt-24">
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-[var(--color-text-primary)] mb-4 tracking-tight">
+            Real words from people who built with us
+          </h2>
+          <p className="text-[var(--color-text-primary)]/60 dark:text-slate-400 text-sm sm:text-base font-medium">
+            Alongside the screenshots, here are the stories behind those launches.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20 sm:mb-24">
+          {reviewsList.map((review, idx) => (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              key={idx} 
+              className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow border border-[var(--color-bg-secondary)]/80 dark:border-slate-800 flex flex-col"
+            >
+              <div className="flex items-center gap-4 mb-5">
+                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${avatarGradients[idx % avatarGradients.length]} text-white flex items-center justify-center font-bold text-xl shadow-sm shrink-0`}>
+                  {review.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h4 className="font-bold text-[var(--color-text-primary)] text-lg leading-tight">{review.name}</h4>
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--color-text-primary)]/40 dark:text-slate-500">{review.role}</span>
+                </div>
+              </div>
+              <div className="flex gap-1 text-amber-400 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className="text-[var(--color-text-primary)]/80 dark:text-slate-300 text-sm leading-relaxed flex-1 italic">
+                "{review.text}"
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-10 shadow-xl border border-[var(--color-bg-secondary)]/50 dark:border-slate-800">
           <div className="text-center mb-8">
             <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--color-text-primary)] mb-2">
               Share Your Experience
             </h3>
-            <p className="text-[var(--color-text-primary)]/70 text-sm">
+            <p className="text-[var(--color-text-primary)]/75 text-sm">
               Bought a template or had a custom build? Let us know what you think!
             </p>
           </div>
@@ -1308,7 +1545,7 @@ const ReviewsPage = () => {
                   placeholder="e.g. Adarsh Yadav"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[var(--color-bg-primary)]/50 border border-[var(--color-bg-secondary)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors"
+                  className="w-full bg-[var(--color-bg-primary)]/50 dark:bg-slate-800 border border-[var(--color-bg-secondary)] dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors"
                 />
               </div>
               <div>
@@ -1320,7 +1557,7 @@ const ReviewsPage = () => {
                   placeholder="e.g. Bought for Anniversary"
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  className="w-full bg-[var(--color-bg-primary)]/50 border border-[var(--color-bg-secondary)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors"
+                  className="w-full bg-[var(--color-bg-primary)]/50 dark:bg-slate-800 border border-[var(--color-bg-secondary)] dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors"
                 />
               </div>
             </div>
@@ -1351,13 +1588,13 @@ const ReviewsPage = () => {
                 placeholder="Write your experience here..."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                className="w-full bg-[var(--color-bg-primary)]/50 border border-[var(--color-bg-secondary)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors resize-none"
+                className="w-full bg-[var(--color-bg-primary)]/50 dark:bg-slate-800 border border-[var(--color-bg-secondary)] dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors resize-none"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[var(--color-text-primary)]/10 cursor-pointer"
+              className="w-full bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white dark:bg-slate-100 dark:text-slate-900 font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[var(--color-text-primary)]/10 cursor-pointer"
             >
               Submit Review
             </button>
@@ -1369,8 +1606,9 @@ const ReviewsPage = () => {
 };
 
 const FAQPage = () => (
-  <div className="pt-24 min-h-[70vh]">
+  <div className="pt-24 min-h-[70vh] bg-[var(--color-bg-primary)]">
     <FAQSection />
+    <ContactSection />
   </div>
 );
 
@@ -1383,33 +1621,33 @@ const AboutPage = () => (
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-[var(--color-text-primary)] mb-4 tracking-tight leading-tight">
           Get to Know the Creator
         </h1>
-        <p className="text-[var(--color-text-primary)]/70 text-base sm:text-lg font-light leading-relaxed">
+        <p className="text-[var(--color-text-primary)]/75 text-base sm:text-lg font-light leading-relaxed">
           Welcome! I build high-performance, beautiful websites and custom digital experiences.
         </p>
       </div>
 
       {/* Unified Portfolio Card */}
-      <div className="bg-gradient-to-br from-white via-white to-[var(--color-accent-pink)]/20 rounded-[2.5rem] p-6 sm:p-12 shadow-2xl border border-white relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
+      <div className="bg-gradient-to-br from-white via-white to-[var(--color-accent-pink)]/20 dark:from-slate-900 dark:to-slate-900 rounded-[2.5rem] p-6 sm:p-12 shadow-2xl border border-white dark:border-slate-800 relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[var(--color-accent-pink)]/15 to-[var(--color-accent-purple)]/20 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Left Side: Bio Content & Direct Contact Options */}
         <div className="lg:col-span-7 relative z-10 flex flex-col justify-center lg:pr-8">
-          <div className="inline-flex items-center gap-2 bg-[var(--color-bg-primary)] px-3.5 py-1 rounded-full text-[var(--color-accent-purple)] font-bold text-xs uppercase tracking-wider mb-4 border border-[var(--color-bg-secondary)] w-fit">
+          <div className="inline-flex items-center gap-2 bg-[var(--color-bg-primary)] dark:bg-slate-800 px-3.5 py-1 rounded-full text-[var(--color-accent-purple)] dark:text-purple-300 font-bold text-xs uppercase tracking-wider mb-4 border border-[var(--color-bg-secondary)] dark:border-slate-700 w-fit">
             <Code className="w-3.5 h-3.5" /> Student & Freelancer
           </div>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--color-text-primary)] mb-4">
             Hi, I'm Adarsh
           </h2>
-          <p className="text-[var(--color-text-primary)]/80 text-sm sm:text-base leading-relaxed font-medium mb-6">
+          <p className="text-[var(--color-text-primary)]/80 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-medium mb-6">
             I am a dedicated software developer focused on crafting clean code, smooth animations, and user-centric web applications. Through Canvas Builds, I bridge the gap between technical architecture and elegant design, delivering production-ready digital solutions.
           </p>
 
-          <div className="flex flex-wrap gap-3 pt-4 border-t border-[var(--color-bg-secondary)]/60 mb-6">
-            <div className="bg-white/90 backdrop-blur-sm px-4 py-2.5 rounded-2xl border border-[var(--color-bg-secondary)] flex items-center gap-2 shadow-sm">
+          <div className="flex flex-wrap gap-3 pt-4 border-t border-[var(--color-bg-secondary)]/60 dark:border-slate-800 mb-6">
+            <div className="bg-white/90 dark:bg-slate-800 backdrop-blur-sm px-4 py-2.5 rounded-2xl border border-[var(--color-bg-secondary)] dark:border-slate-700 flex items-center gap-2 shadow-sm">
               <Sparkles className="w-4 h-4 text-[var(--color-accent-pink)]" />
               <span className="text-xs font-bold text-[var(--color-text-primary)]">React, Tailwind & TypeScript</span>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm px-4 py-2.5 rounded-2xl border border-[var(--color-bg-secondary)] flex items-center gap-2 shadow-sm">
+            <div className="bg-white/90 dark:bg-slate-800 backdrop-blur-sm px-4 py-2.5 rounded-2xl border border-[var(--color-bg-secondary)] dark:border-slate-700 flex items-center gap-2 shadow-sm">
               <Terminal className="w-4 h-4 text-[var(--color-accent-purple)]" />
               <span className="text-xs font-bold text-[var(--color-text-primary)]">Logic & Performance</span>
             </div>
@@ -1418,9 +1656,9 @@ const AboutPage = () => (
           <div className="flex flex-wrap gap-4">
             <a
               href="mailto:adrashyadav07o8@gmail.com"
-              className="bg-white hover:bg-[var(--color-bg-primary)] border border-[var(--color-bg-secondary)] shadow-sm px-4 py-3 rounded-2xl flex items-center gap-3 transition-all duration-300 w-full sm:w-auto"
+              className="bg-white dark:bg-slate-800 hover:bg-[var(--color-bg-primary)] border border-[var(--color-bg-secondary)] dark:border-slate-700 shadow-sm px-4 py-3 rounded-2xl flex items-center gap-3 transition-all duration-300 w-full sm:w-auto"
             >
-              <span className="w-9 h-9 bg-rose-100 text-[var(--color-accent-pink)] rounded-xl flex items-center justify-center text-sm shrink-0 shadow-inner">
+              <span className="w-9 h-9 bg-rose-100 dark:bg-rose-950 text-[var(--color-accent-pink)] rounded-xl flex items-center justify-center text-sm shrink-0 shadow-inner">
                  <Mail className="w-5 h-5" />
               </span>
               <div className="text-left">
@@ -1433,9 +1671,9 @@ const AboutPage = () => (
               href="https://wa.me/917906568743"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white hover:bg-[var(--color-bg-primary)] border border-[var(--color-bg-secondary)] shadow-sm px-4 py-3 rounded-2xl flex items-center gap-3 transition-all duration-300 w-full sm:w-auto"
+              className="bg-white dark:bg-slate-800 hover:bg-[var(--color-bg-primary)] border border-[var(--color-bg-secondary)] dark:border-slate-700 shadow-sm px-4 py-3 rounded-2xl flex items-center gap-3 transition-all duration-300 w-full sm:w-auto"
             >
-              <div className="w-9 h-9 bg-purple-100 text-[var(--color-accent-purple)] rounded-xl flex items-center justify-center shrink-0 shadow-inner">
+              <div className="w-9 h-9 bg-purple-100 dark:bg-purple-950 text-[var(--color-accent-purple)] rounded-xl flex items-center justify-center shrink-0 shadow-inner">
                 <MessageCircle className="w-4 h-4" />
               </div>
               <div className="text-left">
@@ -1448,7 +1686,7 @@ const AboutPage = () => (
 
         {/* Right Side: Representation */}
         <div className="lg:col-span-5 relative flex items-end justify-center min-h-[320px] sm:min-h-[380px] lg:min-h-[440px] mt-8 lg:mt-0">
-          <div className="w-48 h-48 sm:w-56 sm:h-56 bg-white/60 rounded-full absolute top-1/2 -translate-y-1/2 right-4 blur-2xl pointer-events-none"></div>
+          <div className="w-48 h-48 sm:w-56 sm:h-56 bg-white/60 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 right-4 blur-2xl pointer-events-none"></div>
           
           <img 
             src="/assets/dev.png" 
@@ -1456,7 +1694,7 @@ const AboutPage = () => (
             className="absolute bottom-[-1rem] lg:bottom-[-3rem] right-[-9rem] lg:right-[-12rem] h-[340px] sm:h-[400px] lg:h-[115%] w-auto max-w-none object-contain object-bottom drop-shadow-2xl z-10 pointer-events-none"
           />
 
-          <div className="absolute top-0 right-0 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full border border-white text-[10px] font-bold text-[var(--color-text-primary)]/70 uppercase tracking-widest z-20 shadow-sm">
+          <div className="absolute top-0 right-0 bg-white/90 dark:bg-slate-800 backdrop-blur-md px-3 py-1 rounded-full border border-white dark:border-slate-700 text-[10px] font-bold text-[var(--color-text-primary)]/75 uppercase tracking-widest z-20 shadow-sm">
             The Developer
           </div>
         </div>
@@ -1490,26 +1728,31 @@ export default function App() {
   return (
     <Router>
       <ScrollHandler />
-      <div className="min-h-screen bg-[var(--color-bg-primary)] font-sans selection:bg-[var(--color-bg-secondary)] selection:text-[var(--color-text-primary)] overflow-x-hidden text-[var(--color-text-primary)]">
-        <Navbar />
-        <ToastContainer />
-        <CartDrawer />
-        <AnimatePresence>
-          {isSearchOpen && <SearchModal />}
-        </AnimatePresence>
-        <LegalModal />
-        <main>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/store" element={<StorePage />} />
-            <Route path="/product/:id" element={<ProductPage />} />
-            <Route path="/reviews" element={<ReviewsPage />} />
-            <Route path="/faq" element={<FAQPage />} />
-            <Route path="/about" element={<AboutPage />} />
-          </Routes>
-        </main>
-        <FloatingChat />
-        <Footer />
+      <div className="min-h-screen bg-[var(--color-bg-primary)] font-sans selection:bg-[var(--color-bg-secondary)] selection:text-[var(--color-text-primary)] overflow-x-hidden text-[var(--color-text-primary)] relative">
+        
+        {/* Main Application Content */}
+        <div className="relative z-10">
+          <Navbar />
+          <ToastContainer />
+          <CartDrawer />
+          <AnimatePresence>
+            {isSearchOpen && <SearchModal />}
+          </AnimatePresence>
+          <LegalModal />
+          <main>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/store" element={<StorePage />} />
+              <Route path="/product/:id" element={<ProductPage />} />
+              <Route path="/reviews" element={<ReviewsPage />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/about" element={<AboutPage />} />
+            </Routes>
+          </main>
+          <FloatingChat />
+          <Footer />
+        </div>
+        
       </div>
     </Router>
   );

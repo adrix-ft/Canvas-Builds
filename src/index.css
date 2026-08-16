@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Force Tailwind v4 to use our manual toggle button instead of the OS theme */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -55,9 +58,9 @@
 
 @layer base {
   :root {
-    /* Ayush's White, Blue & Black Theme */
-    --color-bg-primary: #ffffff;      
-    --color-bg-secondary: #f0f4f8;    
+    /* Slightly tinted off-white background so white cards pop! */
+    --color-bg-primary: #f8fafc;      
+    --color-bg-secondary: #e2e8f0;    
     --color-text-primary: #000000;    
     --color-accent-pink: #0055FF;     
     --color-accent-purple: #0F172A;   
@@ -83,11 +86,10 @@
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
   }
-
   .dark {
-    /* Dark Mode Equivalent */
-    --color-bg-primary: #0a0f1a;
-    --color-bg-secondary: #111827;
+    /* Deep slate background so slate-900 cards pop! */
+    --color-bg-primary: #020617;
+    --color-bg-secondary: #1e293b;
     --color-text-primary: #f8fafc;
     --color-accent-pink: #3b82f6;     
     --color-accent-purple: #cbd5e1;   
@@ -123,10 +125,32 @@
   }
 }
 
-.hide-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-.hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+  }
+  .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+  }
+
+  /* Global Background Textures */
+  .bg-grid-pattern {
+    background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .dark .bg-grid-pattern {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  }
+
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.3;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+  }
+  .dark .bg-noise {
+    opacity: 0.15;
+    mix-blend-mode: screen;
+  }
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 type Toast = { id: number; message: string; type: "success" | "info" };
 
@@ -8,7 +8,7 @@ type CartItem = {
   price: string;
   image?: string;
   gradient: string;
-  emoji: ReactNode; // Fixed to support React Icons instead of broken emojis
+  emoji: ReactNode; 
 };
 
 interface AppContextType {
@@ -37,7 +37,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
@@ -45,7 +45,21 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  
+  // Dark mode storage & initialization
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDarkMode]);
+
   const [legalModal, setLegalModal] = useState<"privacy" | "terms" | null>(null);
 
   const addToCart = (item: CartItem) => {
@@ -69,7 +83,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   return (
     <AppContext.Provider
