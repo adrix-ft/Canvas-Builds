@@ -1017,8 +1017,11 @@ const ProductPage = () => {
                   ))}
                 </ul>
 
-                <button 
-                  onClick={() => window.open(`https://wa.me/917906568743?text=Hi,%20I%20want%20to%20order%20the%20Ready%20Website%20for%20${product.title}`, "_blank")}
+                <button
+                  onClick={() => {
+                    const message = `Hi Canvas Builds! 👋\n\nI'd like to order a Ready Website.\n\n📦 *Template:* ${product.title}\n💰 *Price:* ₹399\n\nPlease let me know the next steps for customization and payment!`;
+                    window.open(`https://wa.me/917906568743?text=${encodeURIComponent(message)}`, "_blank");
+                  }}
                   className="w-full py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-sm rounded-xl transition-colors mt-auto cursor-pointer"
                 >
                   Order Your Website
