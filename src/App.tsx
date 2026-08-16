@@ -1357,17 +1357,41 @@ const ContactSection = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false); // Added loading state
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !message.trim()) {
       addToast("Please enter your name and message.", "info");
       return;
     }
-    addToast("Message sent! We'll get back to you shortly.", "success");
-    setName("");
-    setEmail("");
-    setMessage("");
+
+    setIsSubmitting(true);
+
+    try {
+      // Insert the message into Supabase
+      const { error } = await supabase
+        .from("messages")
+        .insert([
+          { 
+            name: name.trim(), 
+            email: email.trim(), 
+            message: message.trim() 
+          }
+        ]);
+
+      if (error) throw error;
+
+      addToast("Message sent! We'll get back to you shortly.", "success");
+      setName("");
+      setEmail("");
+      setMessage("");
+    } catch (err) {
+      console.error("Error sending message:", err);
+      addToast("Something went wrong. Please try again.", "info");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -1377,7 +1401,6 @@ const ContactSection = () => {
           Still having an issue? Contact us
         </h2>
       </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
         {/* Email */}
         <div className="flex flex-col items-center text-center gap-3">
@@ -1386,7 +1409,7 @@ const ContactSection = () => {
           </div>
           <div>
             <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">Email us</p>
-            <p className="text-sm font-bold text-[var(--color-text-primary)]">canvasbuildsofficial@gmail.com</p>
+            <p className="text-sm font-bold text-[var(--color-text-primary)]">adrashyadav07o8@gmail.com</p>
           </div>
         </div>
         {/* Reply time */}
@@ -1451,9 +1474,10 @@ const ContactSection = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-[var(--color-accent-pink)] hover:bg-[var(--color-accent-purple)] text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full bg-[var(--color-accent-pink)] hover:bg-[var(--color-accent-purple)] text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Send Message
+            {isSubmitting ? "Sending..." : "Send Message"}
           </button>
         </form>
       </div>
