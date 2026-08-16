@@ -104,7 +104,19 @@ const INITIAL_TESTIMONIALS = [
 const FAQS = [
   {
     q: "Do I need coding experience?",
-    a: "Not at all! We provide an easy guide to edit the raw code yourself. Or, skip the hassle we can customize and deploy the site for you!",
+    a: "Not at all! We provide an easy guide to edit the raw code yourself. Or, skip the hassle—we can customize and deploy the site for you!",
+  },
+  {
+    q: "How do I embed my own Spotify, YouTube, or Instagram content?",
+    a: "It's super simple! You just copy the 'Embed Code' or 'Share Link' directly from the app (like a Spotify playlist or YouTube video) and paste it into the designated spot in our template. If you purchase the 'Ready Website' option, just send us the links and we'll handle the embedding for you!",
+  },
+  {
+    q: "Can I add a Google Map of where we first met?",
+    a: "Absolutely. You can easily embed a custom Google Maps location to highlight a special memory, like your first date, proposal spot, or favorite vacation destination.",
+  },
+  {
+    q: "Do I need premium accounts to embed these features?",
+    a: "No premium subscriptions are required! Standard public links from platforms like Spotify, Apple Music, Netflix, and YouTube work perfectly well inside our templates.",
   },
   {
     q: "Is this a one-time payment?",
@@ -117,7 +129,7 @@ const FAQS = [
   {
     q: "What do I get after purchasing?",
     a: "You instantly receive a zip file with the raw source code and instructions. From there, choose your path: DIY or let us customize it!",
-  },
+  }
 ];
 
 const fadeUp = {
@@ -263,15 +275,16 @@ const Navbar = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-[var(--color-text-primary)]/40 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm lg:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-[var(--color-bg-primary)] shadow-2xl flex flex-col rounded-l-[2rem] overflow-hidden"
+              /* Smooth mobile tween transition */
+              transition={{ type: "tween", duration: 0.3, ease: "easeInOut" }}
+              className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-[var(--color-bg-primary)] shadow-2xl flex flex-col rounded-l-[2rem] overflow-hidden will-change-transform"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-4 sm:p-5 flex justify-between items-center border-b border-[var(--color-bg-secondary)]/50 bg-[var(--color-bg-primary)]/50 backdrop-blur-md">
@@ -338,7 +351,7 @@ const Navbar = () => {
   );
 };
 
-// --- CLEAN FIGMA-STYLE CURSORS ---
+// --- HIGH PERFORMANCE FIGMA-STYLE CURSORS ---
 const Cursor = ({ color, name, x, y, delay, img, durationX = 12, durationY = 15, moveX = 40, moveY = -40 }: any) => (
   <motion.div
     initial={{ opacity: 0, x: 0, y: 20 }}
@@ -348,13 +361,14 @@ const Cursor = ({ color, name, x, y, delay, img, durationX = 12, durationY = 15,
       x: { duration: durationX, repeat: Infinity, ease: "easeInOut", delay },
       y: { duration: durationY, repeat: Infinity, ease: "easeInOut", delay }
     }}
-    className="absolute pointer-events-none hidden md:flex flex-col items-start drop-shadow-md"
+    // Cursors are now back on mobile, safely scaled down and GPU optimized
+    className="absolute pointer-events-none flex flex-col items-start scale-75 sm:scale-100 will-change-transform"
     style={{ left: x, top: y }}
   >
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="drop-shadow-sm z-30" xmlns="http://www.w3.org/2000/svg">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="z-30 drop-shadow-sm" xmlns="http://www.w3.org/2000/svg">
       <path d="M5.5 3.5L18.5 10.5L11.5 12.5L8.5 19.5L5.5 3.5Z" fill={color} stroke="white" strokeWidth="2" strokeLinejoin="round"/>
     </svg>
-    <div className="flex items-center gap-2 bg-white px-2.5 py-1 rounded-full shadow-sm border border-slate-100 ml-3 -mt-1">
+    <div className="flex items-center gap-2 bg-white px-2.5 py-1 rounded-full shadow-md border border-slate-100 ml-3 -mt-1 z-40">
       {img && <img src={img} alt={name} className="w-4 h-4 rounded-full object-cover" />}
       <span className="text-[10px] font-bold text-slate-800">{name}</span>
     </div>
@@ -363,25 +377,25 @@ const Cursor = ({ color, name, x, y, delay, img, durationX = 12, durationY = 15,
 
 const Hero = () => {
   return (
-    <div className="relative overflow-hidden min-h-[90vh] flex flex-col items-center justify-center w-full pt-20 bg-[var(--color-bg-primary)]">
+    <div className="relative overflow-hidden min-h-[90dvh] flex flex-col items-center justify-center w-full pt-20 bg-[var(--color-bg-primary)]">
       
       {/* 1. Blueprint Grid Background */}
       <div 
-        className="absolute inset-0 z-0 bg-blueprint-grid opacity-100 pointer-events-none" 
-        style={{ 
-          maskImage: 'radial-gradient(ellipse 60% 50% at 50% 45%, black 20%, transparent 100%)', 
-          WebkitMaskImage: 'radial-gradient(ellipse 60% 50% at 50% 45%, black 20%, transparent 100%)' 
-        }}
+         className="absolute inset-0 z-0 bg-blueprint-grid opacity-100 pointer-events-none"
+         style={{
+           maskImage: 'radial-gradient(ellipse 80% 60% at 50% 45%, black 20%, transparent 100%)',
+           WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 45%, black 20%, transparent 100%)'
+         }}
       ></div>
 
-      {/* 2. Cursors - ALL IN BACKGROUND (Under Text) */}
+      {/* 2. Cursors - ALL IN BACKGROUND (Strictly under text) */}
       <div className="absolute inset-0 max-w-[1200px] mx-auto z-10 pointer-events-none">
         <Cursor color="#10b981" name="Adarsh" x="20%" y="25%" delay={0.2} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Adarsh" moveX={30} moveY={40} durationX={14} />
         <Cursor color="#ec4899" name="Akshara" x="75%" y="20%" delay={1.2} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Akshara" moveX={-30} moveY={30} durationX={12} />
-        <Cursor color="#8b5cf6" name="Guest_42" x="10%" y="60%" delay={2.0} moveX={40} moveY={-20} durationX={15} />
-        <Cursor color="#f59e0b" name="Guest_849" x="80%" y="65%" delay={0.8} moveX={-40} moveY={-30} durationY={16} />
-        <Cursor color="#06b6d4" name="Guest_07" x="35%" y="75%" delay={1.5} moveX={20} moveY={-40} durationX={11} />
-        <Cursor color="#3b82f6" name="Guest_12" x="60%" y="15%" delay={0.5} moveX={-20} moveY={20} durationX={13} />
+        <Cursor color="#8b5cf6" name="Rahul" x="10%" y="60%" delay={2.0} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul" moveX={40} moveY={-20} durationX={15} />
+        <Cursor color="#f59e0b" name="Priya" x="80%" y="65%" delay={0.8} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Priya" moveX={-40} moveY={-30} durationY={16} />
+        <Cursor color="#06b6d4" name="Vikram" x="35%" y="75%" delay={1.5} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Vikram" moveX={20} moveY={-40} durationX={11} />
+        <Cursor color="#3b82f6" name="Ananya" x="60%" y="15%" delay={0.5} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Ananya" moveX={-20} moveY={20} durationX={13} />
       </div>
 
       {/* 3. Main Content (Foreground) */}
@@ -453,7 +467,6 @@ const Hero = () => {
   );
 };
 
-// --- CLEANED CHARACTER SHOWCASE SECTION ---
 const services = [
   {
     id: "anniversary",
@@ -485,7 +498,7 @@ const ServicesShowcase = () => {
   return (
     <div className="py-24 bg-[var(--color-bg-primary)] border-t border-[var(--color-text-primary)]/5 overflow-hidden w-full relative z-10">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
-        
+                 
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="text-4xl sm:text-5xl font-extrabold text-[var(--color-text-primary)] mb-6 tracking-tight">
             Bring your favorite moments to life
@@ -498,7 +511,7 @@ const ServicesShowcase = () => {
         <div className="space-y-24 sm:space-y-32">
           {services.map((service) => {
             const isImagePath = typeof service.image === "string" && (service.image.startsWith("/") || service.image.startsWith("http") || service.image.includes("."));
-            
+                         
             return (
               <div 
                 key={service.id}
@@ -515,16 +528,18 @@ const ServicesShowcase = () => {
                 >
                   <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-square bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden flex items-center justify-center shadow-sm border border-[var(--color-bg-secondary)] group">
                     <div className="absolute inset-0 bg-gradient-to-tr from-[var(--color-bg-secondary)]/50 to-transparent pointer-events-none"></div>
-                    
+                                         
                     {isImagePath ? (
                       <motion.img 
-                        src={service.image} 
-                        alt={service.title} 
-                        className="relative z-10 w-full h-full object-cover object-[75%] transition-transform duration-700 group-hover:scale-105"
+                         src={service.image} 
+                         alt={service.title} 
+                         // Removed group-hover:scale-105
+                         className="relative z-10 w-full h-full object-cover object-[75%] transition-transform duration-700"
                       />
                     ) : (
                       <motion.div 
-                        className="text-[8rem] sm:text-[12rem] relative z-10 drop-shadow-xl transition-transform duration-700 leading-none select-none flex justify-center items-center group-hover:scale-105"
+                         // Removed group-hover:scale-105
+                         className="text-[8rem] sm:text-[12rem] relative z-10 drop-shadow-xl transition-transform duration-700 leading-none select-none flex justify-center items-center"
                       >
                         {service.image}
                       </motion.div>
@@ -565,84 +580,233 @@ const ServicesShowcase = () => {
   );
 };
 
-// --- NEW INTEGRATIONS SECTION ---
 const IntegrationsSection = () => {
-  const row1 = ["💖", "🚀", "💻", "✨", "💌", "💝", "🎉"];
-  const row2 = ["🔥", "📸", "🎵", "⭐", "🎁", "🎨", "📱"];
-  
+  // 16 completely unique, randomized brands for Row 1
+  const row1Brands = [
+    { name: 'spotify', color: '1DB954' },
+    { name: 'airbnb', color: 'FF5A5F' },
+    { name: 'reddit', color: 'FF4500' },
+    { name: 'vsco', color: '000000' },
+    { name: 'x', color: '000000' },
+    { name: 'tinder', color: 'FE3C72' },
+    { name: 'twitch', color: '9146FF' },
+    { name: 'messenger', color: '00B2FF' },
+    { name: 'pinterest', color: 'E60023' },
+    { name: 'apple', color: '000000' }, // Swapped Xbox for Apple
+    { name: 'snapchat', color: 'FFFC00' },
+    { name: 'discord', color: '5865F2' },
+    { name: 'soundcloud', color: 'FF3300' },
+    { name: 'tiktok', color: '000000' },
+    { name: 'facebook', color: '1877F2' },
+    { name: 'vimeo', color: '1AB7EA' }
+  ];
+
+  // 16 completely unique, randomized brands for Row 2 (No duplicates from Row 1)
+  const row2Brands = [
+    { name: 'youtube', color: 'FF0000' },
+    { name: 'uber', color: '000000' },
+    { name: 'telegram', color: '26A5E4' },
+    { name: 'netflix', color: 'E50914' },
+    { name: 'duolingo', color: '58CC02' },
+    { name: 'whatsapp', color: '25D366' },
+    { name: 'googlemaps', color: '4285F4' },
+    { name: 'applemusic', color: 'FA243C' },
+    { name: 'playstation', color: '003791' },
+    { name: 'wechat', color: '07C160' },
+    { name: 'instagram', color: 'E4405F' },
+    { name: 'dropbox', color: '0061FF' },
+    { name: 'strava', color: 'FC4C02' },
+    { name: 'zoom', color: '2D8CFF' }, // Swapped Skype for Zoom
+    { name: 'goodreads', color: '382110' },
+    { name: 'line', color: '00C300' }
+  ];
+
+  // Repeat arrays so they scroll infinitely without gaps
+  const row1 = [...row1Brands, ...row1Brands, ...row1Brands];
+  const row2 = [...row2Brands, ...row2Brands, ...row2Brands];
+
   return (
-    <div className="bg-[var(--color-bg-primary)] pb-24 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-[1200px] mx-auto bg-[#273e3d] dark:bg-slate-900 rounded-[3rem] p-10 sm:p-20 text-center relative overflow-hidden">
+    <div className="bg-[#273e3d] dark:bg-slate-900 py-16 sm:py-24 w-full overflow-hidden relative">
+      
+      {/* Dark Blueprint Grid now spans the full width of the screen */}
+      <div 
+        className="absolute inset-0 z-0 opacity-100 pointer-events-none"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+          `,
+          backgroundSize: '80px 80px',
+          backgroundPosition: 'center top',
+          maskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 100%)'
+        }}
+      ></div>
+
+      {/* Content Container: Constrained to center for text only */}
+      <div className="relative z-10 w-full max-w-2xl mx-auto mb-10 sm:mb-16 flex flex-col items-center text-center px-4 sm:px-6 lg:px-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm bg-white/10 text-[10px] font-bold text-white uppercase tracking-widest mb-6 border border-white/10">
+          <Heart className="w-3 h-3 text-rose-400 fill-rose-400" /> Make It Personal
+        </div>
+        <h2 className="text-3xl sm:text-5xl font-bold text-white mb-4 sm:mb-6 w-full break-words whitespace-normal px-2">
+          Embed your favorite memories.
+        </h2>
+        <p className="text-white/80 font-medium mb-10 sm:mb-12 text-sm sm:text-base leading-relaxed w-full break-words whitespace-normal px-2">
+          A digital gift is nothing without your shared moments. Easily integrate your favorite Spotify playlists, YouTube videos, and photo galleries directly into your custom website.
+        </p>
+        <a href="/faq" className="text-white font-bold underline underline-offset-4 hover:text-[#E2FB6C] transition-colors text-sm sm:text-base">
+          See how it works
+        </a>
+      </div>
+
+      {/* Animated Marquee Rows: Unconstrained edge-to-edge */}
+      <div 
+        className="relative z-10 w-full overflow-hidden flex flex-col gap-4 sm:gap-6"
+        style={{ 
+          maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)', 
+          WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)' 
+        }}
+      >
+        {/* Top Row - Scrolling Left */}
+        <div className="w-full overflow-hidden flex">
+          <motion.div
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 35 }}
+            className="flex gap-4 sm:gap-6 w-max md:will-change-transform"
+          >
+            {row1.map((brand, i) => (
+              <div key={`r1-${i}`} className="w-16 h-16 sm:w-24 sm:h-24 shrink-0 bg-white rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-xl cursor-pointer">
+                <img 
+                  src={`https://cdn.simpleicons.org/${brand.name}/${brand.color}`} 
+                  alt={brand.name} 
+                  className="w-8 h-8 sm:w-12 sm:h-12 object-contain"
+                  loading="lazy"
+                  onError={(e) => (e.currentTarget.style.display = 'none')} // Hides gracefully if a CDN issue ever occurs again
+                />
+              </div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Bottom Row - Scrolling Right */}
+        <div className="w-full overflow-hidden flex">
+          <motion.div
+            animate={{ x: ["-50%", "0%"] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 45 }}
+            className="flex gap-4 sm:gap-6 w-max md:will-change-transform"
+          >
+            {row2.map((brand, i) => (
+              <div key={`r2-${i}`} className="w-16 h-16 sm:w-24 sm:h-24 shrink-0 bg-white rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-xl cursor-pointer">
+                <img 
+                  src={`https://cdn.simpleicons.org/${brand.name}/${brand.color}`} 
+                  alt={brand.name} 
+                  className="w-8 h-8 sm:w-12 sm:h-12 object-contain"
+                  loading="lazy"
+                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                />
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- PRODUCT CARD SKELETON PREVIEW ---
+// Matches the exact dimensions and DOM structure of the actual ProductCard to stop the grid collapsing
+const ProductSkeleton = () => (
+  <div className="flex flex-col w-full bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-black/5 dark:border-slate-800 animate-pulse h-full">
+    
+    {/* Top Image Section */}
+    <div className="relative w-full aspect-[16/9] bg-slate-200 dark:bg-slate-800/50 shrink-0">
+      {/* Skeleton Tag */}
+      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-slate-300 dark:bg-slate-700 w-16 h-4 sm:w-16 sm:h-5 rounded-full z-20 shadow-sm border border-transparent"></div>
+    </div>
+    
+    {/* Bottom Details Section */}
+    <div className="p-2 sm:p-6 flex-1 flex flex-col bg-white dark:bg-slate-900 z-20 relative border-t border-black/5 dark:border-slate-800">
+      
+      {/* Category */}
+      <div className="h-2.5 sm:h-3.5 w-16 bg-slate-200 dark:bg-slate-800 rounded mb-0.5 sm:mb-1.5" />
+      
+      {/* Title */}
+      <div className="h-4 sm:h-6 w-3/4 bg-slate-200 dark:bg-slate-800 rounded mb-1 sm:mb-2" />
+      
+      {/* Price Row (Matches flex-col on mobile, flex-row on desktop) */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 mt-auto pt-1 sm:pt-2">
+        {/* Main Price */}
+        <div className="h-4 sm:h-6 w-16 sm:w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+        {/* Original Price (Strikethrough placeholder) */}
+        <div className="h-2.5 sm:h-3.5 w-10 sm:w-14 bg-slate-100 dark:bg-slate-800/60 rounded" />
+      </div>
+
+    </div>
+  </div>
+);
+
+const ProductCard = ({
+  product
+}: {
+  product: ProductItem;
+}) => {
+  const navigate = useNavigate();
+
+  const getVideoId = (url?: string | null) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
+
+  const videoId = getVideoId(product.youtube_url);
+
+  return (
+    <div
+      onClick={() => navigate(`/product/${product.id}`)}
+      className="group cursor-pointer flex flex-col w-full bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 sm:hover:-translate-y-1 border border-black/5 dark:border-slate-800 h-full"
+    >
+      <div
+        className={`relative w-full aspect-[16/9] flex items-center justify-center overflow-hidden shrink-0 ${!videoId ? `bg-gradient-to-br ${product.gradient}` : 'bg-black/5'}`}
+      >
+        {/* Restored maxresdefault for perfect desktop quality */}
+        {videoId ? (
+          <img 
+            src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`} 
+            alt={product.title} 
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover transform-gpu group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="text-[2.5rem] sm:text-[5.5rem] drop-shadow-xl transform group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500 relative z-0 flex justify-center items-center">
+            {product.emoji}
+          </div>
+        )}
         
-        {/* Dark Blueprint Grid inside the box */}
-        <div 
-          className="absolute inset-0 z-0 opacity-100 pointer-events-none"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
-            `,
-            backgroundSize: '80px 80px',
-            backgroundPosition: 'center top',
-            maskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 100%)'
-          }}
-        ></div>
-
-        <div className="relative z-10 max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm bg-white/10 text-[10px] font-bold text-white uppercase tracking-widest mb-6 border border-white/10">
-            <Shield className="w-3 h-3" /> Integrations
+        {product.tag && (
+          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-[8px] sm:text-[10px] font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full z-20 shadow-sm border border-black/5 dark:border-white/10 uppercase tracking-wider">
+            {product.tag}
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
-            Don't replace. Integrate.
-          </h2>
-          <p className="text-white/70 font-medium mb-12">
-            We understand the hassle of replacing the long used tools in your process. That's why we integrate tools you use in your day-to-day work.
-          </p>
-          <a href="/faq" className="text-white font-bold underline underline-offset-4 hover:text-[#E2FB6C] transition-colors">
-            All Integrations →
-          </a>
+        )}
+      </div>
+      <div className="p-2 sm:p-6 flex-1 flex flex-col bg-white dark:bg-slate-900 z-20 relative border-t border-black/5 dark:border-slate-800">
+        <p className="text-[8px] sm:text-xs font-bold tracking-widest uppercase text-[var(--color-text-primary)]/50 mb-0.5 sm:mb-1.5">
+          {product.category}
+        </p>
+        <h3 className="font-serif font-bold text-[var(--color-text-primary)] mb-1 sm:mb-2 text-sm sm:text-xl leading-tight group-hover:text-[var(--color-accent-pink)] transition-colors line-clamp-1">
+          {product.title}
+        </h3>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 mt-auto pt-1 sm:pt-2">
+          <span className="font-bold text-[var(--color-text-primary)] text-sm sm:text-2xl leading-none">
+            {product.price}
+          </span>
+          {product.originalPrice && (
+            <span className="text-[10px] sm:text-sm font-bold text-[var(--color-text-primary)]/40 line-through">
+              {product.originalPrice}
+            </span>
+          )}
         </div>
-
-        {/* Animated Marquee Rows */}
-        <div 
-          className="relative z-10 w-full overflow-hidden flex flex-col gap-6"
-          style={{ 
-            maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)', 
-            WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)' 
-          }}
-        >
-          {/* Top Row - Scrolling Left */}
-          <div className="flex whitespace-nowrap">
-            <motion.div
-              animate={{ x: ["0%", "-50%"] }}
-              transition={{ repeat: Infinity, ease: "linear", duration: 35 }}
-              className="flex gap-6 px-3"
-            >
-              {[...row1, ...row1, ...row1, ...row1].map((emoji, i) => (
-                <div key={`r1-${i}`} className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 bg-white rounded-3xl flex items-center justify-center text-3xl sm:text-4xl shadow-xl transition-transform hover:scale-105 cursor-pointer">
-                  {emoji}
-                </div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Bottom Row - Scrolling Right */}
-          <div className="flex whitespace-nowrap">
-            <motion.div
-              animate={{ x: ["-50%", "0%"] }}
-              transition={{ repeat: Infinity, ease: "linear", duration: 45 }}
-              className="flex gap-6 px-3"
-            >
-              {[...row2, ...row2, ...row2, ...row2].map((emoji, i) => (
-                <div key={`r2-${i}`} className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 bg-white rounded-3xl flex items-center justify-center text-3xl sm:text-4xl shadow-xl transition-transform hover:scale-105 cursor-pointer">
-                  {emoji}
-                </div>
-              ))}
-            </motion.div>
-          </div>
-        </div>
-
       </div>
     </div>
   );
@@ -898,71 +1062,6 @@ const ProductPage = () => {
   );
 };
 
-const ProductCard = ({
-  product
-}: {
-  product: ProductItem;
-}) => {
-  const navigate = useNavigate();
-
-  const getVideoId = (url?: string | null) => {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? match[2] : null;
-  };
-
-  const videoId = getVideoId(product.youtube_url);
-
-  return (
-    <motion.div
-      variants={fadeUp}
-      onClick={() => navigate(`/product/${product.id}`)}
-      className="group cursor-pointer flex flex-col w-full bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_30px_-4px_rgba(0,0,0,0.1)] transition-all duration-500 hover:-translate-y-1 border border-black/[0.04] dark:border-slate-800"
-    >
-      <div
-        className={`relative w-full aspect-[16/9] flex items-center justify-center overflow-hidden shrink-0 ${!videoId ? `bg-gradient-to-br ${product.gradient}` : 'bg-black/5'}`}
-      >
-        {videoId ? (
-          <img 
-            src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`} 
-            alt={product.title} 
-            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="text-[2.5rem] sm:text-[5.5rem] drop-shadow-xl transform group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500 relative z-0 flex justify-center items-center">
-            {product.emoji}
-          </div>
-        )}
-        
-        {product.tag && (
-          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-[8px] sm:text-[10px] font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full z-20 shadow-sm border border-black/5 dark:border-white/10 uppercase tracking-wider">
-            {product.tag}
-          </div>
-        )}
-      </div>
-      <div className="p-2 sm:p-6 flex-1 flex flex-col bg-white dark:bg-slate-900 z-20 relative border-t border-black/5 dark:border-slate-800">
-        <p className="text-[8px] sm:text-xs font-bold tracking-widest uppercase text-[var(--color-text-primary)]/50 mb-0.5 sm:mb-1.5">
-          {product.category}
-        </p>
-        <h3 className="font-serif font-bold text-[var(--color-text-primary)] mb-1 sm:mb-2 text-sm sm:text-xl leading-tight group-hover:text-[var(--color-accent-pink)] transition-colors line-clamp-1">
-          {product.title}
-        </h3>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 mt-auto pt-1 sm:pt-2">
-          <span className="font-bold text-[var(--color-text-primary)] text-sm sm:text-2xl leading-none">
-            {product.price}
-          </span>
-          {product.originalPrice && (
-            <span className="text-[10px] sm:text-sm font-bold text-[var(--color-text-primary)]/40 line-through">
-              {product.originalPrice}
-            </span>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
 const PopularProducts = () => {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -1017,7 +1116,7 @@ const PopularProducts = () => {
       className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20 relative"
       id="templates"
     >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-10 gap-4 sticky top-16 sm:top-20 z-30 bg-[var(--color-bg-primary)] dark:bg-slate-900/95 py-4 px-6 rounded-2xl shadow-sm border border-[var(--color-bg-secondary)]/60 dark:border-slate-800 backdrop-blur-md">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-10 gap-4 sticky top-16 sm:top-20 z-30 bg-[var(--color-bg-primary)] dark:bg-[var(--color-bg-primary)] sm:bg-[var(--color-bg-primary)]/95 sm:dark:bg-slate-900/95 py-4 px-2 sm:px-6 rounded-2xl shadow-sm border border-[var(--color-bg-secondary)] dark:border-slate-800 sm:backdrop-blur-md">
         <div>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
             <span className="w-5 sm:w-8 h-px bg-[var(--color-accent-pink)]"></span>
@@ -1043,13 +1142,17 @@ const PopularProducts = () => {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center min-h-[300px]">
-          <div className="w-8 h-8 border-4 border-[var(--color-accent-pink)] border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        /* EXACT SKELETON LOADERS TO HOLD GRID HEIGHT AND PREVENT PAGE BLINKING */
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8 min-h-[500px] w-full">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ProductSkeleton key={`skeleton-${i}`} />
+          ))}
+        </motion.div>
       ) : (
+        /* RESTORED ANIMATIONS WITH POPLAYOUT AND LAYOUT PROP */
         <motion.div
           layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8 min-h-[300px]"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8 min-h-[500px]"
         >
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((p) => (
@@ -1071,7 +1174,6 @@ const PopularProducts = () => {
   );
 };
 
-// --- NEW SCROLLING TESTIMONIALS ---
 const PlaceholderReview = () => (
   <div className="w-[280px] h-[140px] sm:w-[350px] sm:h-[180px] bg-white dark:bg-slate-900 rounded-2xl border border-[var(--color-bg-secondary)] dark:border-slate-800 flex flex-col items-center justify-center shrink-0 shadow-sm relative overflow-hidden group">
     <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-bg-secondary)]/50 to-transparent dark:from-slate-800/50 dark:to-transparent opacity-50"></div>
@@ -1171,7 +1273,7 @@ const PromoBanners = () => (
         className="bg-gradient-to-br from-[var(--color-bg-secondary)] to-[var(--color-bg-primary)] dark:from-slate-900 dark:to-slate-950 rounded-[2rem] sm:rounded-2xl p-6 sm:p-12 flex flex-col justify-center relative overflow-hidden group min-h-[260px] sm:min-h-[380px] shadow-lg shadow-[var(--color-bg-secondary)]/30 border border-[var(--color-bg-secondary)]/50 dark:border-slate-800"
       >
         <div className="relative z-10 w-2/3 sm:w-2/3">
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 dark:bg-slate-800 backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-[var(--color-bg-secondary)]/50 dark:border-slate-700 mb-3 sm:mb-5">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 dark:bg-slate-800 sm:backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-[var(--color-bg-secondary)]/50 dark:border-slate-700 mb-3 sm:mb-5">
             <span className="text-[8px] sm:text-[10px] font-black tracking-widest text-[var(--color-accent-purple)] dark:text-purple-300 uppercase">
               Request
             </span>
@@ -1196,6 +1298,8 @@ const PromoBanners = () => (
           <img 
             src="/assets/custom.png" 
             alt="Custom Template Request" 
+            loading="lazy"
+            decoding="async"
             className="absolute bottom-0 right-0 translate-x-[22%] sm:translate-x-[22%] h-[75%] sm:h-[85%] w-auto max-w-none object-contain object-bottom drop-shadow-2xl z-10"
           />
         </div>
@@ -1210,7 +1314,7 @@ const PromoBanners = () => (
         className="bg-gradient-to-br from-[var(--color-bg-secondary)] to-[var(--color-bg-primary)] dark:from-slate-900 dark:to-slate-950 rounded-[2rem] sm:rounded-2xl p-6 sm:p-12 flex flex-col justify-center relative overflow-hidden group min-h-[260px] sm:min-h-[380px] shadow-lg shadow-[var(--color-bg-secondary)]/30 border border-[var(--color-bg-secondary)]/50 dark:border-slate-800"
       >
         <div className="relative z-10 w-2/3 sm:w-2/3">
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 dark:bg-slate-800 backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-white dark:border-slate-700 mb-3 sm:mb-5">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/80 dark:bg-slate-800 sm:backdrop-blur-sm px-2.5 sm:px-3 py-1 rounded-full border border-white dark:border-slate-700 mb-3 sm:mb-5">
             <span className="text-[8px] sm:text-[10px] font-black tracking-widest text-[var(--color-accent-purple)] dark:text-purple-300 uppercase">
               Simple Process
             </span>
@@ -1235,6 +1339,8 @@ const PromoBanners = () => (
           <img 
             src="/assets/admin.png" 
             alt="Support Admin" 
+            loading="lazy"
+            decoding="async"
             className="absolute bottom-0 right-0 translate-x-[30%] sm:translate-x-[25%] h-[85%] sm:h-[95%] w-auto max-w-none object-contain object-bottom drop-shadow-2xl z-10"
           />
         </div>
@@ -1377,7 +1483,7 @@ const FAQSection = () => {
         {FAQS.map((faq, index) => (
           <div
             key={index}
-            className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden transition-all duration-300"
+            className="bg-white sm:bg-white/60 dark:bg-slate-900 sm:dark:bg-slate-900/60 sm:backdrop-blur-md border border-white dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden transition-all duration-300"
           >
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
@@ -1636,11 +1742,11 @@ const AboutPage = () => (
           </p>
 
           <div className="flex flex-wrap gap-3 pt-4 border-t border-[var(--color-bg-secondary)]/60 dark:border-slate-800 mb-6">
-            <div className="bg-white/90 dark:bg-slate-800 backdrop-blur-sm px-4 py-2.5 rounded-2xl border border-[var(--color-bg-secondary)] dark:border-slate-700 flex items-center gap-2 shadow-sm">
+            <div className="bg-white sm:bg-white/90 dark:bg-slate-800 sm:dark:bg-slate-800 sm:backdrop-blur-sm px-4 py-2.5 rounded-2xl border border-[var(--color-bg-secondary)] dark:border-slate-700 flex items-center gap-2 shadow-sm">
               <Sparkles className="w-4 h-4 text-[var(--color-accent-pink)]" />
               <span className="text-xs font-bold text-[var(--color-text-primary)]">React, Tailwind & TypeScript</span>
             </div>
-            <div className="bg-white/90 dark:bg-slate-800 backdrop-blur-sm px-4 py-2.5 rounded-2xl border border-[var(--color-bg-secondary)] dark:border-slate-700 flex items-center gap-2 shadow-sm">
+            <div className="bg-white sm:bg-white/90 dark:bg-slate-800 sm:dark:bg-slate-800 sm:backdrop-blur-sm px-4 py-2.5 rounded-2xl border border-[var(--color-bg-secondary)] dark:border-slate-700 flex items-center gap-2 shadow-sm">
               <Terminal className="w-4 h-4 text-[var(--color-accent-purple)]" />
               <span className="text-xs font-bold text-[var(--color-text-primary)]">Logic & Performance</span>
             </div>
@@ -1684,10 +1790,12 @@ const AboutPage = () => (
           <img 
             src="/assets/dev.png" 
             alt="Adarsh Representation" 
+            loading="lazy"
+            decoding="async"
             className="absolute bottom-[-1rem] lg:bottom-[-3rem] right-[-9rem] lg:right-[-12rem] h-[340px] sm:h-[400px] lg:h-[115%] w-auto max-w-none object-contain object-bottom drop-shadow-2xl z-10 pointer-events-none"
           />
 
-          <div className="absolute top-0 right-0 bg-white/90 dark:bg-slate-800 backdrop-blur-md px-3 py-1 rounded-full border border-white dark:border-slate-700 text-[10px] font-bold text-[var(--color-text-primary)]/75 uppercase tracking-widest z-20 shadow-sm">
+          <div className="absolute top-0 right-0 bg-white/90 dark:bg-slate-800 sm:backdrop-blur-md px-3 py-1 rounded-full border border-white dark:border-slate-700 text-[10px] font-bold text-[var(--color-text-primary)]/75 uppercase tracking-widest z-20 shadow-sm">
             The Developer
           </div>
         </div>
@@ -1699,8 +1807,39 @@ const AboutPage = () => (
 );
 
 const Footer = () => {
-  const { setLegalModal } = useAppContext();
+  const { setLegalModal, addToast } = useAppContext();
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !email.includes("@")) {
+      addToast("Please enter a valid email address.", "info");
+      return;
+    }
+
+    try {
+      // Send the email to your Supabase 'subscribers' table
+      const { error } = await supabase
+        .from("subscribers")
+        .insert([{ email: email.trim() }]);
+
+      if (error) {
+        // '23505' is the Postgres error code for unique constraint violation (duplicate email)
+        if (error.code === '23505') {
+          addToast("You are already subscribed!", "info");
+        } else {
+          throw error;
+        }
+      } else {
+        addToast("Subscribed! We'll notify you when new templates drop.", "success");
+        setEmail("");
+      }
+    } catch (err) {
+      console.error("Subscription error:", err);
+      addToast("Something went wrong. Please try again.", "info");
+    }
+  };
 
   const handleNavClick = (path: string) => {
     navigate(path);
@@ -1710,9 +1849,43 @@ const Footer = () => {
   return (
     <footer
       id="contact"
-      className="bg-[#073127] dark:bg-slate-950 border-t border-black/10 mt-16 md:mt-24 pt-16 pb-12 transition-colors"
+      className="bg-[#073127] dark:bg-slate-950 border-t border-black/10 pt-12 pb-12 transition-colors"
     >
       <div className="max-w-[1400px] mx-auto px-6">
+        
+        {/* Newsletter Subscription Box */}
+        <div className="bg-[#273e3d] rounded-[2rem] p-8 sm:p-10 border border-white/10 mb-16 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xl">
+          <div className="lg:w-1/2 text-left">
+            <h3 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-2">
+              Never miss a new template
+            </h3>
+            <p className="text-white/60 text-sm sm:text-base">
+              Subscribe to get updates when new emotional website templates are released and never miss limited offers.
+            </p>
+          </div>
+          <div className="lg:w-1/2 w-full max-w-md lg:max-w-none flex flex-col lg:items-end">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 w-full lg:max-w-md">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 bg-black/20 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-white placeholder:text-white/40 outline-none focus:border-blue-500 transition-colors"
+              />
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-colors shadow-md cursor-pointer whitespace-nowrap"
+              >
+                Subscribe
+              </button>
+            </form>
+            <p className="text-white/40 text-[10px] mt-3 w-full lg:max-w-md text-center sm:text-left">
+              Only updates when new templates launch.
+            </p>
+          </div>
+        </div>
+
+        {/* Existing Footer Links Grid */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pb-16 border-b border-white/10">
           
           {/* Brand Info Column */}
@@ -1734,7 +1907,7 @@ const Footer = () => {
             <div className="flex gap-3 mt-2">
               <div className="relative group">
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/canvas_builds?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] shadow-sm"
@@ -1831,7 +2004,7 @@ const Footer = () => {
 
         <div className="flex flex-col sm:flex-row justify-between items-center pt-8 gap-4 text-xs text-white/50">
           <div>
-            © {new Date().getFullYear()} Canvas Builds. Made with ❤️ by Adarsh.
+            © {new Date().getFullYear()} Canvas Builds. Made with 🤍 by Adarsh.
           </div>
           <div>
             <a href="mailto:adrashyadav07o8@gmail.com" className="hover:text-[#E2FB6C] transition-colors">
@@ -1867,7 +2040,8 @@ export default function App() {
   return (
     <Router>
       <ScrollHandler />
-      <div className="min-h-screen bg-[var(--color-bg-primary)] font-sans selection:bg-[var(--color-accent-mint)] selection:text-white overflow-x-hidden text-[var(--color-text-primary)] transition-colors duration-500">
+      {/* Set minimum height to 100dvh (dynamic viewport height) so mobile browsers hiding the URL bar don't cause the screen to jump/blink */}
+      <div className="min-h-[100dvh] bg-[var(--color-bg-primary)] font-sans selection:bg-[var(--color-accent-mint)] selection:text-white overflow-x-hidden text-[var(--color-text-primary)] transition-colors duration-500">
         
         {/* Main Application Content */}
         <div className="relative z-10">

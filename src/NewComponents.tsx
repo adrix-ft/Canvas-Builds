@@ -417,7 +417,53 @@ export const BundleSection = () => {
     fetchBundleData();
   }, []);
 
-  if (loading || bundleProducts.length === 0) return null;
+  // --- BUNDLE SKELETON PREVIEW ---
+  if (loading) {
+    return (
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16" id="bundles">
+        <div className="flex items-center gap-2 mb-6">
+          <span className="w-2 h-5 bg-amber-500 rounded-full"></span>
+          <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--color-text-primary)] tracking-wide uppercase">
+            Exclusive Template Bundles
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-[var(--color-bg-secondary)] dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center gap-6 animate-pulse">
+            
+            {/* Stacked Cards Skeleton */}
+            <div className="relative shrink-0 w-full sm:w-44 h-48 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+
+            {/* Details Skeleton */}
+            <div className="flex-1 flex flex-col justify-between w-full text-left">
+              <div>
+                <div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded mb-3"></div>
+                <div className="h-6 sm:h-8 w-3/4 bg-slate-200 dark:bg-slate-800 rounded mb-4"></div>
+                
+                {/* Items Box Skeleton */}
+                <div className="bg-[var(--color-bg-primary)] dark:bg-slate-950/60 rounded-xl p-3.5 border border-[var(--color-bg-secondary)] dark:border-slate-800/80 mb-6 space-y-2">
+                  <div className="h-3 w-1/3 bg-slate-200 dark:bg-slate-800 rounded mb-2"></div>
+                  <div className="h-3 w-2/3 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                  <div className="h-3 w-3/4 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                  <div className="h-3 w-1/2 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                </div>
+              </div>
+
+              {/* Price & Buy Button Row Skeleton */}
+              <div className="flex items-center justify-between pt-2 border-t border-[var(--color-bg-secondary)] dark:border-slate-800/60">
+                <div className="flex flex-col gap-1">
+                  <div className="h-3 w-12 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                  <div className="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                </div>
+                <div className="h-10 w-24 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (bundleProducts.length === 0) return null;
 
   // Extract titles to show in the itemized list
   const includedTitles = bundleProducts.map((p) => p.title);
@@ -430,7 +476,6 @@ export const BundleSection = () => {
           Exclusive Template Bundles
         </h2>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-[var(--color-bg-secondary)] dark:border-slate-800 shadow-xl relative overflow-hidden flex flex-col sm:flex-row items-center gap-6 group transition-all">
           
@@ -452,7 +497,7 @@ export const BundleSection = () => {
           </div>
 
           {/* Details & Pricing */}
-          <div className="flex-1 flex flex-col justify-between w-full text-left">
+          <div className="flex-1 flex flex-col justify-between w-full text-left z-10">
             <div>
               <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">
                 BUNDLE DEAL
@@ -460,7 +505,7 @@ export const BundleSection = () => {
               <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--color-text-primary)] mt-3 mb-3">
                 THE ULTIMATE TEMPLATE BUNDLE
               </h3>
-
+              
               {/* Dynamic Items Box from Products Table */}
               <div className="bg-[var(--color-bg-primary)] dark:bg-slate-950/60 rounded-xl p-3.5 border border-[var(--color-bg-secondary)] dark:border-slate-800/80 mb-6">
                 <p className="text-[10px] font-bold text-[var(--color-text-primary)]/50 uppercase tracking-widest mb-2">
