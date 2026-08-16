@@ -76,7 +76,7 @@ export type ProductItem = {
 
 const INITIAL_TESTIMONIALS = [
   {
-    name: "Priya S.",
+    name: "Adrix S.",
     role: "Bought for Anniversary",
     text: "This saved my anniversary! I have zero coding experience but the guide was so easy to follow. My boyfriend loved it!",
   },
@@ -200,9 +200,8 @@ const Navbar = () => {
               to="/"
               className="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0 group"
             >
-              <div className="relative w-9 h-9 bg-white text-[var(--color-text-primary)] rounded-lg flex items-center justify-center font-serif text-xl font-black shadow-sm border border-black/5">
-                CB
-              </div>
+              <img src="/icon.png" alt="Canvas Builds Icon" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm dark:hidden" />
+              <img src="/icon2.png" alt="Canvas Builds Icon" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm hidden dark:block" />
               <span className="text-xl tracking-tight flex items-baseline font-bold text-[var(--color-text-primary)]">
                 Canvas<span className="text-[var(--color-accent-mint)]">Builds</span>
               </span>
@@ -290,9 +289,8 @@ const Navbar = () => {
             >
               <div className="p-4 sm:p-5 flex justify-between items-center border-b border-[var(--color-bg-secondary)]/50 bg-[var(--color-bg-primary)]/50 backdrop-blur-md">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-[var(--color-accent-mint)] text-white rounded-lg flex items-center justify-center font-serif text-xl font-bold">
-                    A
-                  </div>
+                  <img src="/icon.png" alt="Canvas Builds Icon" className="w-8 h-8 object-contain dark:hidden" />
+                  <img src="/icon2.png" alt="Canvas Builds Icon" className="w-8 h-8 object-contain hidden dark:block" />
                   <span className="font-bold text-xl tracking-tight text-[var(--color-text-primary)] font-serif">
                     Menu
                   </span>
@@ -391,14 +389,16 @@ const Hero = () => {
 
       {/* 2. Cursors - ALL IN BACKGROUND (Strictly under text) */}
       <div className="absolute inset-0 max-w-[1200px] mx-auto z-10 pointer-events-none">
-        <Cursor color="#10b981" name="Adarsh" x="20%" y="25%" delay={0.2} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Adarsh" moveX={30} moveY={40} durationX={14} />
-        <Cursor color="#ec4899" name="Akshara" x="75%" y="20%" delay={1.2} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Akshara" moveX={-30} moveY={30} durationX={12} />
-        <Cursor color="#8b5cf6" name="Rahul" x="10%" y="60%" delay={2.0} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul" moveX={40} moveY={-20} durationX={15} />
-        <Cursor color="#f59e0b" name="Priya" x="80%" y="65%" delay={0.8} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Priya" moveX={-40} moveY={-30} durationY={16} />
-        <Cursor color="#06b6d4" name="Vikram" x="35%" y="75%" delay={1.5} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Vikram" moveX={20} moveY={-40} durationX={11} />
-        <Cursor color="#3b82f6" name="Ananya" x="60%" y="15%" delay={0.5} img="https://api.dicebear.com/7.x/avataaars/svg?seed=Ananya" moveX={-20} moveY={20} durationX={13} />
+        {/* The Trio clustered together on the right */}
+        <Cursor color="#10b981" name="Adarsh" x="65%" y="15%" delay={0.2} img="/assets/3.png" moveX={30} moveY={40} durationX={14} />
+        <Cursor color="#ec4899" name="Akshara" x="75%" y="20%" delay={1.2} img="/assets/5.png" moveX={-30} moveY={30} durationX={12} />
+        <Cursor color="#3b82f6" name="Adrix" x="82%" y="28%" delay={0.5} img="/assets/4.png" moveX={-20} moveY={20} durationX={13} />
+        
+        {/* The rest spaced out on the left and bottom */}
+        <Cursor color="#8b5cf6" name="Shantanu" x="20%" y="25%" delay={2.0} img="/assets/1.png" moveX={40} moveY={-20} durationX={15} />
+        <Cursor color="#f59e0b" name="Ayush" x="15%" y="65%" delay={0.8} img="/assets/2.png" moveX={-40} moveY={-30} durationY={16} />
+        <Cursor color="#06b6d4" name="Batit" x="40%" y="75%" delay={1.5} img="/assets/6.png" moveX={20} moveY={-40} durationX={11} />
       </div>
-
       {/* 3. Main Content (Foreground) */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -1386,7 +1386,7 @@ const ContactSection = () => {
           </div>
           <div>
             <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">Email us</p>
-            <p className="text-sm font-bold text-[var(--color-text-primary)]">adrashyadav07o8@gmail.com</p>
+            <p className="text-sm font-bold text-[var(--color-text-primary)]">canvasbuildsofficial@gmail.com</p>
           </div>
         </div>
         {/* Reply time */}
@@ -1755,7 +1755,7 @@ const AboutPage = () => (
 
           <div className="flex flex-wrap gap-4">
             <a
-              href="mailto:adrashyadav07o8@gmail.com"
+              href="mailto:canvasbuildsofficial@gmail.com"
               className="bg-white dark:bg-slate-800 hover:bg-[var(--color-bg-primary)] border border-[var(--color-bg-secondary)] dark:border-slate-700 shadow-sm px-4 py-3 rounded-2xl flex items-center gap-3 transition-all duration-300 w-full sm:w-auto"
             >
               <span className="w-9 h-9 bg-rose-100 dark:bg-rose-950 text-[var(--color-accent-pink)] rounded-xl flex items-center justify-center text-sm shrink-0 shadow-inner">
@@ -1763,7 +1763,7 @@ const AboutPage = () => (
               </span>
               <div className="text-left">
                 <div className="font-bold text-[var(--color-text-primary)] text-xs">Email Me</div>
-                <div className="text-[11px] text-[var(--color-text-primary)]/60">adrashyadav07o8@gmail.com</div>
+                <div className="text-[11px] text-[var(--color-text-primary)]/60">canvasbuildsofficial@gmail.com</div>
               </div>
             </a>
 
@@ -1895,9 +1895,8 @@ const Footer = () => {
               onClick={() => handleNavClick("/")}
               className="flex items-center gap-2 cursor-pointer"
             >
-              <div className="relative w-9 h-9 bg-white text-[var(--color-text-primary)] rounded-lg flex items-center justify-center font-serif text-xl font-black shadow-sm border border-black/5">
-                CB
-              </div>
+              <img src="/icon.png" alt="Canvas Builds Icon" className="w-9 h-9 object-contain shadow-sm dark:hidden" />
+              <img src="/icon2.png" alt="Canvas Builds Icon" className="w-9 h-9 object-contain shadow-sm hidden dark:block" />
               <span className="text-2xl tracking-tight flex items-baseline font-bold text-white">
                 Canvas<span className="text-[var(--color-accent-mint)]">Builds</span>
               </span>
@@ -1973,7 +1972,7 @@ const Footer = () => {
               <h4 className="font-bold text-white text-xs uppercase tracking-widest mb-1">
                 Support
               </h4>
-              <a href="mailto:adrashyadav07o8@gmail.com" className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors">
+              <a href="mailto:canvasbuildsofficial@gmail.com" className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors">
                 Contact
               </a>
               <button onClick={() => setLegalModal("terms")} className="text-sm text-white/70 hover:text-[#E2FB6C] transition-colors text-left cursor-pointer">
@@ -2008,8 +2007,8 @@ const Footer = () => {
             © {new Date().getFullYear()} Canvas Builds. Made with 🤍 by Adarsh.
           </div>
           <div>
-            <a href="mailto:adrashyadav07o8@gmail.com" className="hover:text-[#E2FB6C] transition-colors">
-              adrashyadav07o8@gmail.com
+            <a href="mailto:canvasbuildsofficial@gmail.com" className="hover:text-[#E2FB6C] transition-colors">
+              canvasbuildsofficial@gmail.com
             </a>
           </div>
         </div>

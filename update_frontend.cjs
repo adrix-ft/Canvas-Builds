@@ -23,7 +23,7 @@ const PRODUCTS = [
 ];
 
 const TESTIMONIALS = [
-  { name: 'Priya S.', role: 'Bought for Anniversary', text: 'This saved my anniversary! I have zero coding experience but the guide was so easy to follow. My boyfriend loved it! ❤️' },
+  { name: 'Adrix S.', role: 'Bought for Anniversary', text: 'This saved my anniversary! I have zero coding experience but the guide was so easy to follow. My boyfriend loved it! ❤️' },
   { name: 'Rahul K.', role: 'Bought for Apology', text: 'She was so mad at me, but this cute apology template actually made her smile. Worth every penny.' },
   { name: 'Ananya M.', role: 'Bought for Bestie', text: 'My best friend literally cried when she opened the link. Such a unique and thoughtful gift idea! ✨' },
   { name: 'Vikram D.', role: 'Bought for Girlfriend', text: 'The animations are so smooth and it looks amazing on mobile. Hosted it for free on Vercel in 5 mins.' },

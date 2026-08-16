@@ -33,7 +33,7 @@ const newFooter = `const Footer = () => {
               Contact Us
             </h4>
             <a
-              href="mailto:adrashyadav07o8@gmail.com"
+              href="mailto:canvasbuildsofficial@gmail.com"
               className="text-sm text-[var(--color-text-primary)]/70 hover:text-[var(--color-accent-pink)] transition-colors flex items-center justify-start gap-2"
             >
               <span className="w-5 h-5 flex items-center justify-center bg-[var(--color-bg-secondary)]/50 rounded-full text-[var(--color-text-primary)]">
