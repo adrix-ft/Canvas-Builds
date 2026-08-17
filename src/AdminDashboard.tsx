@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Package, Layers, Users, Mail, LogOut, 
-  Trash2, Loader2, Save, Edit2, X, ShieldAlert, Plus, Search, Reply, Send
+  Trash2, Loader2, Save, Edit2, X, ShieldAlert, Plus, Search, Reply, Send, CheckSquare, Square, EyeOff
 } from 'lucide-react';
 import { supabase } from './supabaseClient';
 import { useAppContext } from './AppContext';
@@ -29,8 +29,8 @@ export const AdminDashboard = () => {
   const [replyContent, setReplyContent] = useState('');
   const [isSendingReply, setIsSendingReply] = useState(false);
   
-  const defaultProduct = { id: null, category: 'Special', title: '', code_price: 0, ready_price: 0, original_price: 0, rating: '5.0', icon_name: 'Heart', gradient: 'from-pink-200 to-rose-100', tag: '', youtube_url: '', file_url: '' };
-  const defaultBundle = { id: null, title: '', description: '', price: '', original_price: '', tag: '', gradient: 'from-slate-900 to-slate-950', included_items: '[]', emoji_list: '[]' };
+  const defaultProduct = { id: null, category: 'Special', title: '', code_price: 0, ready_price: 0, original_price: 0, rating: '5.0', icon_name: 'Heart', gradient: 'from-pink-200 to-rose-100', tag: '', youtube_url: '', file_url: '', is_hidden: false };
+  const defaultBundle = { id: null, title: '', description: '', price: '', original_price: '', tag: '', gradient: 'from-slate-900 to-slate-950', included_items: '[]', emoji_list: '["🎁"]', is_hidden: false };
   
   const [productForm, setProductForm] = useState<any>(defaultProduct);
   const [bundleForm, setBundleForm] = useState<any>(defaultBundle);
@@ -60,7 +60,6 @@ export const AdminDashboard = () => {
     }
   };
 
-  // --- SEARCH FILTERING ---
   const filteredData = useMemo(() => {
     const q = searchQuery.toLowerCase();
     if (!q) return { products, bundles, subscribers, messages };
@@ -72,7 +71,6 @@ export const AdminDashboard = () => {
     };
   }, [searchQuery, products, bundles, subscribers, messages]);
 
-  // --- PRODUCT CRUD ---
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -104,7 +102,6 @@ export const AdminDashboard = () => {
     } catch (err: any) { addToast(`Error: ${err.message}`, "info"); }
   };
 
-  // --- BUNDLE CRUD ---
   const handleSaveBundle = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -114,7 +111,7 @@ export const AdminDashboard = () => {
         payload.included_items = JSON.parse(payload.included_items || '[]');
         payload.emoji_list = JSON.parse(payload.emoji_list || '[]');
       } catch {
-        addToast("Invalid JSON format in Included Items or Emoji List.", "info");
+        addToast("Invalid JSON format in Emoji List.", "info");
         return;
       }
 
@@ -142,7 +139,6 @@ export const AdminDashboard = () => {
     } catch (err: any) { addToast(`Error: ${err.message}`, "info"); }
   };
 
-  // --- MESSAGE & SUBSCRIBER CRUD ---
   const deleteMessage = async (id: number) => {
     if (!window.confirm("Delete this message?")) return;
     try {
@@ -161,7 +157,6 @@ export const AdminDashboard = () => {
     } catch (err) { addToast("Failed to remove subscriber", "info"); }
   };
 
-  // --- REPLY EMAIL ---
   const handleSendReply = async () => {
     if (!replyContent.trim() || !replyState) return;
     setIsSendingReply(true);
@@ -187,6 +182,27 @@ export const AdminDashboard = () => {
     }
   };
 
+  const toggleBundleProduct = (productTitle: string) => {
+    let currentItems: string[] = [];
+    try { currentItems = JSON.parse(bundleForm.included_items || '[]'); } catch { currentItems = []; }
+    
+    if (currentItems.includes(productTitle)) {
+      currentItems = currentItems.filter(t => t !== productTitle);
+    } else {
+      currentItems.push(productTitle);
+    }
+    setBundleForm({ ...bundleForm, included_items: JSON.stringify(currentItems) });
+  };
+
+  const isProductInBundle = (productTitle: string) => {
+    try {
+      const currentItems = JSON.parse(bundleForm.included_items || '[]');
+      return currentItems.includes(productTitle);
+    } catch {
+      return false;
+    }
+  };
+
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-[var(--color-bg-primary)] flex flex-col items-center justify-center p-4 relative overflow-hidden text-center">
@@ -202,7 +218,6 @@ export const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row gap-8 relative overflow-hidden">
       
-      {/* Decorative Grid */}
       <div className="absolute inset-0 z-0 bg-blueprint-grid opacity-50 pointer-events-none" style={{ maskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 100%)', WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 100%)' }}></div>
 
       {/* SIDEBAR */}
@@ -244,7 +259,6 @@ export const AdminDashboard = () => {
       {/* MAIN CONTENT */}
       <div className="flex-1 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-xl border border-[var(--color-bg-secondary)] dark:border-slate-800 p-6 sm:p-10 min-h-[700px] flex flex-col relative z-10">
         
-        {/* Top Header & Search */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
           <h3 className="text-3xl font-serif font-bold text-[var(--color-text-primary)] capitalize flex items-center gap-3">
             {activeTab}
@@ -310,9 +324,14 @@ export const AdminDashboard = () => {
               {activeTab === 'products' && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} key="products" className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                   {filteredData.products.map(p => (
-                    <div key={p.id} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-[var(--color-bg-secondary)] dark:border-slate-800 relative group shadow-sm hover:shadow-xl transition-all">
+                    <div key={p.id} className={`bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-[var(--color-bg-secondary)] dark:border-slate-800 relative group shadow-sm hover:shadow-xl transition-all ${p.is_hidden ? 'opacity-60 grayscale-[0.2]' : ''}`}>
                       <div className="flex justify-between items-start mb-4">
-                        <span className="text-[10px] font-bold bg-[var(--color-bg-primary)] px-3 py-1.5 rounded-full uppercase tracking-wider border border-black/5">{p.category}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold bg-[var(--color-bg-primary)] px-3 py-1.5 rounded-full uppercase tracking-wider border border-black/5">{p.category}</span>
+                          {p.is_hidden && (
+                            <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1.5 rounded-full uppercase tracking-wider flex items-center gap-1"><EyeOff className="w-3 h-3"/> Hidden</span>
+                          )}
+                        </div>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                           <button onClick={() => { setProductForm(p); setShowProductModal(true); }} className="bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white p-2 rounded-xl transition-colors cursor-pointer shadow-sm"><Edit2 className="w-4 h-4"/></button>
                           <button onClick={() => deleteProduct(p.id)} className="bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white p-2 rounded-xl transition-colors cursor-pointer shadow-sm"><Trash2 className="w-4 h-4"/></button>
@@ -338,14 +357,19 @@ export const AdminDashboard = () => {
               {activeTab === 'bundles' && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} key="bundles" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {filteredData.bundles.map(b => (
-                    <div key={b.id} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-[var(--color-bg-secondary)] dark:border-slate-800 relative group shadow-sm hover:shadow-xl transition-all">
+                    <div key={b.id} className={`bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-[var(--color-bg-secondary)] dark:border-slate-800 relative group shadow-sm hover:shadow-xl transition-all ${b.is_hidden ? 'opacity-60 grayscale-[0.2]' : ''}`}>
                       <div className="flex justify-between items-start mb-4">
-                        <span className="text-[10px] font-black bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full uppercase tracking-widest border border-amber-200">Bundle</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full uppercase tracking-widest border border-amber-200">Bundle</span>
+                          {b.is_hidden && (
+                            <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1.5 rounded-full uppercase tracking-wider flex items-center gap-1"><EyeOff className="w-3 h-3"/> Hidden</span>
+                          )}
+                        </div>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                           <button onClick={() => { 
                             setBundleForm({
                               ...b, 
-                              included_items: JSON.stringify(b.included_items, null, 2),
+                              included_items: JSON.stringify(b.included_items),
                               emoji_list: JSON.stringify(b.emoji_list, null, 2)
                             }); 
                             setShowBundleModal(true); 
@@ -419,41 +443,6 @@ export const AdminDashboard = () => {
         )}
       </div>
 
-      {/* --- REPLY MODAL --- */}
-      <AnimatePresence>
-        {replyState && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-md z-[150] flex items-center justify-center p-4">
-            <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }} className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-2xl overflow-hidden flex flex-col shadow-2xl border border-[var(--color-bg-secondary)] dark:border-slate-800">
-              <div className="p-6 border-b border-black/5 dark:border-white/5 flex justify-between items-center bg-[var(--color-bg-primary)]/50 dark:bg-slate-950/50">
-                <div>
-                  <h2 className="text-xl font-bold flex items-center gap-2"><Reply className="w-5 h-5 text-[var(--color-accent-mint)]"/> Reply to {replyState.name}</h2>
-                  <p className="text-xs font-bold opacity-50 mt-1">{replyState.email}</p>
-                </div>
-                <button onClick={() => { setReplyState(null); setReplyContent(''); }} className="p-2 bg-white dark:bg-slate-800 rounded-full hover:bg-rose-50 hover:text-rose-500 transition-colors cursor-pointer shadow-sm"><X className="w-5 h-5"/></button>
-              </div>
-              <div className="p-6 flex flex-col gap-4">
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-black/5 dark:border-white/5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-2">Original Message</p>
-                  <p className="text-sm opacity-80 italic border-l-2 border-[var(--color-accent-mint)] pl-3">{replyState.message}</p>
-                </div>
-                <textarea 
-                  rows={6} 
-                  autoFocus
-                  placeholder="Draft your beautiful HTML-supported reply here..." 
-                  className="w-full p-5 bg-white dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-2xl resize-none outline-none focus:border-[var(--color-accent-purple)] transition-colors text-sm leading-relaxed"
-                  value={replyContent} 
-                  onChange={(e) => setReplyContent(e.target.value)} 
-                />
-                <button onClick={handleSendReply} disabled={isSendingReply || !replyContent.trim()} className="w-full bg-[var(--color-text-primary)] text-white py-4 rounded-xl font-bold cursor-pointer hover:bg-[var(--color-accent-mint)] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 flex items-center justify-center gap-2">
-                  {isSendingReply ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                  {isSendingReply ? 'Sending Beautiful Email...' : 'Send Reply via Gmail'}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* --- PRODUCT MODAL --- */}
       <AnimatePresence>
         {showProductModal && (
@@ -475,7 +464,14 @@ export const AdminDashboard = () => {
                 <div className="md:col-span-2"><label className="block text-xs font-bold opacity-60 mb-2 uppercase tracking-wider">Tag (Optional)</label><input type="text" className="w-full p-4 bg-[var(--color-bg-primary)] dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl outline-none focus:border-[var(--color-accent-mint)] transition-colors" value={productForm.tag || ''} onChange={e => setProductForm({...productForm, tag: e.target.value})} /></div>
                 <div className="md:col-span-2"><label className="block text-xs font-bold opacity-60 mb-2 uppercase tracking-wider">YouTube URL (Optional)</label><input type="text" className="w-full p-4 bg-[var(--color-bg-primary)] dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl outline-none focus:border-[var(--color-accent-mint)] transition-colors" value={productForm.youtube_url || ''} onChange={e => setProductForm({...productForm, youtube_url: e.target.value})} /></div>
                 <div className="md:col-span-2"><label className="block text-xs font-bold opacity-60 mb-2 uppercase tracking-wider">Live Demo / File URL (Optional)</label><input type="text" className="w-full p-4 bg-[var(--color-bg-primary)] dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl outline-none focus:border-[var(--color-accent-mint)] transition-colors" value={productForm.file_url || ''} onChange={e => setProductForm({...productForm, file_url: e.target.value})} /></div>
-                <div className="md:col-span-2 pt-6 border-t border-black/5 dark:border-white/5"><button type="submit" className="w-full bg-[var(--color-text-primary)] text-white py-4 rounded-xl font-bold cursor-pointer hover:bg-[var(--color-accent-mint)] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">Save Template</button></div>
+                
+                {/* NEW HIDE TOGGLE */}
+                <div className="md:col-span-2 pt-4 border-t border-black/5 dark:border-white/5 flex items-center gap-3">
+                  <input type="checkbox" id="hideProduct" className="w-5 h-5 accent-[var(--color-accent-purple)]" checked={productForm.is_hidden || false} onChange={e => setProductForm({...productForm, is_hidden: e.target.checked})} />
+                  <label htmlFor="hideProduct" className="text-sm font-bold opacity-80 cursor-pointer">Hide this product from the public store</label>
+                </div>
+
+                <div className="md:col-span-2 pt-6"><button type="submit" className="w-full bg-[var(--color-text-primary)] text-white py-4 rounded-xl font-bold cursor-pointer hover:bg-[var(--color-accent-mint)] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">Save Template</button></div>
               </form>
             </motion.div>
           </motion.div>
@@ -498,23 +494,39 @@ export const AdminDashboard = () => {
                 <div><label className="block text-xs font-bold opacity-60 mb-2 uppercase tracking-wider">Original Price String</label><input type="text" className="w-full p-4 bg-[var(--color-bg-primary)] dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl outline-none focus:border-[var(--color-accent-mint)] transition-colors" value={bundleForm.original_price} onChange={e => setBundleForm({...bundleForm, original_price: e.target.value})} /></div>
                 <div><label className="block text-xs font-bold opacity-60 mb-2 uppercase tracking-wider">Tag</label><input type="text" className="w-full p-4 bg-[var(--color-bg-primary)] dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl outline-none focus:border-[var(--color-accent-mint)] transition-colors" value={bundleForm.tag} onChange={e => setBundleForm({...bundleForm, tag: e.target.value})} /></div>
                 <div><label className="block text-xs font-bold opacity-60 mb-2 uppercase tracking-wider">Gradient String</label><input type="text" className="w-full p-4 bg-[var(--color-bg-primary)] dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl outline-none focus:border-[var(--color-accent-mint)] transition-colors" value={bundleForm.gradient} onChange={e => setBundleForm({...bundleForm, gradient: e.target.value})} /></div>
+                <div><label className="block text-xs font-bold opacity-60 mb-2 uppercase tracking-wider">Emoji List (JSON Array)</label><input type="text" className="w-full p-4 bg-[var(--color-bg-primary)] dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl outline-none focus:border-[var(--color-accent-mint)] transition-colors" value={bundleForm.emoji_list} onChange={e => setBundleForm({...bundleForm, emoji_list: e.target.value})} placeholder='["❤️", "🎁"]'/></div>
                 
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-bold opacity-60 mb-2 uppercase tracking-wider">Included Items (JSON Array)</label>
-                  <textarea rows={3} className="w-full p-4 bg-slate-950 text-emerald-400 font-mono text-xs border border-slate-800 rounded-xl outline-none focus:border-[var(--color-accent-mint)] transition-colors resize-none" value={bundleForm.included_items} onChange={e => setBundleForm({...bundleForm, included_items: e.target.value})} placeholder='["Template 1", "Template 2"]'/>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-bold opacity-60 mb-2 uppercase tracking-wider">Emoji List (JSON Array)</label>
-                  <textarea rows={2} className="w-full p-4 bg-slate-950 text-emerald-400 font-mono text-xs border border-slate-800 rounded-xl outline-none focus:border-[var(--color-accent-mint)] transition-colors resize-none" value={bundleForm.emoji_list} onChange={e => setBundleForm({...bundleForm, emoji_list: e.target.value})} placeholder='["❤️", "🎁"]'/>
+                <div className="md:col-span-2 pt-4">
+                  <label className="block text-xs font-bold opacity-60 mb-4 uppercase tracking-wider">Select Included Products</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 bg-[var(--color-bg-primary)] dark:bg-slate-950 p-5 rounded-2xl border border-[var(--color-bg-secondary)] dark:border-slate-800 max-h-64 overflow-y-auto custom-scrollbar">
+                    {products.map(p => {
+                      const isSelected = isProductInBundle(p.title);
+                      return (
+                        <div 
+                          key={p.id} 
+                          onClick={() => toggleBundleProduct(p.title)}
+                          className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${isSelected ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400 shadow-sm' : 'bg-white dark:bg-slate-900 border-transparent hover:border-[var(--color-bg-secondary)] dark:hover:border-slate-700 opacity-70 hover:opacity-100'}`}
+                        >
+                          {isSelected ? <CheckSquare className="w-5 h-5 shrink-0" /> : <Square className="w-5 h-5 shrink-0 opacity-40" />}
+                          <span className="text-sm font-bold truncate select-none">{p.title}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                <div className="md:col-span-2 pt-6 border-t border-black/5 dark:border-white/5"><button type="submit" className="w-full bg-[var(--color-text-primary)] text-white py-4 rounded-xl font-bold cursor-pointer hover:bg-[var(--color-accent-mint)] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">Save Bundle</button></div>
+                {/* NEW HIDE TOGGLE */}
+                <div className="md:col-span-2 pt-4 border-t border-black/5 dark:border-white/5 flex items-center gap-3">
+                  <input type="checkbox" id="hideBundle" className="w-5 h-5 accent-[var(--color-accent-purple)]" checked={bundleForm.is_hidden || false} onChange={e => setBundleForm({...bundleForm, is_hidden: e.target.checked})} />
+                  <label htmlFor="hideBundle" className="text-sm font-bold opacity-80 cursor-pointer">Hide this bundle from the public store</label>
+                </div>
+
+                <div className="md:col-span-2 pt-6"><button type="submit" className="w-full bg-[var(--color-text-primary)] text-white py-4 rounded-xl font-bold cursor-pointer hover:bg-[var(--color-accent-mint)] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">Save Bundle</button></div>
               </form>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
   );
 };

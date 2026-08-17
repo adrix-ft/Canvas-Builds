@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  MessageSquare, 
-  X, 
-  Send, 
-  Loader2, 
-  Bot, 
-  User, 
-  Headphones, 
+import {
+  MessageSquare,
+  X,
+  Send,
+  Loader2,
+  Bot,
+  User,
+  Headphones,
   MessageCircle,
-  Square 
+  Square
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './supabaseClient';
@@ -23,7 +23,7 @@ type Message = {
 
 export const AIAssistant = () => {
   const { addToast } = useAppContext();
-  
+
   // -- GLOBAL UI STATE --
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeMode, setActiveMode] = useState<'none' | 'voice' | 'text'>('none');
@@ -47,7 +47,6 @@ export const AIAssistant = () => {
 
   const systemInstructionText = `
     You are the official customer support AI for Canvas Builds. you are a friendly, high-energy voice assistant. You are here to help users find the perfect React website template for their needs.
-
     CORE BEHAVIOR & LANGUAGE:
     - Always be polite, friendly, and helpful.
     - Keep answers brief, concise, and to the point. Avoid long explanations.
@@ -59,7 +58,6 @@ export const AIAssistant = () => {
     - If they use "Hinglish" (Hindi words in English script), reply in Hinglish.
     - If they speak in English, reply in English.
     - Keep answers brief, friendly, and concise. Do not give long monologues.
-
     BUSINESS & PRODUCT KNOWLEDGE:
     - Canvas Builds sells premium, code-driven React website templates for digital gifts (Anniversaries, Best Friends, Apologies, etc.).
     - Purchasing Options:
@@ -68,13 +66,11 @@ export const AIAssistant = () => {
       3. Ultimate Template Bundle: Available for ₹499.
     - Features: Customers can easily embed Spotify playlists, YouTube videos, and custom Google Maps locations without needing premium accounts.
     - Pricing model: One-time payment, lifetime access. No subscriptions.
-
     ABOUT THE FOUNDER (ADARSH):
     - If asked about who made this or about the developer, explain that Canvas Builds was built from the ground up by Adarsh.
     - Adarsh is an 18-year-old self-taught developer and first-year B.Sc. Bioinformatics student at Swami Vivekananda Subharti University in Meerut.
     - He combines his front-end skills in React, Tailwind, HTML, CSS, and JS with his academic pursuits in Python and Biopython.
     - He is highly ambitious
-
     CALL TO ACTION & CONTACT:
     - If a user wants to order the 'Ready Website', requests a completely custom template, or needs human support, tell them to message Adarsh directly on WhatsApp at +91 79065 68743 or email canvasbuildsofficial@gmail.com.
     - Never invent prices, templates, or discounts that are not explicitly listed here.
@@ -162,7 +158,6 @@ export const AIAssistant = () => {
 
         const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
         audioContextRef.current = audioCtx;
-
         await audioCtx.audioWorklet.addModule('/audio-recorder-worklet.js');
         const source = audioCtx.createMediaStreamSource(stream);
         const workletNode = new AudioWorkletNode(audioCtx, 'audio-recorder-worklet');
@@ -267,6 +262,7 @@ export const AIAssistant = () => {
   const handleSendText = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isTextLoading) return;
+
     if (!apiKey) {
       addToast("Chat is connecting. Please wait.", "info");
       return;
@@ -376,10 +372,10 @@ export const AIAssistant = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed sm:absolute bottom-0 right-0 sm:bottom-[80px] sm:right-0 z-[110] w-full h-[85dvh] sm:w-[380px] sm:h-[600px] bg-white dark:bg-slate-900 sm:rounded-2xl rounded-t-3xl border-t sm:border border-[var(--color-bg-secondary)] dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden pointer-events-auto origin-bottom-right"
+            className="fixed inset-0 sm:inset-auto sm:bottom-[80px] sm:right-0 z-[110] w-full h-[100dvh] sm:w-[380px] sm:h-[600px] bg-white dark:bg-slate-900 sm:rounded-2xl rounded-none sm:border border-[var(--color-bg-secondary)] dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden pointer-events-auto origin-bottom-right"
           >
             {/* Chat Header */}
-            <div className="bg-[var(--color-bg-secondary)] dark:bg-slate-800 p-4 flex justify-between items-center border-b border-black/5 dark:border-white/5 shrink-0">
+            <div className="bg-[var(--color-bg-secondary)] dark:bg-slate-800 p-4 pt-[max(1rem,env(safe-area-inset-top))] flex justify-between items-center border-b border-black/5 dark:border-white/5 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-[var(--color-accent-mint)] animate-pulse"></div>
                 <h3 className="font-bold text-[var(--color-text-primary)] text-sm">Canvas Builds AI</h3>
@@ -390,23 +386,24 @@ export const AIAssistant = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-[var(--color-bg-primary)]/30 dark:bg-slate-950/30">
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-[var(--color-bg-primary)]/30 dark:bg-slate-950/30 custom-scrollbar">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-2 w-full ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm mt-auto ${msg.role === 'user' ? 'bg-[var(--color-accent-purple)] text-white' : 'bg-white dark:bg-slate-800 text-[var(--color-text-primary)] border border-black/5 dark:border-white/5'}`}>
                     {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4 text-[var(--color-accent-mint)]" />}
                   </div>
-                  <div className={`max-w-[75%] p-3.5 text-sm shadow-sm leading-relaxed ${msg.role === 'user' ? 'bg-[var(--color-accent-purple)] text-white rounded-2xl rounded-tr-sm' : 'bg-white dark:bg-slate-800 text-[var(--color-text-primary)] border border-black/5 dark:border-white/5 rounded-2xl rounded-tl-sm'}`}>
+                  <div className={`max-w-[85%] sm:max-w-[75%] p-3.5 text-sm shadow-sm leading-relaxed ${msg.role === 'user' ? 'bg-[var(--color-accent-purple)] text-white rounded-2xl rounded-br-sm' : 'bg-white dark:bg-slate-800 text-[var(--color-text-primary)] border border-black/5 dark:border-white/5 rounded-2xl rounded-bl-sm'}`}>
                     {msg.text}
                   </div>
                 </div>
               ))}
+
               {isTextLoading && (
                 <div className="flex gap-2 flex-row w-full">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm bg-white dark:bg-slate-800 border border-black/5 dark:border-white/5 mt-auto">
                     <Bot className="w-4 h-4 text-[var(--color-accent-mint)]" />
                   </div>
-                  <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-tl-sm shadow-sm border border-black/5 dark:border-white/5 flex items-center gap-1.5 h-10">
+                  <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-bl-sm shadow-sm border border-black/5 dark:border-white/5 flex items-center gap-1.5 h-10">
                     <span className="w-1.5 h-1.5 bg-[var(--color-text-primary)]/40 rounded-full animate-bounce"></span>
                     <span className="w-1.5 h-1.5 bg-[var(--color-text-primary)]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
                     <span className="w-1.5 h-1.5 bg-[var(--color-text-primary)]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
@@ -417,21 +414,21 @@ export const AIAssistant = () => {
             </div>
 
             {/* Input Form */}
-            <form onSubmit={handleSendText} className="p-3 bg-white dark:bg-slate-900 border-t border-[var(--color-bg-secondary)] dark:border-slate-800 flex gap-2 shrink-0 pb-[env(safe-area-inset-bottom,12px)]">
+            <form onSubmit={handleSendText} className="p-3 bg-white dark:bg-slate-900 border-t border-[var(--color-bg-secondary)] dark:border-slate-800 flex gap-2 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your message..."
-                className="flex-1 bg-[var(--color-bg-primary)] dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-purple)] transition-colors"
+                className="flex-1 bg-[var(--color-bg-primary)] dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-3.5 sm:py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-purple)] transition-colors"
                 disabled={isTextLoading}
               />
               <button
                 type="submit"
                 disabled={!input.trim() || isTextLoading}
-                className="w-11 h-11 bg-[var(--color-accent-purple)] hover:bg-[#6b46c1] text-white rounded-xl flex items-center justify-center shrink-0 transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+                className="w-12 h-12 sm:w-11 sm:h-11 bg-[var(--color-accent-purple)] hover:bg-[#6b46c1] text-white rounded-xl flex items-center justify-center shrink-0 transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
               >
-                {isTextLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 ml-0.5" />}
+                {isTextLoading ? <Loader2 className="w-5 h-5 sm:w-4 sm:h-4 animate-spin" /> : <Send className="w-5 h-5 sm:w-4 sm:h-4 ml-0.5" />}
               </button>
             </form>
           </motion.div>

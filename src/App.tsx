@@ -23,8 +23,8 @@ import { useAppContext } from "./AppContext";
 import {
   ToastContainer,
   CartDrawer,
-  BundleSection,
   SearchModal,
+  DatabaseBundles,
 } from "./NewComponents";
 import {
   Search,
@@ -53,7 +53,8 @@ import {
   MapPin,
   Zap,
   Shield,
-  Sun
+  Sun,
+  Package
 } from "lucide-react";
 import { supabase } from "./supabaseClient";
 import { getProductIcon } from "./iconHelper";
@@ -104,7 +105,7 @@ const INITIAL_TESTIMONIALS = [
 const FAQS = [
   {
     q: "Do I need coding experience?",
-    a: "Not at all! We provide an easy guide to edit the raw code yourself. Or, skip the hassle we can customize and deploy the site for you!",
+    a: "Not at all! We provide an easy guide to edit the raw code yourself. Or, skip the hassle—we can customize and deploy the site for you!",
   },
   {
     q: "How do I embed my own Spotify, YouTube, or Instagram content?",
@@ -198,7 +199,6 @@ const Navbar = () => {
                 Canvas<span className="text-[var(--color-accent-mint)]">Builds</span>
               </span>
             </Link>
-
             <div className="hidden lg:flex items-center gap-8">
               {[
                 { name: "Home", path: "/" },
@@ -219,7 +219,6 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
-
             <div className="flex items-center gap-1 sm:gap-2">
               {isAdmin && (
                 <Link 
@@ -229,7 +228,6 @@ const Navbar = () => {
                   <Shield className="w-4 h-4" /> Admin
                 </Link>
               )}
-
               <button
                 onClick={toggleDarkMode}
                 className="hover:bg-[var(--color-bg-secondary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 cursor-pointer"
@@ -237,14 +235,12 @@ const Navbar = () => {
               >
                 {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
               </button>
-
               <button
                 onClick={() => setIsSearchOpen(true)}
                 className="hover:bg-[var(--color-bg-secondary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 cursor-pointer"
               >
                 <Search className="w-5 h-5" />
               </button>
-
               <button
                 onClick={() => setIsCartOpen(true)}
                 className="relative hover:bg-[var(--color-bg-secondary)] p-2 sm:p-2.5 rounded-full transition-colors text-[var(--color-text-primary)]/80 cursor-pointer"
@@ -313,7 +309,6 @@ const Navbar = () => {
                   </span>
                 </div>
               </div>
-
               <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-3">
                 <div
                   onClick={() => {
@@ -330,7 +325,6 @@ const Navbar = () => {
                     className="bg-transparent border-none outline-none w-full text-[var(--color-text-primary)] text-[15px] cursor-pointer pointer-events-none"
                   />
                 </div>
-
                 {[
                   { name: "Home", path: "/" },
                   { name: "Templates", path: "/store" },
@@ -355,7 +349,6 @@ const Navbar = () => {
                   </motion.div>
                 ))}
               </div>
-
               <div className="p-4 border-t border-[var(--color-bg-secondary)]/50 flex flex-col gap-3">
                 {isAdmin && (
                   <Link 
@@ -405,9 +398,9 @@ const Cursor = ({ color, name, x, y, delay, img, durationX = 12, durationY = 15,
 
 const Hero = () => {
   return (
-    <div className="relative overflow-hidden min-h-[90dvh] flex flex-col items-center justify-center w-full pt-20 bg-[var(--color-bg-primary)]">
-      <div
-          className="absolute inset-0 z-0 bg-blueprint-grid opacity-100 pointer-events-none"
+    <div className="relative overflow-hidden min-h-[90dvh] flex flex-col items-center justify-center w-full pt-28 bg-[var(--color-bg-primary)]">
+      <div 
+         className="absolute inset-0 z-0 bg-blueprint-grid opacity-100 pointer-events-none"
          style={{
            maskImage: 'radial-gradient(ellipse 80% 60% at 50% 45%, black 20%, transparent 100%)',
            WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 45%, black 20%, transparent 100%)'
@@ -421,6 +414,7 @@ const Hero = () => {
         <Cursor color="#f59e0b" name="Ayush" x="15%" y="65%" delay={0.8} img="/assets/2.png" moveX={-40} moveY={-30} durationY={16} />
         <Cursor color="#06b6d4" name="Batit" x="40%" y="75%" delay={1.5} img="/assets/6.png" moveX={20} moveY={-40} durationX={11} />
       </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -453,8 +447,9 @@ const Hero = () => {
           </Link>
         </div>
       </motion.div>
-      <motion.div
-         initial={{ opacity: 0 }}
+
+      <motion.div 
+        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
         className="w-full max-w-5xl mx-auto px-6 mt-24 relative z-20 flex flex-col sm:flex-row items-center justify-between gap-8 pt-8 border-t border-[var(--color-text-primary)]/5 pointer-events-none"
@@ -520,18 +515,19 @@ const ServicesShowcase = () => {
             With Canvas Builds, you unlock beautiful, code-driven templates that spark joy and help you express exactly how you feel.
           </p>
         </div>
+
         <div className="space-y-24 sm:space-y-32">
           {services.map((service) => {
             const isImagePath = typeof service.image === "string" && (service.image.startsWith("/") || service.image.startsWith("http") || service.image.includes("."));
             return (
-              <div
-                 key={service.id}
+              <div 
+                key={service.id}
                 className={`flex flex-col lg:flex-row items-center gap-12 lg:gap-20 ${
                   service.align === 'left' ? 'lg:flex-row-reverse' : ''
                 }`}
               >
-                <motion.div
-                   initial={{ opacity: 0, x: service.align === 'right' ? -30 : 30 }}
+                <motion.div 
+                  initial={{ opacity: 0, x: service.align === 'right' ? -30 : 30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
@@ -540,22 +536,23 @@ const ServicesShowcase = () => {
                   <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-square bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden flex items-center justify-center shadow-sm border border-[var(--color-bg-secondary)] group">
                     <div className="absolute inset-0 bg-gradient-to-tr from-[var(--color-bg-secondary)]/50 to-transparent pointer-events-none"></div>
                     {isImagePath ? (
-                      <motion.img
-                          src={service.image}
-                          alt={service.title}
-                         className="relative z-10 w-full h-full object-cover object-[75%] transition-transform duration-700"
+                      <motion.img 
+                        src={service.image} 
+                        alt={service.title}
+                        className="relative z-10 w-full h-full object-cover object-[75%] transition-transform duration-700"
                       />
                     ) : (
-                      <motion.div
-                         className="text-[8rem] sm:text-[12rem] relative z-10 drop-shadow-xl transition-transform duration-700 leading-none select-none flex justify-center items-center"
+                      <motion.div 
+                        className="text-[8rem] sm:text-[12rem] relative z-10 drop-shadow-xl transition-transform duration-700 leading-none select-none flex justify-center items-center"
                       >
                         {service.image}
                       </motion.div>
                     )}
                   </div>
                 </motion.div>
-                <motion.div
-                   initial={{ opacity: 0, y: 30 }}
+                
+                <motion.div 
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: 0.2 }}
@@ -570,8 +567,8 @@ const ServicesShowcase = () => {
                   <p className="text-[var(--color-text-primary)]/60 text-lg leading-relaxed mb-8 max-w-md">
                     {service.description}
                   </p>
-                  <Link
-                     to="/store"
+                  <Link 
+                    to="/store"
                     className="text-[var(--color-text-primary)] font-bold flex items-center gap-2 group hover:text-[var(--color-accent-mint)] transition-colors"
                   >
                     Explore Templates
@@ -606,6 +603,7 @@ const IntegrationsSection = () => {
     { name: 'facebook', color: '1877F2' },
     { name: 'vimeo', color: '1AB7EA' }
   ];
+
   const row2Brands = [
     { name: 'youtube', color: 'FF0000' },
     { name: 'uber', color: '000000' },
@@ -624,13 +622,14 @@ const IntegrationsSection = () => {
     { name: 'goodreads', color: '382110' },
     { name: 'line', color: '00C300' }
   ];
+
   const row1 = [...row1Brands, ...row1Brands, ...row1Brands];
   const row2 = [...row2Brands, ...row2Brands, ...row2Brands];
 
   return (
     <div className="bg-[#273e3d] dark:bg-slate-900 py-16 sm:py-24 w-full overflow-hidden relative">
-      <div
-         className="absolute inset-0 z-0 opacity-100 pointer-events-none"
+      <div 
+        className="absolute inset-0 z-0 opacity-100 pointer-events-none"
         style={{
           backgroundImage: `
             linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
@@ -642,6 +641,7 @@ const IntegrationsSection = () => {
           WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 100%)'
         }}
       ></div>
+
       <div className="relative z-10 w-full max-w-2xl mx-auto mb-10 sm:mb-16 flex flex-col items-center text-center px-4 sm:px-6 lg:px-8">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm bg-white/10 text-[10px] font-bold text-white uppercase tracking-widest mb-6 border border-white/10">
           <Heart className="w-3 h-3 text-rose-400 fill-rose-400" /> Make It Personal
@@ -656,12 +656,13 @@ const IntegrationsSection = () => {
           See how it works
         </a>
       </div>
-      <div
-         className="relative z-10 w-full overflow-hidden flex flex-col gap-4 sm:gap-6"
-        style={{
-           maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
-           WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)'
-         }}
+
+      <div 
+        className="relative z-10 w-full overflow-hidden flex flex-col gap-4 sm:gap-6"
+        style={{ 
+          maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)'
+        }}
       >
         <div className="w-full overflow-hidden flex">
           <motion.div
@@ -671,10 +672,10 @@ const IntegrationsSection = () => {
           >
             {row1.map((brand, i) => (
               <div key={`r1-${i}`} className="w-16 h-16 sm:w-24 sm:h-24 shrink-0 bg-white rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-xl cursor-pointer">
-                <img
-                   src={`https://cdn.simpleicons.org/${brand.name}/${brand.color}`}
-                   alt={brand.name}
-                   className="w-8 h-8 sm:w-12 sm:h-12 object-contain"
+                <img 
+                  src={`https://cdn.simpleicons.org/${brand.name}/${brand.color}`} 
+                  alt={brand.name} 
+                  className="w-8 h-8 sm:w-12 sm:h-12 object-contain"
                   loading="lazy"
                   onError={(e) => (e.currentTarget.style.display = 'none')}
                 />
@@ -682,6 +683,7 @@ const IntegrationsSection = () => {
             ))}
           </motion.div>
         </div>
+        
         <div className="w-full overflow-hidden flex">
           <motion.div
             animate={{ x: ["-50%", "0%"] }}
@@ -690,10 +692,10 @@ const IntegrationsSection = () => {
           >
             {row2.map((brand, i) => (
               <div key={`r2-${i}`} className="w-16 h-16 sm:w-24 sm:h-24 shrink-0 bg-white rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-xl cursor-pointer">
-                <img
-                   src={`https://cdn.simpleicons.org/${brand.name}/${brand.color}`}
-                   alt={brand.name}
-                   className="w-8 h-8 sm:w-12 sm:h-12 object-contain"
+                <img 
+                  src={`https://cdn.simpleicons.org/${brand.name}/${brand.color}`} 
+                  alt={brand.name} 
+                  className="w-8 h-8 sm:w-12 sm:h-12 object-contain"
                   loading="lazy"
                   onError={(e) => (e.currentTarget.style.display = 'none')}
                 />
@@ -789,8 +791,8 @@ const ProductCard = ({ product }: { product: ProductItem }) => {
             />
             <AnimatePresence>
               {isHovered && (
-                <motion.div
-                   initial={{ opacity: 0 }}
+                <motion.div 
+                  initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, transition: { duration: 0.2 } }}
                   transition={{ duration: 0.6, delay: 0.8 }}
@@ -813,12 +815,14 @@ const ProductCard = ({ product }: { product: ProductItem }) => {
             {product.emoji}
           </div>
         )}
+
         {product.tag && (
           <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-slate-900 dark:text-white text-[8px] sm:text-[10px] font-bold px-2 sm:px-3 py-1 rounded-full z-30 shadow-sm border border-black/5 uppercase tracking-wider">
             {product.tag}
           </div>
         )}
       </div>
+
       <div className="p-3.5 sm:p-5 flex-1 flex flex-col justify-start bg-white dark:bg-slate-900 z-10 relative sm:border-t border-l sm:border-l-0 border-black/5 dark:border-slate-800">
         <div>
           <p className="text-[8px] sm:text-[10px] font-bold tracking-widest uppercase text-[var(--color-text-primary)]/50 mb-0.5 sm:mb-1">
@@ -828,6 +832,7 @@ const ProductCard = ({ product }: { product: ProductItem }) => {
             {product.title}
           </h3>
         </div>
+
         <div className="mt-auto sm:mt-4 pt-2">
           <div className="flex flex-col xl:flex-row gap-1.5 sm:gap-2">
             <button
@@ -842,6 +847,163 @@ const ProductCard = ({ product }: { product: ProductItem }) => {
             >
               <Code className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" /> Code (₹{product.code_price})
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const BundlePage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useAppContext();
+  const [bundle, setBundle] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBundle = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("bundles")
+          .select("*")
+          .eq("id", Number(id))
+          .single();
+
+        if (error) throw error;
+        if (data) setBundle(data);
+      } catch (err) {
+        console.error("Error fetching bundle:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchBundle();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="pt-32 pb-20 min-h-screen flex justify-center items-center w-full">
+        <div className="w-8 h-8 border-4 border-[var(--color-accent-purple)] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!bundle) {
+    return (
+      <div className="pt-32 pb-20 min-h-screen flex flex-col items-center justify-center w-full">
+        <h2 className="text-2xl font-bold mb-4 text-[var(--color-text-primary)]">Bundle not found</h2>
+        <button onClick={() => navigate('/store')} className="text-[var(--color-accent-purple)] font-bold hover:underline cursor-pointer">
+          Return to Store
+        </button>
+      </div>
+    );
+  }
+
+  let emojis = ["🎁"];
+  if (Array.isArray(bundle.emoji_list)) emojis = bundle.emoji_list;
+  else if (typeof bundle.emoji_list === 'string') {
+    try { emojis = JSON.parse(bundle.emoji_list); } catch { /* ignore */ }
+  }
+
+  let items = [];
+  if (Array.isArray(bundle.included_items)) items = bundle.included_items;
+  else if (typeof bundle.included_items === 'string') {
+    try { items = JSON.parse(bundle.included_items); } catch { /* ignore */ }
+  }
+
+  const numericPrice = Number(String(bundle.price).replace(/[^0-9.]/g, '')) || 499;
+
+  return (
+    <div className="pt-28 pb-24 min-h-screen bg-[var(--color-bg-primary)] relative overflow-hidden w-full">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <button
+           onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-sm text-[var(--color-text-primary)]/75 hover:text-[var(--color-text-primary)] transition-colors mb-10 font-bold cursor-pointer w-fit"
+        >
+          <ChevronRight className="w-4 h-4 rotate-180" />
+          Back to Store
+        </button>
+
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
+          
+          <div className="w-full lg:w-1/2">
+            <div className={`w-full aspect-square sm:aspect-[4/3] lg:aspect-square rounded-[2.5rem] relative flex items-center justify-center bg-gradient-to-br ${bundle.gradient || 'from-slate-800 to-slate-900'} shadow-sm border border-black/5 dark:border-white/5 overflow-hidden group`}>
+              <div className="absolute inset-0 bg-black/10 mix-blend-overlay pointer-events-none"></div>
+              
+              <div className="text-[5rem] sm:text-[7rem] drop-shadow-xl flex items-center justify-center gap-2 sm:gap-4 z-10 transition-transform duration-500 group-hover:scale-105">
+                 {emojis.map((emoji: string, idx: number) => (
+                    <span key={idx} className={idx > 0 && emojis.length > 2 ? "-ml-4 sm:-ml-8" : ""}>{emoji}</span>
+                  ))}
+              </div>
+
+              {bundle.tag && (
+                 <div className="absolute top-6 left-6 bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-[var(--color-text-primary)] text-[10px] font-bold px-3 py-1.5 rounded-full z-20 shadow-sm border border-black/5 uppercase tracking-wider">
+                    {bundle.tag}
+                 </div>
+              )}
+            </div>
+          </div>
+
+          <div className="w-full lg:w-1/2 flex flex-col pt-2 sm:pt-4">
+            <h1 className="text-4xl sm:text-5xl font-serif font-bold text-[var(--color-text-primary)] mb-4 leading-tight tracking-tight">
+              {bundle.title}
+            </h1>
+            
+            <p className="text-[var(--color-text-primary)]/70 text-base sm:text-lg leading-relaxed mb-10 font-medium">
+              {bundle.description}
+            </p>
+
+            <div className="mb-10 bg-white dark:bg-slate-900 border border-[var(--color-bg-secondary)] dark:border-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-sm">
+              <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-5 flex items-center gap-2.5">
+                 <Package className="w-5 h-5 text-[var(--color-accent-purple)]" /> Included in bundle
+              </h3>
+              
+              {items.length > 0 ? (
+                <ul className="space-y-4">
+                  {items.map((item: string, i: number) => (
+                    <li key={i} className="flex items-center gap-3 text-sm text-[var(--color-text-primary)]/80 dark:text-slate-300 font-bold">
+                      <div className="w-6 h-6 rounded-full bg-[var(--color-accent-mint)]/10 flex items-center justify-center shrink-0 border border-[var(--color-accent-mint)]/20">
+                          <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-[var(--color-text-primary)]/50 italic">Items will be listed here.</p>
+              )}
+            </div>
+
+            <div className="mt-auto pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-t border-[var(--color-bg-secondary)] dark:border-slate-800">
+               <div className="flex flex-col">
+                  {bundle.original_price && (
+                    <span className="text-sm text-[var(--color-text-primary)]/40 line-through font-bold mb-0.5">
+                      {bundle.original_price}
+                    </span>
+                  )}
+                  <span className="text-4xl font-black text-[var(--color-text-primary)] leading-none">
+                    {bundle.price}
+                  </span>
+                </div>
+                
+                <button
+                  onClick={() => addToCart({
+                    id: bundle.id + 10000,
+                    title: bundle.title,
+                    price: numericPrice,
+                    priceType: "code",
+                    gradient: bundle.gradient || "from-slate-900 to-slate-950",
+                    emoji: <Gift className="w-5 h-5 text-white" />,
+                  })}
+                  className="w-full sm:w-auto py-4 px-8 bg-[var(--color-text-primary)] hover:bg-[var(--color-accent-purple)] text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <ShoppingCart className="w-5 h-5" /> Add Bundle to Cart
+                </button>
+            </div>
           </div>
         </div>
       </div>
@@ -896,7 +1058,7 @@ const ProductPage = () => {
 
   if (loading) {
     return (
-      <div className="pt-32 pb-20 min-h-screen flex justify-center items-center">
+      <div className="pt-32 pb-20 min-h-screen flex justify-center items-center w-full">
         <div className="w-8 h-8 border-4 border-[var(--color-accent-pink)] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -904,7 +1066,7 @@ const ProductPage = () => {
 
   if (!product) {
     return (
-      <div className="pt-32 pb-20 min-h-screen flex flex-col items-center justify-center">
+      <div className="pt-32 pb-20 min-h-screen flex flex-col items-center justify-center w-full">
         <h2 className="text-2xl font-bold mb-4">Product not found</h2>
         <button onClick={() => navigate('/store')} className="text-[var(--color-accent-pink)] hover:underline cursor-pointer">
           Return to Store
@@ -929,7 +1091,7 @@ const ProductPage = () => {
   const embedDetails = getEmbedDetails(product.youtube_url);
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-[var(--color-bg-primary)]">
+    <div className="pt-28 pb-20 min-h-screen bg-[var(--color-bg-primary)] w-full">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <button
            onClick={() => navigate(-1)}
@@ -952,14 +1114,14 @@ const ProductPage = () => {
                     allowFullScreen
                   />
                 ) : (
-                  <div
-                     className="relative w-full h-full cursor-pointer group"
-                     onClick={() => setIsPlaying(true)}
+                  <div 
+                    className="relative w-full h-full cursor-pointer group" 
+                    onClick={() => setIsPlaying(true)}
                   >
-                    <img
-                       src={`https://img.youtube.com/vi/${embedDetails.videoId}/maxresdefault.jpg`}
-                       alt="Video Thumbnail"
-                       className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+                    <img 
+                      src={`https://img.youtube.com/vi/${embedDetails.videoId}/maxresdefault.jpg`} 
+                      alt="Video Thumbnail" 
+                      className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors duration-300">
                       <div className="w-16 h-16 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-110">
@@ -1030,7 +1192,7 @@ const ProductPage = () => {
                 <div className="text-3xl font-black text-[var(--color-text-primary)] mb-4">₹{product.ready_price}</div>
                 <div className="bg-blue-50/50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900 rounded-lg p-2.5 mb-4">
                   <p className="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300 font-medium leading-tight">
-                    <span className="font-bold mr-1">🚀</span>
+                    <span className="font-bold mr-1">✨</span>
                     Fully done for you. Get your live website link & QR within 24 hours.
                   </p>
                 </div>
@@ -1074,8 +1236,8 @@ const ProductPage = () => {
                     </li>
                   ))}
                 </ul>
-                <button
-                   onClick={() => addToCart({
+                <button 
+                  onClick={() => addToCart({
                     id: product.id,
                     title: product.title,
                     price: product.code_price,
@@ -1108,6 +1270,7 @@ const PopularProducts = () => {
         const { data, error } = await supabase
           .from("products")
           .select("*")
+          .eq("is_hidden", false)
           .order("id", { ascending: true });
 
         if (error) throw error;
@@ -1146,10 +1309,10 @@ const PopularProducts = () => {
 
   return (
     <div
-      className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20 relative"
+      className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full relative"
       id="templates"
     >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-10 gap-4 sticky top-16 sm:top-20 z-30 bg-[var(--color-bg-primary)] dark:bg-[var(--color-bg-primary)] sm:bg-[var(--color-bg-primary)]/95 sm:dark:bg-slate-900/95 py-4 px-2 sm:px-6 rounded-2xl shadow-sm border border-[var(--color-bg-secondary)] dark:border-slate-800 sm:backdrop-blur-md">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-10 gap-4 sticky top-16 sm:top-[72px] z-30 bg-[var(--color-bg-primary)] dark:bg-[var(--color-bg-primary)] sm:bg-[var(--color-bg-primary)]/95 sm:dark:bg-slate-900/95 py-4 px-2 sm:px-6 rounded-2xl shadow-sm border border-[var(--color-bg-secondary)] dark:border-slate-800 sm:backdrop-blur-md">
         <div>
           <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
             <span className="w-5 sm:w-8 h-px bg-[var(--color-accent-pink)]"></span>
@@ -1161,16 +1324,40 @@ const PopularProducts = () => {
             Find the Perfect Gift
           </h2>
         </div>
-        <div className="flex overflow-x-auto hide-scrollbar w-full md:w-auto gap-2 pb-2 md:pb-0 snap-x">
+
+        {/* Desktop Categories (Scrollable/Clickable Tags) */}
+        <div className="hidden sm:flex bg-[var(--color-bg-primary)] dark:bg-slate-950 p-1.5 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 overflow-x-auto custom-scrollbar max-w-full xl:max-w-xl">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`snap-start px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 cursor-pointer ${activeCategory === cat ? "bg-[var(--color-text-primary)] text-white dark:bg-slate-100 dark:text-slate-900 shadow-lg shadow-[var(--color-text-primary)]/20 scale-105" : "bg-white/80 dark:bg-slate-900 text-[var(--color-text-primary)]/60 hover:bg-white hover:text-[var(--color-text-primary)] border border-[var(--color-bg-secondary)]/50 dark:border-slate-800"}`}
+              className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${
+                activeCategory === cat
+                  ? "bg-[var(--color-text-primary)] text-[var(--color-bg-primary)] shadow-md transform scale-105"
+                  : "text-[var(--color-text-primary)]/60 hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)] dark:hover:bg-slate-800"
+              }`}
             >
               {cat}
             </button>
           ))}
+        </div>
+
+        {/* Mobile Categories (Native Dropdown Menu) */}
+        <div className="sm:hidden relative w-full mt-4">
+          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+            <ChevronDown className="w-5 h-5 text-[var(--color-text-primary)]/50" />
+          </div>
+          <select
+            value={activeCategory}
+            onChange={(e) => setActiveCategory(e.target.value)}
+            className="w-full appearance-none bg-white dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-5 py-3.5 text-sm font-bold text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-mint)] transition-colors shadow-sm cursor-pointer"
+          >
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat === "All" ? "Filter by Category: All" : cat}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -1222,13 +1409,12 @@ const Testimonials = () => {
   const row1 = Array(5).fill(null);
   const row2 = Array(5).fill(null);
   const row3 = Array(5).fill(null);
+
   return (
-    <div
-      id="reviews"
-      className="py-20 sm:py-28 bg-[var(--color-bg-primary)] overflow-hidden relative"
-    >
+    <div id="reviews" className="bg-[var(--color-bg-primary)] overflow-hidden relative w-full">
       <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-[var(--color-bg-primary)] to-transparent z-10 pointer-events-none"></div>
       <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[var(--color-bg-primary)] to-transparent z-10 pointer-events-none"></div>
+
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -1249,6 +1435,7 @@ const Testimonials = () => {
           These are real people who had a moment worth sharing. Here's what they said after.
         </p>
       </motion.div>
+
       <div className="flex flex-col gap-4 sm:gap-6">
         <div className="flex whitespace-nowrap">
           <motion.div
@@ -1289,7 +1476,7 @@ const Testimonials = () => {
 };
 
 const PromoBanners = () => (
-  <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+  <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full">
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -1312,8 +1499,8 @@ const PromoBanners = () => (
           <p className="text-[var(--color-accent-pink)] font-serif text-[15px] sm:text-2xl mb-4 sm:mb-8 italic">
             Built From Your Ideas
           </p>
-          <MagneticButton
-             onClick={() => window.open("https://wa.me/917906568743?text=Hi%20Adarsh,%20I%20would%20like%20to%20request%20a%20custom%20website%20template!", "_blank")}
+          <MagneticButton 
+            onClick={() => window.open("https://wa.me/917906568743?text=Hi%20Adarsh,%20I%20would%20like%20to%20request%20a%20custom%20website%20template!", "_blank")}
             className="bg-[var(--color-text-primary)] text-white dark:bg-slate-100 dark:text-slate-900 px-5 sm:px-8 py-2.5 sm:py-4 rounded-full text-[11px] sm:text-sm font-bold flex items-center gap-2 sm:gap-3 hover:bg-[var(--color-accent-purple)] transition-all duration-300 w-fit shadow-md cursor-pointer"
           >
             Request Now <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1321,15 +1508,16 @@ const PromoBanners = () => (
         </div>
         <div className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center pointer-events-none">
           <div className="w-32 h-32 sm:w-64 sm:h-64 bg-[var(--color-bg-primary)]/50 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 -right-5 sm:-right-10 blur-xl sm:blur-2xl"></div>
-          <img
-             src="/assets/custom.png"
-             alt="Custom Template Request"
-             loading="lazy"
+          <img 
+            src="/assets/custom.png" 
+            alt="Custom Template Request" 
+            loading="lazy"
             decoding="async"
             className="absolute bottom-0 right-0 translate-x-[22%] sm:translate-x-[22%] h-[75%] sm:h-[85%] w-auto max-w-none object-contain object-bottom drop-shadow-2xl z-10"
           />
         </div>
       </motion.div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -1349,10 +1537,10 @@ const PromoBanners = () => (
             Works
           </h3>
           <p className="text-[var(--color-text-primary)]/75 text-[10px] sm:text-sm mb-4 sm:mb-8 max-w-[200px] sm:max-w-[240px] font-medium leading-relaxed hidden sm:block">
-            1. Choose your template  2. Download the code or let us deploy  3. Share with your special person!
+            1. Choose your template • 2. Download the code or let us deploy • 3. Share with your special person!
           </p>
-          <MagneticButton
-             onClick={() => window.location.href = "/faq"}
+          <MagneticButton 
+            onClick={() => window.location.href = "/faq"}
             className="bg-white text-[var(--color-text-primary)] dark:bg-slate-800 dark:text-slate-100 px-5 sm:px-8 py-2.5 sm:py-4 rounded-full text-[11px] sm:text-sm font-bold flex items-center gap-2 sm:gap-3 hover:bg-[var(--color-text-primary)] hover:text-white transition-all duration-300 w-fit shadow-sm border border-[var(--color-bg-secondary)]/50 dark:border-slate-700 mt-2 sm:mt-0 cursor-pointer"
           >
             View FAQ <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1360,10 +1548,10 @@ const PromoBanners = () => (
         </div>
         <div className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center pointer-events-none">
           <div className="w-32 h-32 sm:w-64 sm:h-64 bg-[var(--color-bg-primary)]/60 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 -right-5 sm:-right-10 blur-xl sm:blur-2xl"></div>
-          <img
-             src="/assets/admin.png"
-             alt="Support Admin"
-             loading="lazy"
+          <img 
+            src="/assets/admin.png" 
+            alt="Support Admin" 
+            loading="lazy"
             decoding="async"
             className="absolute bottom-0 right-0 translate-x-[30%] sm:translate-x-[25%] h-[85%] sm:h-[95%] w-auto max-w-none object-contain object-bottom drop-shadow-2xl z-10"
           />
@@ -1374,14 +1562,12 @@ const PromoBanners = () => (
 );
 
 const ContactSection = () => {
-  // 1. Pull 'user' from the context
   const { addToast, user } = useAppContext();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 2. Auto-fill the form when the user logs in
   useEffect(() => {
     if (user) {
       if (user.user_metadata?.full_name) {
@@ -1391,7 +1577,6 @@ const ContactSection = () => {
         setEmail(user.email);
       }
     } else {
-      // Clear if they log out
       setName("");
       setEmail("");
     }
@@ -1416,8 +1601,6 @@ const ContactSection = () => {
         ]);
       if (error) throw error;
       addToast("Message sent! We'll get back to you shortly.", "success");
-      
-      // Only clear the message after sending so they don't have to retype their name/email
       setMessage("");
     } catch (err) {
       console.error("Error sending message:", err);
@@ -1428,12 +1611,13 @@ const ContactSection = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-24 mt-16 sm:mt-24">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 w-full">
       <div className="text-center mb-12">
         <h2 className="text-3xl sm:text-4xl font-serif text-[var(--color-text-primary)] tracking-tight">
           Still having an issue? Contact us
         </h2>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
         <div className="flex flex-col items-center text-center gap-3">
           <div className="w-12 h-12 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 flex items-center justify-center text-[var(--color-text-primary)]/60 dark:text-slate-400">
@@ -1463,6 +1647,7 @@ const ContactSection = () => {
           </div>
         </div>
       </div>
+
       <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-10 shadow-sm border border-[var(--color-bg-secondary)]/50 dark:border-slate-800">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -1520,7 +1705,7 @@ const FAQSection = () => {
   return (
     <div
       id="faq"
-      className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-16 relative"
+      className="max-w-3xl mx-auto px-4 sm:px-6 w-full relative"
     >
       <div className="text-center mb-10 sm:mb-14">
         <div className="flex items-center justify-center gap-2 mb-3">
@@ -1534,6 +1719,7 @@ const FAQSection = () => {
           Frequently Asked Questions
         </h2>
       </div>
+
       <div className="space-y-4">
         {FAQS.map((faq, index) => (
           <div
@@ -1586,8 +1772,8 @@ const LandingPage = () => (
 );
 
 const StorePage = () => (
-  <div className="pt-24 pb-10">
-    <BundleSection />
+  <div className="pt-28 pb-20 flex flex-col gap-16 sm:gap-24 w-full">
+    <DatabaseBundles /> 
     <PopularProducts />
     <PromoBanners />
   </div>
@@ -1600,10 +1786,8 @@ const ReviewsPage = () => {
   const [text, setText] = useState("");
   const [rating, setRating] = useState(5);
   
-  // 1. Pull 'user' from context
   const { addToast, user } = useAppContext();
 
-  // 2. Auto-fill the name when the user logs in
   useEffect(() => {
     if (user && user.user_metadata?.full_name) {
       setName(user.user_metadata.full_name);
@@ -1625,12 +1809,11 @@ const ReviewsPage = () => {
     };
     setReviewsList([newReview, ...reviewsList]);
     
-    // Clear only role and text, keep the name if they are logged in
     setRole("");
     setText("");
     setRating(5);
     
-    if (!user) setName(""); // Only clear name if they are a guest
+    if (!user) setName(""); 
     
     addToast("Thank you! Your review has been added.", "success");
   };
@@ -1645,9 +1828,10 @@ const ReviewsPage = () => {
   ];
 
   return (
-    <div className="pt-24 pb-16 min-h-[70vh]">
+    <div className="pt-28 pb-20 min-h-[70vh] flex flex-col gap-16 sm:gap-24 w-full">
       <Testimonials />
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 mt-16 sm:mt-24">
+      
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 w-full">
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-[var(--color-text-primary)] mb-4 tracking-tight">
             Real words from people who built with us
@@ -1656,7 +1840,7 @@ const ReviewsPage = () => {
             Alongside the screenshots, here are the stories behind those launches.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20 sm:mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {reviewsList.map((review, idx) => (
             <motion.div
                initial={{ opacity: 0, y: 20 }}
@@ -1687,7 +1871,8 @@ const ReviewsPage = () => {
           ))}
         </div>
       </div>
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 w-full">
         <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-10 shadow-xl border border-[var(--color-bg-secondary)]/50 dark:border-slate-800">
           <div className="text-center mb-8">
             <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--color-text-primary)] mb-2">
@@ -1766,7 +1951,7 @@ const ReviewsPage = () => {
 };
 
 const FAQPage = () => (
-  <div className="pt-24 min-h-[70vh] bg-[var(--color-bg-primary)]">
+  <div className="pt-28 pb-20 min-h-[70vh] flex flex-col gap-16 sm:gap-24 bg-[var(--color-bg-primary)] w-full">
     <FAQSection />
     <ContactSection />
   </div>
@@ -1786,6 +1971,7 @@ const AboutPage = () => (
 
       <div className="bg-gradient-to-br from-white via-white to-[var(--color-accent-pink)]/20 dark:from-slate-900 dark:to-slate-900 rounded-[2.5rem] p-6 sm:p-12 shadow-2xl border border-white dark:border-slate-800 relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[var(--color-accent-pink)]/15 to-[var(--color-accent-purple)]/20 rounded-full blur-3xl pointer-events-none"></div>
+        
         <div className="lg:col-span-7 relative z-10 flex flex-col justify-center lg:pr-8">
           <div className="inline-flex items-center gap-2 bg-[var(--color-bg-primary)] dark:bg-slate-800 px-3.5 py-1 rounded-full text-[var(--color-accent-purple)] dark:text-purple-300 font-bold text-xs uppercase tracking-wider mb-4 border border-[var(--color-bg-secondary)] dark:border-slate-700 w-fit">
             <Code className="w-3.5 h-3.5" /> Student & Freelancer
@@ -1796,6 +1982,7 @@ const AboutPage = () => (
           <p className="text-[var(--color-text-primary)]/80 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-medium mb-6">
             I am a dedicated software developer focused on crafting clean code, smooth animations, and user-centric web applications. Through Canvas Builds, I bridge the gap between technical architecture and elegant design, delivering production-ready digital solutions.
           </p>
+          
           <div className="flex flex-wrap gap-3 pt-4 border-t border-[var(--color-bg-secondary)]/60 dark:border-slate-800 mb-6">
             <div className="bg-white sm:bg-white/90 dark:bg-slate-800 sm:dark:bg-slate-800 sm:backdrop-blur-sm px-4 py-2.5 rounded-2xl border border-[var(--color-bg-secondary)] dark:border-slate-700 flex items-center gap-2 shadow-sm">
               <Sparkles className="w-4 h-4 text-[var(--color-accent-pink)]" />
@@ -1806,8 +1993,9 @@ const AboutPage = () => (
               <span className="text-xs font-bold text-[var(--color-text-primary)]">Logic & Performance</span>
             </div>
           </div>
+
           <div className="flex flex-wrap gap-4">
-            <a
+            <a 
               href="mailto:canvasbuildsofficial@gmail.com"
               className="bg-white dark:bg-slate-800 hover:bg-[var(--color-bg-primary)] border border-[var(--color-bg-secondary)] dark:border-slate-700 shadow-sm px-4 py-3 rounded-2xl flex items-center gap-3 transition-all duration-300 w-full sm:w-auto"
             >
@@ -1819,7 +2007,8 @@ const AboutPage = () => (
                 <div className="text-[11px] text-[var(--color-text-primary)]/60">canvasbuildsofficial@gmail.com</div>
               </div>
             </a>
-            <a
+            
+            <a 
               href="https://wa.me/917906568743"
               target="_blank"
               rel="noopener noreferrer"
@@ -1835,12 +2024,13 @@ const AboutPage = () => (
             </a>
           </div>
         </div>
+
         <div className="lg:col-span-5 relative flex items-end justify-center min-h-[320px] sm:min-h-[380px] lg:min-h-[440px] mt-8 lg:mt-0">
           <div className="w-48 h-48 sm:w-56 sm:h-56 bg-white/60 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 right-4 blur-2xl pointer-events-none"></div>
-          <img
-             src="/assets/dev.png"
-             alt="Adarsh Representation"
-             loading="lazy"
+          <img 
+            src="/assets/dev.png" 
+            alt="Adarsh Representation" 
+            loading="lazy"
             decoding="async"
             className="absolute bottom-[-1rem] lg:bottom-[-3rem] right-[-9rem] lg:right-[-12rem] h-[340px] sm:h-[400px] lg:h-[115%] w-auto max-w-none object-contain object-bottom drop-shadow-2xl z-10 pointer-events-none"
           />
@@ -2131,6 +2321,7 @@ const Footer = () => {
 
 const ScrollHandler = () => {
   const { pathname, hash } = useLocation();
+
   useEffect(() => {
     if (hash) {
       setTimeout(() => {
@@ -2144,6 +2335,7 @@ const ScrollHandler = () => {
       window.scrollTo(0, 0);
     }
   }, [pathname, hash]);
+
   return null;
 };
 
@@ -2174,6 +2366,7 @@ const NotFoundPage = () => {
 
 export default function App() {
   const { isSearchOpen } = useAppContext();
+
   return (
     <Router>
       <ScrollHandler />
@@ -2183,17 +2376,21 @@ export default function App() {
           <ToastContainer />
           <CartDrawer />
           <AuthModal />
+          
           <AnimatePresence>
             {isSearchOpen && <SearchModal />}
           </AnimatePresence>
+
           <LegalModal />
           <AIAssistant />
+          
           <main>
             <Routes>
               <Route path="/demo-unavailable" element={<DemoUnavailablePage />} />
               <Route path="/" element={<LandingPage />} />
               <Route path="/store" element={<StorePage />} />
               <Route path="/product/:id" element={<ProductPage />} />
+              <Route path="/bundle/:id" element={<BundlePage />} />
               <Route path="/reviews" element={<ReviewsPage />} />
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/about" element={<AboutPage />} />
@@ -2203,6 +2400,7 @@ export default function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
+          
           <Footer />
         </div>
       </div>

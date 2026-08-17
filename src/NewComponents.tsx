@@ -7,15 +7,13 @@ import {
   X,
   MessageCircle,
   Heart,
-  Star,
   Gift,
   Check,
   Trash2,
   Search,
   Headphones,
-  Code,
-  Minus,
-  Plus
+  Layers,
+  Sparkles
 } from "lucide-react";
 import { useAppContext } from "./AppContext";
 import { supabase } from "./supabaseClient";
@@ -428,162 +426,159 @@ export const AnimatedCounter = ({
   return <span ref={ref}>{count.toLocaleString()}</span>;
 };
 
-export const BundleSection = () => {
-  const { addToCart } = useAppContext();
-  const [bundleProducts, setBundleProducts] = useState<any[]>([]);
+export const DatabaseBundles = () => {
+  const [bundles, setBundles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useAppContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchBundleData = async () => {
+    const fetchBundles = async () => {
       try {
         setLoading(true);
-        // Fetch products from your database table
-        const { data, error } = await supabase.from("products").select("*").limit(3);
+        const { data, error } = await supabase
+          .from('bundles')
+          .select('*')
+          .eq("is_hidden", false)
+          .order('id', { ascending: true });
+
         if (error) throw error;
-        
-        if (data && data.length > 0) {
-          setBundleProducts(data);
-        }
+        if (data) setBundles(data);
       } catch (err) {
-        console.error("Error fetching bundle products:", err);
+        console.error('Error fetching bundles:', err);
       } finally {
         setLoading(false);
       }
     };
-    fetchBundleData();
+
+    fetchBundles();
   }, []);
 
-  // --- BUNDLE SKELETON PREVIEW ---
   if (loading) {
     return (
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16" id="bundles">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex items-center gap-2 mb-6">
-          <span className="w-2 h-5 bg-amber-500 rounded-full"></span>
+          <span className="w-2 h-5 bg-[var(--color-accent-purple)] rounded-full"></span>
           <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--color-text-primary)] tracking-wide uppercase">
-            Exclusive Template Bundles
+            Special Value Bundles
           </h2>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-[var(--color-bg-secondary)] dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center gap-6 animate-pulse">
-            
-            {/* Stacked Cards Skeleton */}
-            <div className="relative shrink-0 w-full sm:w-44 h-48 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
-
-            {/* Details Skeleton */}
-            <div className="flex-1 flex flex-col justify-between w-full text-left">
-              <div>
-                <div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded mb-3"></div>
-                <div className="h-6 sm:h-8 w-3/4 bg-slate-200 dark:bg-slate-800 rounded mb-4"></div>
-                
-                {/* Items Box Skeleton */}
-                <div className="bg-[var(--color-bg-primary)] dark:bg-slate-950/60 rounded-xl p-3.5 border border-[var(--color-bg-secondary)] dark:border-slate-800/80 mb-6 space-y-2">
-                  <div className="h-3 w-1/3 bg-slate-200 dark:bg-slate-800 rounded mb-2"></div>
-                  <div className="h-3 w-2/3 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                  <div className="h-3 w-3/4 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                  <div className="h-3 w-1/2 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                </div>
-              </div>
-
-              {/* Price & Buy Button Row Skeleton */}
-              <div className="flex items-center justify-between pt-2 border-t border-[var(--color-bg-secondary)] dark:border-slate-800/60">
-                <div className="flex flex-col gap-1">
-                  <div className="h-3 w-12 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                  <div className="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                </div>
-                <div className="h-10 w-24 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
-              </div>
-            </div>
-          </div>
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-black/5 dark:border-slate-800 shadow-sm h-56 animate-pulse"></div>
         </div>
       </div>
     );
   }
 
-  if (bundleProducts.length === 0) return null;
-
-  // Extract titles to show in the itemized list
-  const includedTitles = bundleProducts.map((p) => p.title);
+  if (bundles.length === 0) return null;
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16" id="bundles">
-      <div className="flex items-center gap-2 mb-6">
-        <span className="w-2 h-5 bg-amber-500 rounded-full"></span>
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full" id="bundles">
+      <div className="flex items-center gap-2 mb-6 sm:mb-8">
+        <span className="w-2 h-5 bg-[var(--color-accent-purple)] rounded-full"></span>
         <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--color-text-primary)] tracking-wide uppercase">
-          Exclusive Template Bundles
+          Special Value Bundles
         </h2>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-[var(--color-bg-secondary)] dark:border-slate-800 shadow-xl relative overflow-hidden flex flex-col sm:flex-row items-center gap-6 group transition-all">
-          
-          {/* Ambient background glow */}
-          <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          {/* Stacked Cards Preview Art using live product data */}
-          <div className="relative shrink-0 flex items-center justify-center w-full sm:w-44 h-48">
-            <div className="absolute w-28 h-40 bg-gradient-to-br from-rose-500 to-red-700 rounded-xl shadow-lg transform -rotate-12 -translate-x-6 border border-white/20 opacity-75 flex items-center justify-center text-white font-bold text-xs p-2 text-center">
-              {bundleProducts[0]?.title || "Template 1"}
-            </div>
-            <div className="absolute w-28 h-40 bg-gradient-to-br from-purple-500 to-indigo-700 rounded-xl shadow-xl transform -rotate-6 -translate-x-2 border border-white/20 opacity-90 flex items-center justify-center text-white font-bold text-xs p-2 text-center">
-              {bundleProducts[1]?.title || "Template 2"}
-            </div>
-            <div className="absolute w-32 h-44 bg-gradient-to-br from-slate-900 to-slate-950 dark:from-slate-800 dark:to-slate-950 rounded-2xl shadow-2xl transform rotate-3 translate-x-4 border border-white/20 flex flex-col items-center justify-center p-3 text-white text-center">
-              <Heart className="w-8 h-8 text-rose-500 fill-current mb-2" />
-              <span className="font-bold text-xs line-clamp-2">Ultimate Pack</span>
-            </div>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        {bundles.map((bundle) => {
+          let emojis = ["🎁"];
+          if (Array.isArray(bundle.emoji_list)) emojis = bundle.emoji_list;
+          else if (typeof bundle.emoji_list === 'string') {
+            try { emojis = JSON.parse(bundle.emoji_list); } catch { /* ignore */ }
+          }
 
-          {/* Details & Pricing */}
-          <div className="flex-1 flex flex-col justify-between w-full text-left z-10">
-            <div>
-              <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">
-                BUNDLE DEAL
-              </span>
-              <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--color-text-primary)] mt-3 mb-3">
-                THE ULTIMATE TEMPLATE BUNDLE
-              </h3>
-              
-              {/* Dynamic Items Box from Products Table */}
-              <div className="bg-[var(--color-bg-primary)] dark:bg-slate-950/60 rounded-xl p-3.5 border border-[var(--color-bg-secondary)] dark:border-slate-800/80 mb-6">
-                <p className="text-[10px] font-bold text-[var(--color-text-primary)]/50 uppercase tracking-widest mb-2">
-                  Items Included:
-                </p>
-                <ul className="space-y-1.5">
-                  {includedTitles.map((title, idx) => (
-                    <li key={idx} className="text-xs text-[var(--color-text-primary)]/80 dark:text-slate-300 flex items-center gap-2 font-medium">
-                      <span className="text-amber-500 font-bold">+</span> {title}
-                    </li>
+          let items = [];
+          if (Array.isArray(bundle.included_items)) items = bundle.included_items;
+          else if (typeof bundle.included_items === 'string') {
+            try { items = JSON.parse(bundle.included_items); } catch { /* ignore */ }
+          }
+
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              key={bundle.id}
+              onClick={() => navigate(`/bundle/${bundle.id}`)}
+              className="bg-white dark:bg-slate-900 rounded-[2rem] p-4 sm:p-6 border border-[var(--color-bg-secondary)] dark:border-slate-800 shadow-sm hover:shadow-xl relative overflow-hidden flex flex-col sm:flex-row gap-5 sm:gap-8 group transition-all duration-300 cursor-pointer"
+            >
+              <div className={`absolute -right-20 -top-20 w-64 h-64 opacity-[0.03] dark:opacity-[0.05] rounded-full blur-3xl pointer-events-none bg-gradient-to-br ${bundle.gradient || 'from-purple-500 to-pink-500'}`}></div>
+
+              <div className={`relative shrink-0 flex items-center justify-center w-full sm:w-48 h-48 sm:h-auto min-h-[12rem] bg-gradient-to-br ${bundle.gradient || 'from-slate-800 to-slate-900'} rounded-[1.5rem] shadow-inner overflow-hidden border border-black/5 dark:border-white/5`}>
+                <div className="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
+                
+                <div className="text-5xl sm:text-6xl drop-shadow-xl flex gap-1 z-10 transform group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500">
+                  {emojis.map((emoji: string, idx: number) => (
+                    <span key={idx} className={idx > 0 ? "-ml-3 sm:-ml-5" : ""}>{emoji}</span>
                   ))}
-                </ul>
-              </div>
-            </div>
+                </div>
 
-            {/* Price & Buy Button Row */}
-            <div className="flex items-center justify-between pt-2 border-t border-[var(--color-bg-secondary)] dark:border-slate-800/60">
-              <div className="flex flex-col">
-                <span className="text-xs text-[var(--color-text-primary)]/40 line-through font-semibold">
-                  ₹899
-                </span>
-                <span className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)]">
-                  ₹499
-                </span>
+                {bundle.tag && (
+                  <div className="absolute top-3 left-3 bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-slate-900 dark:text-white text-[9px] font-bold px-2.5 py-1 rounded-full z-20 shadow-sm border border-black/5 uppercase tracking-wider">
+                    {bundle.tag}
+                  </div>
+                )}
               </div>
-              <button
-                onClick={() =>
-                  addToCart({
-                    id: 999,
-                    title: "Ultimate Template Bundle",
-                    price: "Rs. 499",
-                    gradient: "from-slate-900 to-slate-950",
-                    emoji: <Gift className="w-6 h-6 text-white" />,
-                  })
-                }
-                className="bg-[var(--color-text-primary)] text-white dark:bg-slate-800 hover:bg-[var(--color-accent-pink)] px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all hover:scale-105 shadow-md cursor-pointer"
-              >
-                <ShoppingCart className="w-3.5 h-3.5 text-amber-400" /> Buy
-              </button>
-            </div>
-          </div>
-        </div>
+
+              <div className="flex-1 flex flex-col justify-between w-full text-left z-10 py-1">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--color-text-primary)] mb-2 leading-tight group-hover:text-[var(--color-accent-purple)] transition-colors">
+                    {bundle.title}
+                  </h3>
+                  <p className="text-[var(--color-text-primary)]/60 dark:text-slate-400 text-xs sm:text-sm leading-relaxed mb-5 line-clamp-2">
+                    {bundle.description}
+                  </p>
+
+                  {items.length > 0 && (
+                    <div className="mb-6 space-y-1.5">
+                      <p className="text-[9px] font-bold text-[var(--color-text-primary)]/40 uppercase tracking-widest mb-1.5">
+                        Includes
+                      </p>
+                      {items.map((item: string, idx: number) => (
+                        <div key={idx} className="flex items-center gap-2 text-xs font-medium text-[var(--color-text-primary)]/75 dark:text-slate-300">
+                          <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <span className="truncate">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-[var(--color-bg-secondary)]/80 dark:border-slate-800">
+                  <div className="flex flex-col">
+                    {bundle.original_price && (
+                      <span className="text-[10px] sm:text-xs text-[var(--color-text-primary)]/40 line-through font-bold mb-0.5">
+                        {bundle.original_price}
+                      </span>
+                    )}
+                    <span className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] leading-none">
+                      {bundle.price}
+                    </span>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const numericPrice = Number(String(bundle.price).replace(/[^0-9.]/g, '')) || 499;
+                      addToCart({
+                        id: bundle.id + 10000,
+                        title: bundle.title,
+                        price: numericPrice,
+                        priceType: "code",
+                        gradient: bundle.gradient || "from-slate-900 to-slate-950",
+                        emoji: <Gift className="w-5 h-5 text-white" />
+                      });
+                    }}
+                    className="bg-[var(--color-text-primary)] text-white dark:bg-slate-800 hover:bg-[var(--color-accent-purple)] px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all hover:scale-105 shadow-md cursor-pointer shrink-0"
+                  >
+                    <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/80" /> Get Bundle
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );
@@ -597,13 +592,13 @@ export const SearchModal = () => {
 
   useEffect(() => {
     const fetchCatalog = async () => {
-      const { data } = await supabase.from("products").select("*");
+      const { data } = await supabase.from("products").select("*").eq("is_hidden", false);
       if (data) {
         const formatted = data.map((item) => ({
           id: item.id,
           category: item.category,
           title: item.title,
-          price: item.price,
+          price: item.code_price,
           gradient: item.gradient || "from-pink-200 to-rose-100",
           emoji: getProductIcon(item.icon_name),
         }));
@@ -681,7 +676,7 @@ export const SearchModal = () => {
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-[var(--color-text-primary)]">
-                      {p.price}
+                      ₹{p.price}
                     </div>
                   </div>
                 </div>
