@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const app = express();
@@ -10,6 +11,41 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// ==========================================
+// SECURITY: Anti-Bot Rate Limiters
+// ==========================================
+
+// Strict limiter for checkout endpoints to prevent carding & bot flooding
+const checkoutLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15-minute window
+  max: 10, // Limit each IP to 10 checkout requests per windowMs
+  standardHeaders: true, 
+  legacyHeaders: false, 
+  message: {
+    success: false,
+    error: "Too many checkout requests from this IP, please try again after 15 minutes."
+  }
+});
+
+// General limiter for public API routes to prevent resource exhaustion
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100, // Limit each IP to 100 requests per 15 mins
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: "Too many requests, please slow down."
+  }
+});
+
+// Apply general limiter to all /api routes
+app.use('/api/', apiLimiter);
+
+// ==========================================
+// ROUTES
+// ==========================================
 
 // 1. Health Check / Ping Endpoint (Used by Uptime Monitor to prevent sleeping)
 app.get('/ping', (req, res) => {
@@ -25,8 +61,8 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Canvas Builds API v1.0' });
 });
 
-// 3. Checkout Endpoint Placeholder
-app.post('/api/checkout', async (req, res) => {
+// 3. Checkout Endpoint Placeholder (Protected by checkoutLimiter)
+app.post('/api/checkout', checkoutLimiter, async (req, res) => {
   try {
     const { items, customerEmail, customerPhone } = req.body;
 
@@ -45,11 +81,16 @@ app.post('/api/checkout', async (req, res) => {
     res.status(500).json({ error: 'Failed to process checkout' });
   }
 });
-// Example Express backend route for test checkout
-app.post('/api/create-test-checkout', async (req, res) => {
+
+// 4. Test Checkout Endpoint (Protected by checkoutLimiter)
+app.post('/api/create-test-checkout', checkoutLimiter, async (req, res) => {
   try {
     const { items, customerEmail } = req.body;
     
+    if (!items || items.length === 0) {
+      return res.status(400).json({ success: false, error: 'No items in cart' });
+    }
+
     // Simulate order creation or generate a mock payment session ID
     const mockOrderId = `test_order_${Math.random().toString(36).substring(2, 9)}`;
     

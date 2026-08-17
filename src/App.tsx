@@ -1567,15 +1567,14 @@ const ContactSection = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // NEW: DPDP Consent State
+  const [hasConsent, setHasConsent] = useState(false);
 
   useEffect(() => {
     if (user) {
-      if (user.user_metadata?.full_name) {
-        setName(user.user_metadata.full_name);
-      }
-      if (user.email) {
-        setEmail(user.email);
-      }
+      if (user.user_metadata?.full_name) setName(user.user_metadata.full_name);
+      if (user.email) setEmail(user.email);
     } else {
       setName("");
       setEmail("");
@@ -1588,20 +1587,22 @@ const ContactSection = () => {
       addToast("Please enter your name and message.", "info");
       return;
     }
+    // NEW: DPDP Consent Validation
+    if (!hasConsent) {
+      addToast("Please agree to the privacy policy to submit your message.", "info");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const { error } = await supabase
         .from("messages")
-        .insert([
-          { 
-            name: name.trim(), 
-            email: email.trim(), 
-            message: message.trim() 
-          }
-        ]);
+        .insert([{ name: name.trim(), email: email.trim(), message: message.trim() }]);
+      
       if (error) throw error;
       addToast("Message sent! We'll get back to you shortly.", "success");
       setMessage("");
+      setHasConsent(false); // Reset consent after submission
     } catch (err) {
       console.error("Error sending message:", err);
       addToast("Something went wrong. Please try again.", "info");
@@ -1612,84 +1613,30 @@ const ContactSection = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 w-full">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl sm:text-4xl font-serif text-[var(--color-text-primary)] tracking-tight">
-          Still having an issue? Contact us
-        </h2>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-        <div className="flex flex-col items-center text-center gap-3">
-          <div className="w-12 h-12 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 flex items-center justify-center text-[var(--color-text-primary)]/60 dark:text-slate-400">
-            <Mail className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">Email us</p>
-            <p className="text-sm font-bold text-[var(--color-text-primary)]">canvasbuildsofficial@gmail.com</p>
-          </div>
-        </div>
-        <div className="flex flex-col items-center text-center gap-3">
-          <div className="w-12 h-12 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 flex items-center justify-center text-[var(--color-text-primary)]/60 dark:text-slate-400">
-            <Clock className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">We reply within</p>
-            <p className="text-sm font-bold text-[var(--color-text-primary)]">5 hours</p>
-          </div>
-        </div>
-        <div className="flex flex-col items-center text-center gap-3">
-          <div className="w-12 h-12 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 flex items-center justify-center text-[var(--color-text-primary)]/60 dark:text-slate-400">
-            <MapPin className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">Based in</p>
-            <p className="text-sm font-bold text-[var(--color-text-primary)]">India <span className="text-[var(--color-text-primary)]/40">IN</span></p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-10 shadow-sm border border-[var(--color-bg-secondary)]/50 dark:border-slate-800">
+      {/* ... (Keep your existing header and grid icons exactly the same) ... */}
+      
+      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-10 shadow-sm border border-[var(--color-bg-secondary)]/50 dark:border-slate-800 mt-12">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-bold text-[var(--color-text-primary)] mb-2">
-              Your name
-            </label>
+          {/* ... (Keep Name, Email, and Message inputs exactly the same) ... */}
+          
+          {/* NEW: DPDP Consent Checkbox */}
+          <div className="flex items-start gap-3 p-4 bg-[var(--color-bg-primary)]/50 dark:bg-slate-950/50 rounded-xl border border-[var(--color-bg-secondary)] dark:border-slate-800">
             <input
-              type="text"
-              placeholder="What should we call you?"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[var(--color-bg-primary)]/30 dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors"
+              type="checkbox"
+              id="contact-consent"
+              checked={hasConsent}
+              onChange={(e) => setHasConsent(e.target.checked)}
+              className="mt-1 w-4 h-4 rounded border-gray-300 text-[var(--color-accent-pink)] focus:ring-[var(--color-accent-pink)] cursor-pointer"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-[var(--color-text-primary)] mb-2">
-              Your email
+            <label htmlFor="contact-consent" className="text-xs sm:text-sm text-[var(--color-text-primary)]/75 leading-relaxed cursor-pointer">
+              I consent to Canvas Builds collecting and processing my name and email address to respond to this inquiry in accordance with the <button type="button" onClick={() => {/* Trigger LegalModal */}} className="text-[var(--color-accent-pink)] font-bold hover:underline">Privacy Policy</button>.
             </label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[var(--color-bg-primary)]/30 dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors"
-            />
           </div>
-          <div>
-            <label className="block text-sm font-bold text-[var(--color-text-primary)] mb-2">
-              What's on your mind?
-            </label>
-            <textarea
-              rows={4}
-              placeholder="Tell us what you're thinking..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="w-full bg-[var(--color-bg-primary)]/30 dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors resize-none"
-            />
-          </div>
+
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-[var(--color-accent-pink)] hover:bg-[var(--color-accent-purple)] text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+            disabled={isSubmitting || !hasConsent}
+            className="w-full bg-[var(--color-accent-pink)] hover:bg-[var(--color-accent-purple)] text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Sending..." : "Send Message"}
           </button>
@@ -2049,6 +1996,9 @@ const Footer = () => {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  
+  // DPDP Consent State
+  const [hasConsent, setHasConsent] = useState(false);
 
   // Auto-fill email and check subscription status when user logs in
   useEffect(() => {
@@ -2087,6 +2037,13 @@ const Footer = () => {
       addToast("Please enter a valid email address.", "info");
       return;
     }
+    
+    // DPDP Consent Validation
+    if (!hasConsent) {
+      addToast("Please consent to the privacy policy to subscribe.", "info");
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from("subscribers")
@@ -2105,6 +2062,7 @@ const Footer = () => {
           setIsSubscribed(true);
         } else {
           setEmail("");
+          setHasConsent(false); // Reset consent
         }
       }
     } catch (err) {
@@ -2169,8 +2127,8 @@ const Footer = () => {
                 </button>
               </div>
             ) : (
-              <>
-                <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 w-full lg:max-w-md">
+              <form onSubmit={handleSubscribe} className="flex flex-col gap-3 w-full lg:max-w-md">
+                <div className="flex flex-col sm:flex-row gap-3 w-full">
                   <input
                     type="email"
                     placeholder="Enter your email"
@@ -2180,15 +2138,26 @@ const Footer = () => {
                   />
                   <button
                     type="submit"
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-colors shadow-md cursor-pointer whitespace-nowrap"
+                    disabled={!hasConsent}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-colors shadow-md cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Subscribe
                   </button>
-                </form>
-                <p className="text-white/40 text-[10px] mt-3 w-full lg:max-w-md text-center sm:text-left">
-                  Only updates when new templates launch.
-                </p>
-              </>
+                </div>
+                {/* DPDP Consent Checkbox */}
+                <div className="flex items-start gap-2 mt-1">
+                  <input
+                    type="checkbox"
+                    id="newsletter-consent"
+                    checked={hasConsent}
+                    onChange={(e) => setHasConsent(e.target.checked)}
+                    className="mt-0.5 w-3.5 h-3.5 rounded border-gray-300 text-blue-500 focus:ring-blue-500 cursor-pointer shrink-0"
+                  />
+                  <label htmlFor="newsletter-consent" className="text-white/60 text-[10px] text-left leading-tight cursor-pointer">
+                    I consent to receiving promotional emails. I understand I can opt-out at any time in accordance with the <button type="button" onClick={(e) => { e.preventDefault(); setLegalModal('privacy'); }} className="text-blue-400 hover:underline">Privacy Policy</button>.
+                  </label>
+                </div>
+              </form>
             )}
           </div>
         </div>

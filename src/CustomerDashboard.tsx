@@ -1,12 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Package, Heart, ExternalLink, Clock, Sparkles, ArrowRight } from 'lucide-react';
+import { Package, Heart, Clock, Sparkles, ArrowRight, ShieldCheck, Trash2, Loader2 } from 'lucide-react';
 import { useAppContext } from './AppContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { supabase } from './supabaseClient';
 
 export const CustomerDashboard = () => {
-  const { user } = useAppContext();
+  const { user, addToast } = useAppContext();
   const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Redirect to home if they try to access this page without being logged in
   useEffect(() => {
@@ -21,15 +23,41 @@ export const CustomerDashboard = () => {
   const fullName = user.user_metadata?.full_name || 'Valued Customer';
   const firstName = fullName.split(' ')[0];
 
+  const handleDataDeletion = async () => {
+    const confirmDelete = window.confirm(
+      "DPDP Act Right to Erasure: Are you sure you want to permanently delete your account and all associated personal data? This action cannot be undone."
+    );
+    
+    if (!confirmDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      // Securely invoke the backend deletion function
+      const { error } = await supabase.rpc('delete_user_account');
+      
+      if (error) throw error;
+      
+      addToast("Account and personal data successfully erased.", "success");
+      await supabase.auth.signOut();
+      navigate('/');
+    } catch (err: any) {
+      console.error("Deletion error:", err);
+      // Graceful fallback if the SQL RPC hasn't been executed yet
+      addToast("Automated deletion failed. Please email canvasbuildsofficial@gmail.com to process your DPDP erasure request.", "info");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)] pt-28 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] pt-28 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden w-full">
       {/* Decorative Background */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-96 bg-gradient-to-b from-[var(--color-accent-mint)]/10 to-transparent blur-3xl pointer-events-none"></div>
-
-      <div className="max-w-5xl mx-auto relative z-10">
+      
+      <div className="max-w-5xl mx-auto relative z-10 flex flex-col gap-8">
         
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-6">
           <div className="flex items-center gap-5">
             <div className="relative">
               {avatarUrl ? (
@@ -61,7 +89,7 @@ export const CustomerDashboard = () => {
           
           {/* Main Orders Area */}
           <div className="lg:col-span-2 space-y-6">
-            <h3 className="text-xl font-bold flex items-center gap-2">
+            <h3 className="text-xl font-bold flex items-center gap-2 text-[var(--color-text-primary)]">
               <Package className="w-5 h-5 text-[var(--color-accent-purple)]" /> My Orders
             </h3>
             
@@ -80,12 +108,13 @@ export const CustomerDashboard = () => {
             </div>
           </div>
 
-          {/* Side Info Panel */}
+          {/* Side Info Panels */}
           <div className="space-y-6">
             <h3 className="text-xl font-bold flex items-center gap-2 opacity-0 select-none hidden lg:flex">
               Panel
             </h3>
             
+            {/* Support Panel */}
             <div className="bg-gradient-to-br from-[var(--color-bg-secondary)]/50 to-[var(--color-bg-primary)] dark:from-slate-800/50 dark:to-slate-900 rounded-3xl p-6 border border-[var(--color-bg-secondary)] dark:border-slate-800 shadow-sm">
               <h4 className="font-bold mb-4 flex items-center gap-2 text-sm uppercase tracking-wider text-[var(--color-text-primary)]/70">
                 <Clock className="w-4 h-4" /> Need Help?
@@ -93,12 +122,30 @@ export const CustomerDashboard = () => {
               <p className="text-sm text-[var(--color-text-primary)]/80 leading-relaxed mb-6">
                 If you recently placed an order via WhatsApp or UPI, please allow up to <span className="font-bold text-[var(--color-accent-mint)]">2 hours</span> for it to sync with your dashboard account.
               </p>
-              <a href="https://wa.me/917906568743" target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-white dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-700 py-3 rounded-xl text-sm font-bold hover:text-[var(--color-accent-mint)] transition-colors">
+              <a href="https://wa.me/917906568743" target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-white dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-700 py-3 rounded-xl text-sm font-bold hover:text-[var(--color-accent-mint)] transition-colors shadow-sm">
                 Contact Support
               </a>
             </div>
-          </div>
 
+            {/* DPDP Compliance & Privacy Panel */}
+            <div className="bg-rose-50 dark:bg-rose-950/20 rounded-3xl p-6 border border-rose-100 dark:border-rose-900/30 shadow-sm">
+              <h4 className="font-bold mb-4 flex items-center gap-2 text-sm uppercase tracking-wider text-rose-700 dark:text-rose-400">
+                <ShieldCheck className="w-4 h-4" /> Data & Privacy
+              </h4>
+              <p className="text-xs text-rose-600/80 dark:text-rose-300/70 leading-relaxed mb-6 font-medium">
+                Under the DPDP Act (2023), you have the right to withdraw consent and request the permanent erasure of your personal data from Canvas Builds.
+              </p>
+              <button 
+                onClick={handleDataDeletion}
+                disabled={isDeleting}
+                className="w-full flex items-center justify-center gap-2 bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 dark:hover:bg-rose-800 text-rose-700 dark:text-rose-300 py-3 rounded-xl text-sm font-bold transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                {isDeleting ? "Erasing Data..." : "Delete My Account"}
+              </button>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
