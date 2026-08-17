@@ -1475,7 +1475,7 @@ const ContactSection = () => {
           </div>
           <div>
             <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">Email us</p>
-            <p className="text-sm font-bold text-[var(--color-text-primary)]">adrashyadav07o8@gmail.com</p>
+            <p className="text-sm font-bold text-[var(--color-text-primary)]">canvasbuildsofficial@gmail.com</p>
           </div>
         </div>
         {/* Reply time */}
