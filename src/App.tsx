@@ -1,4 +1,5 @@
 import { DemoUnavailablePage } from './DemoUnavailablePage';
+import { AIAssistant } from './AIAssistant';
 import { LegalModal } from "./LegalModal";
 import React, { useState, useEffect, useRef } from "react";
 import { UnsubscribePage } from "./UnsubscribePage";
@@ -2087,6 +2088,7 @@ const NotFoundPage = () => {
     </div>
   );
 };
+
 export default function App() {
   const { isSearchOpen } = useAppContext();
   return (
@@ -2104,6 +2106,7 @@ export default function App() {
             {isSearchOpen && <SearchModal />}
           </AnimatePresence>
           <LegalModal />
+          <AIAssistant />
           <main>
             <Routes>
               <Route path="/demo-unavailable" element={<DemoUnavailablePage />} />
@@ -2117,7 +2120,7 @@ export default function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
-          <FloatingChat />
+          
           <Footer />
         </div>
         
