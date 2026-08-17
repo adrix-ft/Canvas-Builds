@@ -1374,11 +1374,28 @@ const PromoBanners = () => (
 );
 
 const ContactSection = () => {
-  const { addToast } = useAppContext();
+  // 1. Pull 'user' from the context
+  const { addToast, user } = useAppContext();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 2. Auto-fill the form when the user logs in
+  useEffect(() => {
+    if (user) {
+      if (user.user_metadata?.full_name) {
+        setName(user.user_metadata.full_name);
+      }
+      if (user.email) {
+        setEmail(user.email);
+      }
+    } else {
+      // Clear if they log out
+      setName("");
+      setEmail("");
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1399,8 +1416,8 @@ const ContactSection = () => {
         ]);
       if (error) throw error;
       addToast("Message sent! We'll get back to you shortly.", "success");
-      setName("");
-      setEmail("");
+      
+      // Only clear the message after sending so they don't have to retype their name/email
       setMessage("");
     } catch (err) {
       console.error("Error sending message:", err);
@@ -1582,7 +1599,18 @@ const ReviewsPage = () => {
   const [role, setRole] = useState("");
   const [text, setText] = useState("");
   const [rating, setRating] = useState(5);
-  const { addToast } = useAppContext();
+  
+  // 1. Pull 'user' from context
+  const { addToast, user } = useAppContext();
+
+  // 2. Auto-fill the name when the user logs in
+  useEffect(() => {
+    if (user && user.user_metadata?.full_name) {
+      setName(user.user_metadata.full_name);
+    } else {
+      setName("");
+    }
+  }, [user]);
 
   const handleAddReview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1596,10 +1624,14 @@ const ReviewsPage = () => {
       text: text.trim(),
     };
     setReviewsList([newReview, ...reviewsList]);
-    setName("");
+    
+    // Clear only role and text, keep the name if they are logged in
     setRole("");
     setText("");
     setRating(5);
+    
+    if (!user) setName(""); // Only clear name if they are a guest
+    
     addToast("Thank you! Your review has been added.", "success");
   };
 
@@ -1822,9 +1854,42 @@ const AboutPage = () => (
 );
 
 const Footer = () => {
-  const { setLegalModal, addToast } = useAppContext();
+  const { setLegalModal, addToast, user } = useAppContext();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  // Auto-fill email and check subscription status when user logs in
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (user && user.email) {
+        setIsChecking(true);
+        setEmail(user.email);
+        
+        try {
+          // Check if the user's email exists in the subscribers table
+          const { data } = await supabase
+            .from("subscribers")
+            .select("id")
+            .eq("email", user.email)
+            .maybeSingle();
+            
+          setIsSubscribed(!!data);
+        } catch (error) {
+          console.error("Error checking subscription:", error);
+        } finally {
+          setIsChecking(false);
+        }
+      } else {
+        setEmail("");
+        setIsSubscribed(false);
+        setIsChecking(false);
+      }
+    };
+
+    checkSubscription();
+  }, [user]);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1836,19 +1901,43 @@ const Footer = () => {
       const { error } = await supabase
         .from("subscribers")
         .insert([{ email: email.trim() }]);
+        
       if (error) {
         if (error.code === '23505') {
           addToast("You are already subscribed!", "info");
+          if (user) setIsSubscribed(true);
         } else {
           throw error;
         }
       } else {
         addToast("Subscribed! We'll notify you when new templates drop.", "success");
-        setEmail("");
+        if (user) {
+          setIsSubscribed(true);
+        } else {
+          setEmail("");
+        }
       }
     } catch (err) {
       console.error("Subscription error:", err);
       addToast("Something went wrong. Please try again.", "info");
+    }
+  };
+
+  const handleUnsubscribe = async () => {
+    if (!user?.email) return;
+    try {
+      // Calls the secure Postgres RPC function we created earlier
+      const { error } = await supabase.rpc("unsubscribe_user", {
+        target_email: user.email
+      });
+      
+      if (error) throw error;
+      
+      setIsSubscribed(false);
+      addToast("You have been successfully unsubscribed.", "info");
+    } catch (err) {
+      console.error("Unsubscribe error:", err);
+      addToast("Failed to unsubscribe. Please try again.", "info");
     }
   };
 
@@ -1863,6 +1952,7 @@ const Footer = () => {
       className="bg-[#073127] dark:bg-slate-950 border-t border-black/10 pt-12 pb-12 transition-colors"
     >
       <div className="max-w-[1400px] mx-auto px-6">
+        {/* Newsletter Subscription Box */}
         <div className="bg-[#273e3d] rounded-[2rem] p-8 sm:p-10 border border-white/10 mb-16 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xl">
           <div className="lg:w-1/2 text-left">
             <h3 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-2">
@@ -1872,27 +1962,48 @@ const Footer = () => {
               Subscribe to get updates when new emotional website templates are released and never miss limited offers.
             </p>
           </div>
+          
           <div className="lg:w-1/2 w-full max-w-md lg:max-w-none flex flex-col lg:items-end">
-            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 w-full lg:max-w-md">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-black/20 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-white placeholder:text-white/40 outline-none focus:border-blue-500 transition-colors"
-              />
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-colors shadow-md cursor-pointer whitespace-nowrap"
-              >
-                Subscribe
-              </button>
-            </form>
-            <p className="text-white/40 text-[10px] mt-3 w-full lg:max-w-md text-center sm:text-left">
-              Only updates when new templates launch.
-            </p>
+            {isChecking ? (
+              <div className="h-12 w-full max-w-md bg-white/5 animate-pulse rounded-xl"></div>
+            ) : user && isSubscribed ? (
+              <div className="w-full lg:max-w-md bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-inner">
+                <div className="flex items-center gap-2 text-emerald-400 text-sm font-bold">
+                  <Check className="w-5 h-5" /> You're subscribed!
+                </div>
+                <button 
+                  onClick={handleUnsubscribe} 
+                  className="text-xs font-bold text-white/50 hover:text-rose-400 transition-colors underline underline-offset-2 cursor-pointer"
+                >
+                  Unsubscribe
+                </button>
+              </div>
+            ) : (
+              <>
+                <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 w-full lg:max-w-md">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="flex-1 bg-black/20 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-white placeholder:text-white/40 outline-none focus:border-blue-500 transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold text-sm transition-colors shadow-md cursor-pointer whitespace-nowrap"
+                  >
+                    Subscribe
+                  </button>
+                </form>
+                <p className="text-white/40 text-[10px] mt-3 w-full lg:max-w-md text-center sm:text-left">
+                  Only updates when new templates launch.
+                </p>
+              </>
+            )}
           </div>
         </div>
+
+        {/* Existing Footer Links Grid */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pb-16 border-b border-white/10">
           <div className="md:col-span-4 flex flex-col gap-4 text-left items-start">
             <div
