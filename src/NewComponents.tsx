@@ -13,7 +13,9 @@ import {
   Trash2,
   Search,
   Headphones,
-  Code
+  Code,
+  Minus,
+  Plus
 } from "lucide-react";
 import { useAppContext } from "./AppContext";
 import { supabase } from "./supabaseClient";
@@ -64,23 +66,47 @@ export const CartDrawer = () => {
     clearCart,
     addToast,
   } = useAppContext();
+
   const [isCheckingOut, setIsCheckingOut] = React.useState(false);
 
-  const subtotal = cart.reduce((acc, item) => {
-    const cleanString = item.price.toString().replace(/,/g, "");
-    const match = cleanString.match(/\d+(\.\d+)?/);
-    const priceNum = match ? parseFloat(match[0]) : 0;
-    return acc + priceNum;
-  }, 0);
+  // Pure integer math! No regex needed.
+  const subtotal = cart.reduce((acc, item) => acc + item.price, 0);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     setIsCheckingOut(true);
-    setTimeout(() => {
+    
+    try {
+      const response = await fetch("http://localhost:5000/api/create-test-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: cart, customerEmail: "guest@example.com" }),
+      });
+      
+      if (!response.ok) throw new Error("Backend unavailable");
+      
+      const data = await response.json();
+      
+      setTimeout(() => {
+        setIsCheckingOut(false);
+        clearCart();
+        setIsCartOpen(false);
+        addToast(`Order ${data.orderId} placed successfully! 🎉`, "success");
+      }, 1000);
+
+    } catch (err) {
+      // Formats the message cleanly based on what they added to the cart
+      const orderDetails = cart
+        .map((item) => `• ${item.title} (${item.priceType === 'ready' ? 'Ready Website' : 'Premium Code'} - ₹${item.price})`)
+        .join("%0A");
+      
+      const waText = `Hi Adarsh! I would like to checkout my cart:%0A%0A${orderDetails}%0A%0ATotal: *₹${subtotal.toLocaleString('en-IN')}*%0A%0APlease share the payment steps!`;
+      
+      window.open(`https://wa.me/917906568743?text=${waText}`, "_blank");
+      
       setIsCheckingOut(false);
       clearCart();
       setIsCartOpen(false);
-      addToast("Test Mode: Order placed successfully! 🚀", "success");
-    }, 1500);
+    }
   };
 
   return (
@@ -99,14 +125,18 @@ export const CartDrawer = () => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-full sm:w-[400px] bg-[var(--color-bg-primary)] z-[101] shadow-2xl flex flex-col border-l border-[var(--color-bg-secondary)] dark:border-slate-800"
+            className="fixed top-0 right-0 bottom-0 w-full sm:w-[420px] bg-[var(--color-bg-primary)] z-[101] shadow-2xl flex flex-col border-l border-[var(--color-bg-secondary)] dark:border-slate-800"
           >
-            {/* Header */}
             <div className="p-6 border-b border-[var(--color-bg-secondary)]/50 dark:border-slate-800 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
-              <h2 className="text-2xl font-serif font-bold text-[var(--color-text-primary)] flex items-center gap-2">
-                <ShoppingCart className="w-6 h-6 text-[var(--color-accent-pink)]" />{" "}
-                Your Cart
-              </h2>
+              <div>
+                <h2 className="text-2xl font-serif font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+                  <ShoppingCart className="w-6 h-6 text-[var(--color-accent-pink)]" />
+                  Your Cart
+                </h2>
+                <p className="text-xs text-[var(--color-text-primary)]/60 mt-0.5">
+                  {cart.length} {cart.length === 1 ? "item" : "items"} selected
+                </p>
+              </div>
               <button
                 onClick={() => setIsCartOpen(false)}
                 className="w-8 h-8 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-secondary)] dark:hover:bg-slate-700 transition-colors cursor-pointer text-[var(--color-text-primary)]"
@@ -115,13 +145,12 @@ export const CartDrawer = () => {
               </button>
             </div>
 
-            {/* Cart Items List */}
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full opacity-50 text-[var(--color-text-primary)]">
                   <ShoppingCart className="w-16 h-16 mb-4" />
                   <p className="text-lg font-medium">Your cart is empty</p>
-                  <p className="text-sm">Add some beautiful templates!</p>
+                  <p className="text-sm">Explore our catalog and add a template!</p>
                 </div>
               ) : (
                 cart.map((item, index) => (
@@ -131,25 +160,33 @@ export const CartDrawer = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     key={index}
-                    className="flex gap-4 bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-sm border border-[var(--color-bg-secondary)]/30 dark:border-slate-800 items-center"
+                    className="flex gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-[var(--color-bg-secondary)]/40 dark:border-slate-800 items-center justify-between"
                   >
-                    <div
-                      className={`w-16 h-16 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center text-2xl shrink-0 text-white`}
-                    >
-                      {React.isValidElement(item.emoji) ? item.emoji : <Gift className="w-8 h-8 text-white" />}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center text-xl shrink-0 text-white shadow-inner`}
+                      >
+                        {React.isValidElement(item.emoji) ? item.emoji : <Gift className="w-6 h-6 text-white" />}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-[var(--color-text-primary)] text-sm truncate">
+                          {item.title}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${item.priceType === 'ready' ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300' : 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300'}`}>
+                            {item.priceType === 'ready' ? 'Ready Website' : 'Source Code'}
+                          </span>
+                          <span className="text-sm font-black text-[var(--color-accent-purple)] dark:text-purple-300">
+                            ₹{item.price}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-bold text-[var(--color-text-primary)] text-sm line-clamp-1">
-                        {item.title}
-                      </h4>
-                      <p className="text-[var(--color-accent-purple)] dark:text-purple-300 font-bold mt-1">
-                        {item.price}
-                      </p>
-                    </div>
+
                     <button
                       onClick={() => removeFromCart(index)}
-                      disabled={isCheckingOut}
-                      className="w-8 h-8 text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-full flex items-center justify-center transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
+                      className="w-8 h-8 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-full flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                      title="Remove item"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -158,28 +195,27 @@ export const CartDrawer = () => {
               )}
             </div>
 
-            {/* Subtotal & Checkout Footer */}
             {cart.length > 0 && (
               <div className="p-6 bg-white dark:bg-slate-900 border-t border-[var(--color-bg-secondary)]/50 dark:border-slate-800 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-[var(--color-text-primary)] font-medium text-lg">
-                    Subtotal
+                  <span className="text-[var(--color-text-primary)]/70 font-bold uppercase tracking-wider text-xs">
+                    Subtotal ({cart.length} item{cart.length > 1 ? "s" : ""})
                   </span>
-                  <span className="text-2xl font-bold text-[var(--color-text-primary)]">
-                     Rs. {subtotal.toLocaleString('en-IN')}
+                  <span className="text-2xl font-black text-[var(--color-text-primary)]">
+                    ₹{subtotal.toLocaleString("en-IN")}
                   </span>
                 </div>
                 <button
                   onClick={handleCheckout}
                   disabled={isCheckingOut}
-                  className="w-full bg-[var(--color-text-primary)] text-white dark:bg-slate-800 dark:hover:bg-[var(--color-accent-pink)] hover:bg-[var(--color-accent-purple)] py-4 rounded-xl font-bold transition-all hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none cursor-pointer"
+                  className="w-full bg-[var(--color-text-primary)] text-white dark:bg-slate-800 dark:hover:bg-[var(--color-accent-pink)] hover:bg-[var(--color-accent-purple)] py-4 rounded-xl font-bold transition-all hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-70 cursor-pointer"
                 >
                   {isCheckingOut ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <Check className="w-5 h-5" />
                   )}
-                  {isCheckingOut ? "Processing..." : "Secure Checkout (Test Mode)"}
+                  {isCheckingOut ? "Processing..." : "Proceed to Checkout"}
                 </button>
               </div>
             )}
@@ -525,10 +561,10 @@ export const BundleSection = () => {
             <div className="flex items-center justify-between pt-2 border-t border-[var(--color-bg-secondary)] dark:border-slate-800/60">
               <div className="flex flex-col">
                 <span className="text-xs text-[var(--color-text-primary)]/40 line-through font-semibold">
-                  Rs. 899
+                  ₹899
                 </span>
                 <span className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)]">
-                  Rs. 499
+                  ₹499
                 </span>
               </div>
               <button

@@ -66,8 +66,9 @@ export type ProductItem = {
   id: number;
   category: string;
   title: string;
-  price: string;
-  originalPrice?: string;
+  code_price: number; // Updated to match Supabase
+  ready_price: number; // Updated to match Supabase
+  original_price?: number; // Updated to match Supabase
   rating: string;
   emoji: React.ReactNode;
   gradient: string;
@@ -717,43 +718,27 @@ const IntegrationsSection = () => {
 };
 
 // --- PRODUCT CARD SKELETON PREVIEW ---
-// Matches the exact dimensions and DOM structure of the actual ProductCard to stop the grid collapsing
 const ProductSkeleton = () => (
-  <div className="flex flex-col w-full bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-black/5 dark:border-slate-800 animate-pulse h-full">
-    
-    {/* Top Image Section */}
-    <div className="relative w-full aspect-[16/9] bg-slate-200 dark:bg-slate-800/50 shrink-0">
-      {/* Skeleton Tag */}
-      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-slate-300 dark:bg-slate-700 w-16 h-4 sm:w-16 sm:h-5 rounded-full z-20 shadow-sm border border-transparent"></div>
+  <div className="flex flex-row sm:flex-col w-full bg-white dark:bg-slate-900 rounded-[1.25rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-black/5 dark:border-slate-800 animate-pulse h-full">
+    <div className="relative w-[40%] sm:w-full aspect-[4/5] sm:aspect-[16/9] bg-slate-200 dark:bg-slate-800/50 shrink-0">
+      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-slate-300 dark:bg-slate-700 w-12 h-3 sm:w-16 sm:h-5 rounded-full z-20 shadow-sm border border-transparent"></div>
     </div>
-    
-    {/* Bottom Details Section */}
-    <div className="p-2 sm:p-6 flex-1 flex flex-col bg-white dark:bg-slate-900 z-20 relative border-t border-black/5 dark:border-slate-800">
-      
-      {/* Category */}
-      <div className="h-2.5 sm:h-3.5 w-16 bg-slate-200 dark:bg-slate-800 rounded mb-0.5 sm:mb-1.5" />
-      
-      {/* Title */}
-      <div className="h-4 sm:h-6 w-3/4 bg-slate-200 dark:bg-slate-800 rounded mb-1 sm:mb-2" />
-      
-      {/* Price Row (Matches flex-col on mobile, flex-row on desktop) */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 mt-auto pt-1 sm:pt-2">
-        {/* Main Price */}
-        <div className="h-4 sm:h-6 w-16 sm:w-20 bg-slate-200 dark:bg-slate-800 rounded" />
-        {/* Original Price (Strikethrough placeholder) */}
-        <div className="h-2.5 sm:h-3.5 w-10 sm:w-14 bg-slate-100 dark:bg-slate-800/60 rounded" />
+    <div className="p-3.5 sm:p-5 flex-1 flex flex-col justify-start bg-white dark:bg-slate-900 z-20 relative sm:border-t border-l sm:border-l-0 border-black/5 dark:border-slate-800">
+      <div className="h-2 sm:h-3.5 w-12 sm:w-16 bg-slate-200 dark:bg-slate-800 rounded mb-1 sm:mb-2" />
+      <div className="h-3.5 sm:h-6 w-3/4 bg-slate-200 dark:bg-slate-800 rounded mb-3 sm:mb-4" />
+      <div className="flex flex-col xl:flex-row gap-2 mt-auto pt-2">
+        <div className="h-8 sm:h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-lg sm:rounded-xl" />
+        <div className="h-8 sm:h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-lg sm:rounded-xl" />
       </div>
-
     </div>
   </div>
 );
 
-const ProductCard = ({
-  product
-}: {
-  product: ProductItem;
-}) => {
+const ProductCard = ({ product }: { product: ProductItem }) => {
   const navigate = useNavigate();
+  const { addToCart } = useAppContext();
+  
+  const [isHovered, setIsHovered] = React.useState(false);
 
   const getVideoId = (url?: string | null) => {
     if (!url) return null;
@@ -764,51 +749,117 @@ const ProductCard = ({
 
   const videoId = getVideoId(product.youtube_url);
 
+  const handleMouseEnter = () => {
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      setIsHovered(true);
+    }
+  };
+
+  const handleReadyWebsiteOrder = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addToCart({
+      id: product.id,
+      title: product.title,
+      price: product.ready_price,
+      priceType: "ready",
+      gradient: product.gradient,
+      emoji: product.emoji,
+    });
+  };
+
+  const handleGetCode = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addToCart({
+      id: product.id,
+      title: product.title,
+      price: product.code_price,
+      priceType: "code",
+      gradient: product.gradient,
+      emoji: product.emoji,
+    });
+  };
+
   return (
     <div
       onClick={() => navigate(`/product/${product.id}`)}
-      className="group cursor-pointer flex flex-col w-full bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 sm:hover:-translate-y-1 border border-black/5 dark:border-slate-800 h-full"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={() => setIsHovered(false)}
+      className="group cursor-pointer flex flex-row sm:flex-col w-full bg-white dark:bg-slate-900 rounded-[1.25rem] sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-black/5 dark:border-slate-800 relative"
     >
       <div
-        className={`relative w-full aspect-[16/9] flex items-center justify-center overflow-hidden shrink-0 ${!videoId ? `bg-gradient-to-br ${product.gradient}` : 'bg-black/5'}`}
+        className={`relative w-[40%] sm:w-full aspect-[4/5] sm:aspect-[16/9] flex items-center justify-center overflow-hidden shrink-0 ${
+          !videoId ? `bg-gradient-to-br ${product.gradient}` : "bg-black/5"
+        }`}
       >
-        {/* Restored maxresdefault for perfect desktop quality */}
         {videoId ? (
-          <img 
-            src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`} 
-            alt={product.title} 
-            loading="lazy"
-            decoding="async"
-            className="w-full h-full object-cover transform-gpu group-hover:scale-105 transition-transform duration-500"
-          />
+          <>
+            <img
+              src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+              alt={product.title}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover transform-gpu group-hover:scale-105 transition-transform duration-500 z-0"
+            />
+            
+            <AnimatePresence>
+              {isHovered && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                  transition={{ duration: 0.6, delay: 0.8 }}
+                  className="absolute inset-0 z-10 overflow-hidden sm:rounded-t-[2rem]"
+                >
+                  <div className="absolute inset-0 z-20 bg-transparent cursor-pointer pointer-events-auto"></div>
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&controls=1&disablekb=1&fs=0&iv_load_policy=3&loop=1&playsinline=1&rel=0&playlist=${videoId}`}
+                    className="absolute top-1/2 left-1/2 w-[200%] h-[200%] -translate-x-1/2 -translate-y-1/2 pointer-events-none border-0"
+                    allow="autoplay; encrypted-media"
+                    frameBorder="0"
+                    tabIndex={-1}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
         ) : (
           <div className="text-[2.5rem] sm:text-[5.5rem] drop-shadow-xl transform group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500 relative z-0 flex justify-center items-center">
             {product.emoji}
           </div>
         )}
-        
+
         {product.tag && (
-          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-[8px] sm:text-[10px] font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full z-20 shadow-sm border border-black/5 dark:border-white/10 uppercase tracking-wider">
+          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-slate-900 dark:text-white text-[8px] sm:text-[10px] font-bold px-2 sm:px-3 py-1 rounded-full z-30 shadow-sm border border-black/5 uppercase tracking-wider">
             {product.tag}
           </div>
         )}
       </div>
-      <div className="p-2 sm:p-6 flex-1 flex flex-col bg-white dark:bg-slate-900 z-20 relative border-t border-black/5 dark:border-slate-800">
-        <p className="text-[8px] sm:text-xs font-bold tracking-widest uppercase text-[var(--color-text-primary)]/50 mb-0.5 sm:mb-1.5">
-          {product.category}
-        </p>
-        <h3 className="font-serif font-bold text-[var(--color-text-primary)] mb-1 sm:mb-2 text-sm sm:text-xl leading-tight group-hover:text-[var(--color-accent-pink)] transition-colors line-clamp-1">
-          {product.title}
-        </h3>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 mt-auto pt-1 sm:pt-2">
-          <span className="font-bold text-[var(--color-text-primary)] text-sm sm:text-2xl leading-none">
-            {product.price}
-          </span>
-          {product.originalPrice && (
-            <span className="text-[10px] sm:text-sm font-bold text-[var(--color-text-primary)]/40 line-through">
-              {product.originalPrice}
-            </span>
-          )}
+
+      <div className="p-3.5 sm:p-5 flex-1 flex flex-col justify-start bg-white dark:bg-slate-900 z-10 relative sm:border-t border-l sm:border-l-0 border-black/5 dark:border-slate-800">
+        <div>
+          <p className="text-[8px] sm:text-[10px] font-bold tracking-widest uppercase text-[var(--color-text-primary)]/50 mb-0.5 sm:mb-1">
+            {product.category}
+          </p>
+          <h3 className="font-serif font-bold text-[var(--color-text-primary)] mb-2 text-sm sm:text-xl leading-tight group-hover:text-[var(--color-accent-pink)] transition-colors line-clamp-2 sm:line-clamp-1">
+            {product.title}
+          </h3>
+        </div>
+
+        <div className="mt-auto sm:mt-4 pt-2">
+          <div className="flex flex-col xl:flex-row gap-1.5 sm:gap-2">
+            <button
+              onClick={handleReadyWebsiteOrder}
+              className="w-full py-2 sm:py-2.5 bg-cyan-50 text-cyan-700 dark:bg-cyan-950/30 dark:text-cyan-400 hover:bg-cyan-500 hover:text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-cyan-100 dark:border-cyan-900 shadow-sm"
+            >
+              <Book className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" /> Ready (₹{product.ready_price})
+            </button>
+            <button
+              onClick={handleGetCode}
+              className="w-full py-2 sm:py-2.5 bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 hover:bg-[var(--color-accent-purple)] hover:text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-purple-100 dark:border-purple-900 shadow-sm"
+            >
+              <Code className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" /> Code (₹{product.code_price})
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -818,7 +869,7 @@ const ProductCard = ({
 const ProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart, addToast } = useAppContext();
+  const { addToCart } = useAppContext();
   const [product, setProduct] = useState<ProductItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -840,8 +891,9 @@ const ProductPage = () => {
             id: data.id,
             category: data.category,
             title: data.title,
-            price: data.price,
-            originalPrice: data.original_price,
+            code_price: data.code_price,
+            ready_price: data.ready_price,
+            original_price: data.original_price,
             rating: data.rating || "5.0",
             gradient: data.gradient || "from-pink-200 to-rose-100",
             tag: data.tag,
@@ -950,7 +1002,6 @@ const ProductPage = () => {
                 if (product.file_url) {
                   window.open(product.file_url, "_blank");
                 } else {
-                  // Replaced the toast with our new redirect, passing the template name!
                   navigate("/demo-unavailable", { state: { productName: product.title } });
                 }
               }}
@@ -1003,7 +1054,7 @@ const ProductPage = () => {
                 <div className="flex items-center gap-2 text-[var(--color-text-primary)] font-bold mb-2">
                   <Book className="w-4 h-4 text-cyan-500" /> Ready Website
                 </div>
-                <div className="text-3xl font-black text-[var(--color-text-primary)] mb-4">₹399</div>
+                <div className="text-3xl font-black text-[var(--color-text-primary)] mb-4">₹{product.ready_price}</div>
                 
                 <div className="bg-blue-50/50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900 rounded-lg p-2.5 mb-4">
                   <p className="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300 font-medium leading-tight">
@@ -1021,13 +1072,17 @@ const ProductPage = () => {
                 </ul>
 
                 <button
-                  onClick={() => {
-                    const message = `Hi Canvas Builds! 👋\n\nI'd like to order a Ready Website.\n\n📦 *Template:* ${product.title}\n💰 *Price:* ₹399\n\nPlease let me know the next steps for customization and payment!`;
-                    window.open(`https://wa.me/917906568743?text=${encodeURIComponent(message)}`, "_blank");
-                  }}
+                  onClick={() => addToCart({
+                    id: product.id,
+                    title: product.title,
+                    price: product.ready_price,
+                    priceType: "ready",
+                    gradient: product.gradient,
+                    emoji: product.emoji,
+                  })}
                   className="w-full py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-sm rounded-xl transition-colors mt-auto cursor-pointer"
                 >
-                  Order Your Website
+                  Add to Cart
                 </button>
               </div>
 
@@ -1036,7 +1091,7 @@ const ProductPage = () => {
                 <div className="flex items-center gap-2 text-[var(--color-text-primary)] font-bold mb-2">
                   <Code className="w-4 h-4 text-[var(--color-accent-purple)]" /> Premium Code
                 </div>
-                <div className="text-3xl font-black text-[var(--color-text-primary)] mb-4">{product.price.replace('Rs.', '₹')}</div>
+                <div className="text-3xl font-black text-[var(--color-text-primary)] mb-4">₹{product.code_price}</div>
                 
                 <div className="bg-amber-50/50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900 rounded-lg p-2.5 mb-4">
                   <p className="text-[10px] sm:text-xs text-amber-700 dark:text-amber-300 font-medium leading-tight">
@@ -1054,10 +1109,17 @@ const ProductPage = () => {
                 </ul>
 
                 <button 
-                  onClick={() => addToCart(product)}
+                  onClick={() => addToCart({
+                    id: product.id,
+                    title: product.title,
+                    price: product.code_price,
+                    priceType: "code",
+                    gradient: product.gradient,
+                    emoji: product.emoji,
+                  })}
                   className="w-full py-2.5 bg-[var(--color-accent-purple)] hover:bg-[#6b46c1] text-white font-bold text-sm rounded-xl transition-colors mt-auto cursor-pointer"
                 >
-                  Get Premium Code
+                  Add to Cart
                 </button>
               </div>
             </div>
@@ -1090,8 +1152,9 @@ const PopularProducts = () => {
             id: item.id,
             category: item.category,
             title: item.title,
-            price: item.price,
-            originalPrice: item.original_price,
+            code_price: item.code_price,
+            ready_price: item.ready_price,
+            original_price: item.original_price,
             rating: item.rating || "5.0",
             gradient: item.gradient || "from-pink-200 to-rose-100",
             tag: item.tag,
@@ -1149,17 +1212,15 @@ const PopularProducts = () => {
       </div>
 
       {loading ? (
-        /* EXACT SKELETON LOADERS TO HOLD GRID HEIGHT AND PREVENT PAGE BLINKING */
-        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8 min-h-[500px] w-full">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-start gap-4 sm:gap-6 lg:gap-8 w-full">
+          {Array.from({ length: 8 }).map((_, i) => (
             <ProductSkeleton key={`skeleton-${i}`} />
           ))}
         </motion.div>
       ) : (
-        /* RESTORED ANIMATIONS WITH POPLAYOUT AND LAYOUT PROP */
         <motion.div
           layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8 min-h-[500px]"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 items-start gap-4 sm:gap-6 lg:gap-8 w-full"
         >
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((p) => (
@@ -1363,7 +1424,7 @@ const ContactSection = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // Added loading state
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1375,7 +1436,6 @@ const ContactSection = () => {
     setIsSubmitting(true);
 
     try {
-      // Insert the message into Supabase
       const { error } = await supabase
         .from("messages")
         .insert([

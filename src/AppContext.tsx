@@ -1,25 +1,23 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-type Toast = { id: number; message: string; type: "success" | "info" };
-
-type CartItem = {
+export type CartItem = {
   id: number;
   title: string;
-  price: string;
-  image?: string;
+  price: number; // Switched to raw integer for perfect math
+  priceType: "code" | "ready"; // Tracks which option they bought
   gradient: string;
-  emoji: ReactNode; 
+  emoji: ReactNode;
 };
 
 interface AppContextType {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: number) => void;
+  removeFromCart: (cartIndex: number) => void;
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
   isSearchOpen: boolean;
   setIsSearchOpen: (isOpen: boolean) => void;
-  toasts: Toast[];
+  toasts: { id: number; message: string; type: "success" | "info" }[];
   addToast: (message: string, type?: "success" | "info") => void;
   removeToast: (id: number) => void;
   isDarkMode: boolean;
@@ -44,9 +42,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const clearCart = () => setCart([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [toasts, setToasts] = useState<Toast[]>([]);
-  
-  // Dark mode storage & initialization
+  const [toasts, setToasts] = useState<{ id: number; message: string; type: "success" | "info" }[]>([]);
+
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     return localStorage.getItem("theme") === "dark";
   });
@@ -62,15 +59,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const [legalModal, setLegalModal] = useState<"privacy" | "terms" | null>(null);
 
-  const addToCart = (item: CartItem) => {
-    setCart((prev) => [...prev, item]);
-    addToast(`Added ${item.title} to cart!`, "success");
-  };
-
-  const removeFromCart = (id: number) => {
-    setCart((prev) => prev.filter((item, index) => index !== id));
-  };
-
   const addToast = (message: string, type: "success" | "info" = "success") => {
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev, { id, message, type }]);
@@ -81,6 +69,25 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const removeToast = (id: number) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const addToCart = (item: CartItem) => {
+    // Check if the EXACT item (same ID AND same priceType) is already in the cart
+    const exists = cart.some((i) => i.id === item.id && i.priceType === item.priceType);
+    if (exists) {
+      addToast(`${item.title} (${item.priceType === 'ready' ? 'Ready Website' : 'Code'}) is already in your cart!`, "info");
+      setIsCartOpen(true);
+      return;
+    }
+
+    setCart((prev) => [...prev, item]);
+    addToast(`Added ${item.title} to cart!`, "success");
+    setIsCartOpen(true);
+  };
+
+  // We remove by array index now, so if a user has both the "Code" and "Ready" version of the same template, we only delete the one they clicked
+  const removeFromCart = (cartIndex: number) => {
+    setCart((prev) => prev.filter((_, index) => index !== cartIndex));
   };
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
