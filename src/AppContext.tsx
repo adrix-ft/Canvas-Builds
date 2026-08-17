@@ -1,15 +1,23 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "./supabaseClient";
+import { User, Session } from "@supabase/supabase-js";
+import { jwtDecode } from "jwt-decode";
 
 export type CartItem = {
   id: number;
   title: string;
-  price: number; // Switched to raw integer for perfect math
-  priceType: "code" | "ready"; // Tracks which option they bought
+  price: number;
+  priceType: "code" | "ready";
   gradient: string;
   emoji: ReactNode;
 };
 
 interface AppContextType {
+  user: User | null;
+  isAdmin: boolean;
+  isAuthOpen: boolean;
+  setIsAuthOpen: (isOpen: boolean) => void;
+  handleLogout: () => Promise<void>;
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
   removeFromCart: (cartIndex: number) => void;
@@ -30,6 +38,44 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  useEffect(() => {
+    const verifyAdminStatus = (session: Session | null) => {
+      if (session?.access_token) {
+        try {
+          const decodedJwt = jwtDecode<any>(session.access_token);
+          setIsAdmin(decodedJwt.user_role === 'admin');
+        } catch (err) {
+          console.error("Failed to decode token:", err);
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      verifyAdminStatus(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      verifyAdminStatus(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsAdmin(false);
+    addToast("Logged out successfully", "info");
+  };
+
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
@@ -43,7 +89,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [toasts, setToasts] = useState<{ id: number; message: string; type: "success" | "info" }[]>([]);
-
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     return localStorage.getItem("theme") === "dark";
   });
@@ -72,20 +117,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addToCart = (item: CartItem) => {
-    // Check if the EXACT item (same ID AND same priceType) is already in the cart
     const exists = cart.some((i) => i.id === item.id && i.priceType === item.priceType);
     if (exists) {
       addToast(`${item.title} (${item.priceType === 'ready' ? 'Ready Website' : 'Code'}) is already in your cart!`, "info");
       setIsCartOpen(true);
       return;
     }
-
     setCart((prev) => [...prev, item]);
     addToast(`Added ${item.title} to cart!`, "success");
     setIsCartOpen(true);
   };
 
-  // We remove by array index now, so if a user has both the "Code" and "Ready" version of the same template, we only delete the one they clicked
   const removeFromCart = (cartIndex: number) => {
     setCart((prev) => prev.filter((_, index) => index !== cartIndex));
   };
@@ -95,6 +137,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AppContext.Provider
       value={{
+        user,
+        isAdmin,
+        isAuthOpen,
+        setIsAuthOpen,
+        handleLogout,
         cart,
         addToCart,
         removeFromCart,
