@@ -1562,13 +1562,11 @@ const PromoBanners = () => (
 );
 
 const ContactSection = () => {
-  const { addToast, user } = useAppContext();
+  const { addToast, user, setLegalModal } = useAppContext();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // NEW: DPDP Consent State
   const [hasConsent, setHasConsent] = useState(false);
 
   useEffect(() => {
@@ -1587,7 +1585,6 @@ const ContactSection = () => {
       addToast("Please enter your name and message.", "info");
       return;
     }
-    // NEW: DPDP Consent Validation
     if (!hasConsent) {
       addToast("Please agree to the privacy policy to submit your message.", "info");
       return;
@@ -1602,7 +1599,7 @@ const ContactSection = () => {
       if (error) throw error;
       addToast("Message sent! We'll get back to you shortly.", "success");
       setMessage("");
-      setHasConsent(false); // Reset consent after submission
+      setHasConsent(false);
     } catch (err) {
       console.error("Error sending message:", err);
       addToast("Something went wrong. Please try again.", "info");
@@ -1613,23 +1610,92 @@ const ContactSection = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 w-full">
-      {/* ... (Keep your existing header and grid icons exactly the same) ... */}
-      
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-10 shadow-sm border border-[var(--color-bg-secondary)]/50 dark:border-slate-800 mt-12">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl sm:text-4xl font-serif text-[var(--color-text-primary)] tracking-tight">
+          Still having an issue? Contact us
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 flex items-center justify-center text-[var(--color-text-primary)]/60 dark:text-slate-400">
+            <Mail className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">Email us</p>
+            <p className="text-sm font-bold text-[var(--color-text-primary)]">canvasbuildsofficial@gmail.com</p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 flex items-center justify-center text-[var(--color-text-primary)]/60 dark:text-slate-400">
+            <Clock className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">We reply within</p>
+            <p className="text-sm font-bold text-[var(--color-text-primary)]">5 hours</p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-full border border-[var(--color-bg-secondary)] dark:border-slate-800 flex items-center justify-center text-[var(--color-text-primary)]/60 dark:text-slate-400">
+            <MapPin className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-[var(--color-text-primary)]/50 dark:text-slate-500 font-medium">Based in</p>
+            <p className="text-sm font-bold text-[var(--color-text-primary)]">India <span className="text-[var(--color-text-primary)]/40">IN</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-10 shadow-sm border border-[var(--color-bg-secondary)]/50 dark:border-slate-800">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* ... (Keep Name, Email, and Message inputs exactly the same) ... */}
-          
-          {/* NEW: DPDP Consent Checkbox */}
+          <div>
+            <label className="block text-sm font-bold text-[var(--color-text-primary)] mb-2">
+              Your name
+            </label>
+            <input
+              type="text"
+              placeholder="What should we call you?"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-[var(--color-bg-primary)]/30 dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[var(--color-text-primary)] mb-2">
+              Your email
+            </label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-[var(--color-bg-primary)]/30 dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[var(--color-text-primary)] mb-2">
+              What's on your mind?
+            </label>
+            <textarea
+              rows={4}
+              placeholder="Tell us what you're thinking..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full bg-[var(--color-bg-primary)]/30 dark:bg-slate-950 border border-[var(--color-bg-secondary)] dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-pink)] transition-colors resize-none"
+            />
+          </div>
+
+          {/* DPDP Consent Checkbox */}
           <div className="flex items-start gap-3 p-4 bg-[var(--color-bg-primary)]/50 dark:bg-slate-950/50 rounded-xl border border-[var(--color-bg-secondary)] dark:border-slate-800">
             <input
               type="checkbox"
               id="contact-consent"
               checked={hasConsent}
               onChange={(e) => setHasConsent(e.target.checked)}
-              className="mt-1 w-4 h-4 rounded border-gray-300 text-[var(--color-accent-pink)] focus:ring-[var(--color-accent-pink)] cursor-pointer"
+              className="mt-1 w-4 h-4 rounded border-gray-300 text-[var(--color-accent-pink)] focus:ring-[var(--color-accent-pink)] cursor-pointer shrink-0"
             />
             <label htmlFor="contact-consent" className="text-xs sm:text-sm text-[var(--color-text-primary)]/75 leading-relaxed cursor-pointer">
-              I consent to Canvas Builds collecting and processing my name and email address to respond to this inquiry in accordance with the <button type="button" onClick={() => {/* Trigger LegalModal */}} className="text-[var(--color-accent-pink)] font-bold hover:underline">Privacy Policy</button>.
+              I consent to Canvas Builds collecting and processing my name and email address to respond to this inquiry in accordance with the <button type="button" onClick={() => setLegalModal('privacy')} className="text-[var(--color-accent-pink)] font-bold hover:underline">Privacy Policy</button>.
             </label>
           </div>
 
