@@ -711,14 +711,19 @@ const IntegrationsSection = () => {
 const ProductSkeleton = () => (
   <div className="flex flex-row sm:flex-col w-full bg-white dark:bg-slate-900 rounded-[1.25rem] sm:rounded-[2rem] overflow-hidden shadow-sm border border-black/5 dark:border-slate-800 animate-pulse h-full">
     <div className="relative w-[40%] sm:w-full aspect-[4/5] sm:aspect-[16/9] bg-slate-200 dark:bg-slate-800/50 shrink-0">
-      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-slate-300 dark:bg-slate-700 w-12 h-3 sm:w-16 sm:h-5 rounded-full z-20 shadow-sm border border-transparent"></div>
+      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-slate-300 dark:bg-slate-700 w-12 h-4 sm:w-16 sm:h-5 rounded-full z-20 shadow-sm border border-transparent"></div>
     </div>
     <div className="p-3.5 sm:p-5 flex-1 flex flex-col justify-start bg-white dark:bg-slate-900 z-20 relative sm:border-t border-l sm:border-l-0 border-black/5 dark:border-slate-800">
-      <div className="h-2 sm:h-3.5 w-12 sm:w-16 bg-slate-200 dark:bg-slate-800 rounded mb-1 sm:mb-2" />
-      <div className="h-3.5 sm:h-6 w-3/4 bg-slate-200 dark:bg-slate-800 rounded mb-3 sm:mb-4" />
-      <div className="flex flex-col xl:flex-row gap-2 mt-auto pt-2">
-        <div className="h-8 sm:h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-lg sm:rounded-xl" />
-        <div className="h-8 sm:h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-lg sm:rounded-xl" />
+      {/* Category line height locked */}
+      <div className="h-3 sm:h-3.5 w-16 sm:w-20 bg-slate-200 dark:bg-slate-800 rounded mb-1 sm:mb-2" />
+      
+      {/* Title line height locked (2 lines mobile, 1 line desktop) */}
+      <div className="h-8 sm:h-7 w-full bg-slate-200 dark:bg-slate-800 rounded mb-3 sm:mb-4" />
+      
+      <div className="flex flex-col xl:flex-row gap-1.5 sm:gap-2 mt-auto pt-2">
+        {/* Buttons height locked */}
+        <div className="h-[34px] sm:h-[42px] w-full bg-slate-200 dark:bg-slate-800 rounded-lg sm:rounded-xl" />
+        <div className="h-[34px] sm:h-[42px] w-full bg-slate-200 dark:bg-slate-800 rounded-lg sm:rounded-xl" />
       </div>
     </div>
   </div>
@@ -773,7 +778,7 @@ const ProductCard = ({ product }: { product: ProductItem }) => {
       onClick={() => navigate(`/product/${product.id}`)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsHovered(false)}
-      className="group cursor-pointer flex flex-row sm:flex-col w-full bg-white dark:bg-slate-900 rounded-[1.25rem] sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-black/5 dark:border-slate-800 relative"
+      className="group cursor-pointer flex flex-row sm:flex-col w-full bg-white dark:bg-slate-900 rounded-[1.25rem] sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-black/5 dark:border-slate-800 relative h-full"
     >
       <div
         className={`relative w-[40%] sm:w-full aspect-[4/5] sm:aspect-[16/9] flex items-center justify-center overflow-hidden shrink-0 ${
@@ -791,7 +796,7 @@ const ProductCard = ({ product }: { product: ProductItem }) => {
             />
             <AnimatePresence>
               {isHovered && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, transition: { duration: 0.2 } }}
@@ -815,35 +820,34 @@ const ProductCard = ({ product }: { product: ProductItem }) => {
             {product.emoji}
           </div>
         )}
-
         {product.tag && (
           <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-slate-900 dark:text-white text-[8px] sm:text-[10px] font-bold px-2 sm:px-3 py-1 rounded-full z-30 shadow-sm border border-black/5 uppercase tracking-wider">
             {product.tag}
           </div>
         )}
       </div>
-
+      
       <div className="p-3.5 sm:p-5 flex-1 flex flex-col justify-start bg-white dark:bg-slate-900 z-10 relative sm:border-t border-l sm:border-l-0 border-black/5 dark:border-slate-800">
         <div>
-          <p className="text-[8px] sm:text-[10px] font-bold tracking-widest uppercase text-[var(--color-text-primary)]/50 mb-0.5 sm:mb-1">
+          <p className="h-3 sm:h-3.5 flex items-center text-[8px] sm:text-[10px] font-bold tracking-widest uppercase text-[var(--color-text-primary)]/50 mb-1 sm:mb-2">
             {product.category}
           </p>
-          <h3 className="font-serif font-bold text-[var(--color-text-primary)] mb-2 text-sm sm:text-xl leading-tight group-hover:text-[var(--color-accent-pink)] transition-colors line-clamp-2 sm:line-clamp-1">
+          <h3 className="h-8 sm:h-7 font-serif font-bold text-[var(--color-text-primary)] mb-3 sm:mb-4 text-sm sm:text-xl leading-tight group-hover:text-[var(--color-accent-pink)] transition-colors line-clamp-2 sm:line-clamp-1">
             {product.title}
           </h3>
         </div>
-
-        <div className="mt-auto sm:mt-4 pt-2">
+        
+        <div className="mt-auto pt-2">
           <div className="flex flex-col xl:flex-row gap-1.5 sm:gap-2">
             <button
               onClick={handleReadyWebsiteOrder}
-              className="w-full py-2 sm:py-2.5 bg-cyan-50 text-cyan-700 dark:bg-cyan-950/30 dark:text-cyan-400 hover:bg-cyan-500 hover:text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-cyan-100 dark:border-cyan-900 shadow-sm"
+              className="h-[34px] sm:h-[42px] w-full bg-cyan-50 text-cyan-700 dark:bg-cyan-950/30 dark:text-cyan-400 hover:bg-cyan-500 hover:text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-cyan-100 dark:border-cyan-900 shadow-sm"
             >
               <Book className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" /> Ready (₹{product.ready_price})
             </button>
             <button
               onClick={handleGetCode}
-              className="w-full py-2 sm:py-2.5 bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 hover:bg-[var(--color-accent-purple)] hover:text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-purple-100 dark:border-purple-900 shadow-sm"
+              className="h-[34px] sm:h-[42px] w-full bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 hover:bg-[var(--color-accent-purple)] hover:text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-purple-100 dark:border-purple-900 shadow-sm"
             >
               <Code className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" /> Code (₹{product.code_price})
             </button>
@@ -1406,71 +1410,204 @@ const PlaceholderReview = () => (
 );
 
 const Testimonials = () => {
-  const row1 = Array(5).fill(null);
-  const row2 = Array(5).fill(null);
-  const row3 = Array(5).fill(null);
+  const [reviewImages, setReviewImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchReviewScreenshots = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase.storage.from('reviews').list();
+        if (error) throw error;
+
+        if (data) {
+          const urls = data
+            .filter(file => file.name !== '.emptyFolderPlaceholder')
+            .map(file => {
+              const { data: publicUrlData } = supabase.storage
+                .from('reviews')
+                .getPublicUrl(file.name);
+              return publicUrlData.publicUrl;
+            });
+
+          setReviewImages(urls);
+        }
+      } catch (err) {
+        console.error("Error fetching review screenshots:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReviewScreenshots();
+  }, []);
+
+  const third = Math.ceil(reviewImages.length / 3);
+  const row1Images = reviewImages.slice(0, third);
+  const row2Images = reviewImages.slice(third, third * 2);
+  const row3Images = reviewImages.slice(third * 2);
+
+  // Stop background scrolling when modal is open
+  useEffect(() => {
+    if (selectedImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [selectedImage]);
 
   return (
-    <div id="reviews" className="bg-[var(--color-bg-primary)] overflow-hidden relative w-full">
-      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-[var(--color-bg-primary)] to-transparent z-10 pointer-events-none"></div>
-      <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[var(--color-bg-primary)] to-transparent z-10 pointer-events-none"></div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="text-center mb-12 sm:mb-20 px-4"
-      >
-        <p className="text-[var(--color-accent-pink)] font-bold text-xs sm:text-sm tracking-widest uppercase mb-4">
-          What People Are Saying
-        </p>
-        <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-[var(--color-text-primary)] mb-6 tracking-tight">
-          People who made <br className="hidden sm:block" />
-          <span className="italic text-[var(--color-accent-purple)] dark:text-purple-400">
-            something special
-          </span>
-        </h2>
-        <p className="text-[var(--color-text-primary)]/70 dark:text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto font-medium leading-relaxed">
-          These are real people who had a moment worth sharing. Here's what they said after.
-        </p>
-      </motion.div>
-
-      <div className="flex flex-col gap-4 sm:gap-6">
-        <div className="flex whitespace-nowrap">
-          <motion.div
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ repeat: Infinity, ease: "linear", duration: 45 }}
-            className="flex gap-4 sm:gap-6 px-2 sm:px-3"
-          >
-            {[...row1, ...row1].map((_, i) => (
-              <PlaceholderReview key={`r1-${i}`} />
-            ))}
-          </motion.div>
-        </div>
-        <div className="flex whitespace-nowrap">
-          <motion.div
-            animate={{ x: ["-50%", "0%"] }}
-            transition={{ repeat: Infinity, ease: "linear", duration: 55 }}
-            className="flex gap-4 sm:gap-6 px-2 sm:px-3"
-          >
-            {[...row2, ...row2].map((_, i) => (
-              <PlaceholderReview key={`r2-${i}`} />
-            ))}
-          </motion.div>
-        </div>
-        <div className="flex whitespace-nowrap">
-          <motion.div
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ repeat: Infinity, ease: "linear", duration: 40 }}
-            className="flex gap-4 sm:gap-6 px-2 sm:px-3"
-          >
-            {[...row3, ...row3].map((_, i) => (
-              <PlaceholderReview key={`r3-${i}`} />
-            ))}
-          </motion.div>
-        </div>
+    <div id="reviews" className="relative w-full py-24 sm:py-32 overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-500">
+      
+      {/* 1. Animated Ambient Glowing Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, -30, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] bg-rose-400/20 dark:bg-rose-500/10 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen"
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.3, 1], x: [0, -40, 0], y: [0, 50, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] bg-purple-400/20 dark:bg-purple-500/10 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen"
+        />
       </div>
+
+      {/* 2. Elegant Header */}
+      <div className="relative z-20 max-w-3xl mx-auto text-center px-4 mb-20 sm:mb-28">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/60 dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-sm mb-8"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+          </span>
+          <span className="text-[10px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest">
+            The Wall of Love
+          </span>
+        </motion.div>
+
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+          className="text-5xl sm:text-7xl font-serif text-slate-900 dark:text-white mb-6 tracking-tight leading-[1.1]"
+        >
+          Moments that <br className="hidden sm:block" />
+          <span className="italic font-light text-slate-500 dark:text-slate-400">mattered.</span>
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="text-slate-600 dark:text-slate-400 text-base sm:text-lg font-medium leading-relaxed max-w-xl mx-auto"
+        >
+          Real messages, raw reactions, and happy tears. We couldn't script these if we tried. Click any image to view.
+        </motion.p>
+      </div>
+
+      {/* Edge Fade Overlays for Marquee */}
+      <div className="absolute left-0 bottom-0 top-1/3 w-20 sm:w-48 bg-gradient-to-r from-white to-transparent dark:from-[#050505] dark:to-transparent z-30 pointer-events-none"></div>
+      <div className="absolute right-0 bottom-0 top-1/3 w-20 sm:w-48 bg-gradient-to-l from-white to-transparent dark:from-[#050505] dark:to-transparent z-30 pointer-events-none"></div>
+
+      {/* 3. Tilted, Borderless Marquee Wrapper */}
+      {isLoading ? (
+        <div className="flex justify-center items-center py-20 relative z-20">
+          <div className="w-10 h-10 border-4 border-rose-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : reviewImages.length === 0 ? (
+        <div className="text-center text-sm opacity-50 py-12 relative z-20">No review screenshots found in the 'reviews' bucket.</div>
+      ) : (
+        <div className="relative z-10 flex flex-col gap-6 sm:gap-10 transform -rotate-3 scale-110 origin-center my-10">
+          {/* Row 1 */}
+          {row1Images.length > 0 && (
+            <div className="flex whitespace-nowrap">
+              <motion.div
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{ repeat: Infinity, ease: "linear", duration: 50 }}
+                className="flex gap-6 sm:gap-10 px-3 sm:px-5"
+              >
+                {[...row1Images, ...row1Images].map((url, i) => (
+                  <div key={`r1-${i}`} onClick={() => setSelectedImage(url)} className="h-[180px] sm:h-[260px] w-max shrink-0 transition-transform duration-500 hover:scale-[1.03] cursor-zoom-in">
+                    <img src={url} alt="Review Screenshot" className="h-full w-auto object-cover rounded-3xl sm:rounded-[2.5rem] shadow-xl shadow-black/10 dark:shadow-black/40 border border-black/5 dark:border-white/5" loading="lazy" />
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          )}
+
+          {/* Row 2 - Reverse Scroll */}
+          {row2Images.length > 0 && (
+            <div className="flex whitespace-nowrap">
+              <motion.div
+                animate={{ x: ["-50%", "0%"] }}
+                transition={{ repeat: Infinity, ease: "linear", duration: 60 }}
+                className="flex gap-6 sm:gap-10 px-3 sm:px-5"
+              >
+                {[...row2Images, ...row2Images].map((url, i) => (
+                  <div key={`r2-${i}`} onClick={() => setSelectedImage(url)} className="h-[180px] sm:h-[260px] w-max shrink-0 transition-transform duration-500 hover:scale-[1.03] cursor-zoom-in">
+                    <img src={url} alt="Review Screenshot" className="h-full w-auto object-cover rounded-3xl sm:rounded-[2.5rem] shadow-xl shadow-black/10 dark:shadow-black/40 border border-black/5 dark:border-white/5" loading="lazy" />
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          )}
+
+          {/* Row 3 */}
+          {row3Images.length > 0 && (
+            <div className="flex whitespace-nowrap">
+              <motion.div
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{ repeat: Infinity, ease: "linear", duration: 45 }}
+                className="flex gap-6 sm:gap-10 px-3 sm:px-5"
+              >
+                {[...row3Images, ...row3Images].map((url, i) => (
+                  <div key={`r3-${i}`} onClick={() => setSelectedImage(url)} className="h-[180px] sm:h-[260px] w-max shrink-0 transition-transform duration-500 hover:scale-[1.03] cursor-zoom-in">
+                    <img src={url} alt="Review Screenshot" className="h-full w-auto object-cover rounded-3xl sm:rounded-[2.5rem] shadow-xl shadow-black/10 dark:shadow-black/40 border border-black/5 dark:border-white/5" loading="lazy" />
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 4. Full Screen Lightbox Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedImage(null)}
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-10 cursor-zoom-out"
+          >
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-md cursor-pointer z-[210]"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <motion.img
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              src={selectedImage}
+              alt="Full Screen Review"
+              className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()} // Prevent clicking the image from closing it immediately
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -2040,13 +2177,16 @@ const AboutPage = () => (
 
         <div className="lg:col-span-5 relative flex items-end justify-center min-h-[320px] sm:min-h-[380px] lg:min-h-[440px] mt-8 lg:mt-0">
           <div className="w-48 h-48 sm:w-56 sm:h-56 bg-white/60 dark:bg-slate-800 rounded-full absolute top-1/2 -translate-y-1/2 right-4 blur-2xl pointer-events-none"></div>
+          
           <img 
             src="/assets/dev.png" 
             alt="Adarsh Representation" 
             loading="lazy"
             decoding="async"
-            className="absolute bottom-[-1rem] lg:bottom-[-3rem] right-[-9rem] lg:right-[-12rem] h-[340px] sm:h-[400px] lg:h-[115%] w-auto max-w-none object-contain object-bottom drop-shadow-2xl z-10 pointer-events-none"
+            // Added lg:translate-x-[5px] right after lg:right-[-12rem]
+            className="absolute bottom-[-1rem] lg:bottom-[-3rem] right-[-9rem] lg:right-[-13rem] lg:translate-x-[5px] h-[340px] sm:h-[400px] lg:h-[115%] w-auto max-w-none object-contain object-bottom drop-shadow-2xl z-10 pointer-events-none"
           />
+          
           <div className="absolute top-0 right-0 bg-white/90 dark:bg-slate-800 sm:backdrop-blur-md px-3 py-1 rounded-full border border-white dark:border-slate-700 text-[10px] font-bold text-[var(--color-text-primary)]/75 uppercase tracking-widest z-20 shadow-sm">
             The Developer
           </div>

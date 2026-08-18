@@ -12,8 +12,8 @@ import {
   Trash2,
   Search,
   Headphones,
-  Layers,
-  Sparkles
+  Mail,
+  ArrowRight
 } from "lucide-react";
 import { useAppContext } from "./AppContext";
 import { supabase } from "./supabaseClient";
@@ -55,8 +55,20 @@ export const ToastContainer = () => {
   );
 };
 
+// --- RAZORPAY SCRIPT LOADER ---
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export const CartDrawer = () => {
   const {
+    user,
     cart,
     isCartOpen,
     setIsCartOpen,
@@ -65,45 +77,124 @@ export const CartDrawer = () => {
     addToast,
   } = useAppContext();
 
-  const [isCheckingOut, setIsCheckingOut] = React.useState(false);
+  const navigate = useNavigate();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  
+  // Guest Checkout States
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const [guestEmail, setGuestEmail] = useState("");
 
-  // Pure integer math! No regex needed.
   const subtotal = cart.reduce((acc, item) => acc + item.price, 0);
 
-  const handleCheckout = async () => {
+  const initiateCheckout = () => {
+    if (user && user.email) {
+      processPayment(user.email);
+    } else {
+      setShowGuestModal(true);
+    }
+  };
+
+  const handleGuestSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!guestEmail.includes("@")) {
+      addToast("Please enter a valid email address.", "info");
+      return;
+    }
+    processPayment(guestEmail);
+  };
+
+  const processPayment = async (checkoutEmail: string) => {
     setIsCheckingOut(true);
     
+    // 1. Load Razorpay SDK
+    const isSdkLoaded = await loadRazorpayScript();
+    if (!isSdkLoaded) {
+      addToast("Razorpay SDK failed to load. Check your internet connection.", "info");
+      setIsCheckingOut(false);
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:5000/api/create-test-checkout", {
+      // 2. Call our Node.js Backend to create the order
+      const response = await fetch("http://localhost:5000/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: cart, customerEmail: "guest@example.com" }),
+        body: JSON.stringify({ 
+          items: cart, 
+          customerEmail: checkoutEmail,
+          userId: user?.id || null 
+        }),
       });
       
-      if (!response.ok) throw new Error("Backend unavailable");
-      
       const data = await response.json();
-      
-      setTimeout(() => {
+      if (!data.success) throw new Error(data.error || "Backend unavailable");
+
+      // 3. Open Razorpay Checkout Modal
+      const options = {
+        key: (import.meta as any).env.VITE_RAZORPAY_KEY_ID, // Your public Razorpay key
+        amount: data.amount,
+        currency: "INR",
+        name: "Canvas Builds",
+        description: "Digital Template Purchase",
+        order_id: data.orderId,
+        handler: async function (response: any) {
+  try {
+    // Send payment details to backend for instant verification
+    const verifyRes = await fetch("http://localhost:5000/api/verify-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature,
+      }),
+    });
+
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success) throw new Error(verifyData.error);
+
+    clearCart();
+    setIsCartOpen(false);
+    setShowGuestModal(false);
+    addToast("Payment successful! Your order is ready.", "success");
+    
+    // Redirect to customer dashboard
+    navigate('/account');
+  } catch (err) {
+    console.error("Verification failed:", err);
+    addToast("Payment completed! Syncing your order...", "info");
+    navigate('/account');
+  }
+},
+        prefill: {
+          email: checkoutEmail,
+        },
+        theme: {
+          color: "#8b5cf6" // Matches your --color-accent-purple
+        }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on("payment.failed", function (response: any) {
+        addToast("Payment cancelled or failed.", "info");
         setIsCheckingOut(false);
-        clearCart();
-        setIsCartOpen(false);
-        addToast(`Order ${data.orderId} placed successfully! 🎉`, "success");
-      }, 1000);
+      });
+      rzp.open();
 
     } catch (err) {
-      // Formats the message cleanly based on what they added to the cart
+      // Fallback: If backend is down, open WhatsApp
       const orderDetails = cart
         .map((item) => `• ${item.title} (${item.priceType === 'ready' ? 'Ready Website' : 'Premium Code'} - ₹${item.price})`)
         .join("%0A");
       
-      const waText = `Hi Adarsh! I would like to checkout my cart:%0A%0A${orderDetails}%0A%0ATotal: *₹${subtotal.toLocaleString('en-IN')}*%0A%0APlease share the payment steps!`;
+      const waText = `Hi Adarsh! I want to checkout but the gateway is down:%0A%0A${orderDetails}%0A%0ATotal: *₹${subtotal.toLocaleString('en-IN')}*%0A%0AMy Email: ${checkoutEmail}`;
       
       window.open(`https://wa.me/917906568743?text=${waText}`, "_blank");
       
       setIsCheckingOut(false);
       clearCart();
       setIsCartOpen(false);
+      setShowGuestModal(false);
     }
   };
 
@@ -116,7 +207,10 @@ export const CartDrawer = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
-            onClick={() => setIsCartOpen(false)}
+            onClick={() => {
+              setIsCartOpen(false);
+              setShowGuestModal(false);
+            }}
           />
           <motion.div
             initial={{ x: "100%" }}
@@ -125,6 +219,54 @@ export const CartDrawer = () => {
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed top-0 right-0 bottom-0 w-full sm:w-[420px] bg-[var(--color-bg-primary)] z-[101] shadow-2xl flex flex-col border-l border-[var(--color-bg-secondary)] dark:border-slate-800"
           >
+            {/* --- GUEST CHECKOUT MODAL OVERLAY --- */}
+            <AnimatePresence>
+              {showGuestModal && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="absolute inset-0 z-[110] bg-[var(--color-bg-primary)]/95 backdrop-blur-md flex flex-col p-8 justify-center"
+                >
+                  <button 
+                    onClick={() => setShowGuestModal(false)}
+                    className="absolute top-6 right-6 p-2 bg-white dark:bg-slate-800 rounded-full shadow-sm text-[var(--color-text-primary)]/50 cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                  <div className="w-16 h-16 bg-gradient-to-br from-[var(--color-accent-mint)] to-emerald-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-emerald-500/20 mx-auto">
+                    <Mail className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-2xl font-serif font-bold text-center text-[var(--color-text-primary)] mb-2">
+                    Where should we send it?
+                  </h3>
+                  <p className="text-center text-sm text-[var(--color-text-primary)]/60 mb-8 leading-relaxed">
+                    Enter your email to receive your invoice and secure download links. No account required.
+                  </p>
+                  
+                  <form onSubmit={handleGuestSubmit} className="flex flex-col gap-4">
+                    <input 
+                      type="email" 
+                      required
+                      placeholder="you@example.com"
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 border border-[var(--color-bg-secondary)] dark:border-slate-700 rounded-xl px-4 py-4 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-purple)] shadow-sm"
+                    />
+                    <button 
+                      type="submit"
+                      disabled={isCheckingOut}
+                      className="w-full bg-[var(--color-accent-purple)] hover:bg-[#6b46c1] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all disabled:opacity-50 cursor-pointer"
+                    >
+                      {isCheckingOut ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Continue to Payment"}
+                      {!isCheckingOut && <ArrowRight className="w-4 h-4" />}
+                    </button>
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* --- STANDARD CART UI --- */}
             <div className="p-6 border-b border-[var(--color-bg-secondary)]/50 dark:border-slate-800 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-md">
               <div>
                 <h2 className="text-2xl font-serif font-bold text-[var(--color-text-primary)] flex items-center gap-2">
@@ -203,18 +345,24 @@ export const CartDrawer = () => {
                     ₹{subtotal.toLocaleString("en-IN")}
                   </span>
                 </div>
+                
+                {/* Temporarily Disabled Checkout Button */}
                 <button
-                  onClick={handleCheckout}
+                  onClick={() => addToast("Payments are currently being set up. Check back soon!", "info")}
+                  className="w-full bg-[var(--color-text-primary)]/60 text-white/80 dark:bg-slate-800 dark:text-slate-500 py-4 rounded-xl font-bold flex items-center justify-center gap-2 cursor-not-allowed"
+                >
+                  Checkout (Coming Soon)
+                </button>
+
+                {/* Original Button (Keep this commented out for later!)
+                <button
+                  onClick={initiateCheckout}
                   disabled={isCheckingOut}
                   className="w-full bg-[var(--color-text-primary)] text-white dark:bg-slate-800 dark:hover:bg-[var(--color-accent-pink)] hover:bg-[var(--color-accent-purple)] py-4 rounded-xl font-bold transition-all hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-70 cursor-pointer"
                 >
-                  {isCheckingOut ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <Check className="w-5 h-5" />
-                  )}
-                  {isCheckingOut ? "Processing..." : "Proceed to Checkout"}
-                </button>
+                  <Check className="w-5 h-5" /> Proceed to Checkout
+                </button> 
+                */}
               </div>
             )}
           </motion.div>
@@ -554,7 +702,7 @@ export const DatabaseBundles = () => {
                       </span>
                     )}
                     <span className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] leading-none">
-                      {bundle.price}
+                      ₹{bundle.price}
                     </span>
                   </div>
                   <button

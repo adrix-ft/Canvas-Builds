@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabase } from "./supabaseClient";
 import { User, Session } from "@supabase/supabase-js";
 import { jwtDecode } from "jwt-decode";
+import { getProductIcon } from "./iconHelper";
 
 export type CartItem = {
   id: number;
@@ -33,6 +34,12 @@ interface AppContextType {
   legalModal: "privacy" | "terms" | null;
   setLegalModal: (type: "privacy" | "terms" | null) => void;
   clearCart: () => void;
+  
+  // NEW: Global Pre-fetched Catalog Data
+  globalProducts: any[];
+  globalBundles: any[];
+  isCatalogLoading: boolean;
+  expectedProductCount: number;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -42,6 +49,47 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
+  // Global Catalog State
+  const [globalProducts, setGlobalProducts] = useState<any[]>([]);
+  const [globalBundles, setGlobalBundles] = useState<any[]>([]);
+  const [isCatalogLoading, setIsCatalogLoading] = useState(true);
+  const [expectedProductCount, setExpectedProductCount] = useState<number>(() => {
+    const cached = localStorage.getItem("canvas_expected_products");
+    return cached ? parseInt(cached, 10) : 8;
+  });
+
+  // PRE-FETCH ON INITIAL LOAD
+  useEffect(() => {
+    const prefetchCatalog = async () => {
+      try {
+        const [prodRes, bundRes] = await Promise.all([
+          supabase.from("products").select("*").eq("is_hidden", false).order("id", { ascending: true }),
+          supabase.from("bundles").select("*").eq("is_hidden", false).order("id", { ascending: true })
+        ]);
+
+        if (prodRes.data) {
+          const formatted = prodRes.data.map((item) => ({
+            ...item,
+            emoji: getProductIcon(item.icon_name),
+          }));
+          setGlobalProducts(formatted);
+          setExpectedProductCount(formatted.length);
+          localStorage.setItem("canvas_expected_products", formatted.length.toString());
+        }
+
+        if (bundRes.data) {
+          setGlobalBundles(bundRes.data);
+        }
+      } catch (err) {
+        console.error("Failed to pre-fetch catalog:", err);
+      } finally {
+        setIsCatalogLoading(false);
+      }
+    };
+
+    prefetchCatalog();
+  }, []);
+
   useEffect(() => {
     const verifyAdminStatus = (session: Session | null) => {
       if (session?.access_token) {
@@ -49,7 +97,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           const decodedJwt = jwtDecode<any>(session.access_token);
           setIsAdmin(decodedJwt.user_role === 'admin');
         } catch (err) {
-          console.error("Failed to decode token:", err);
           setIsAdmin(false);
         }
       } else {
@@ -89,6 +136,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [toasts, setToasts] = useState<{ id: number; message: string; type: "success" | "info" }[]>([]);
+  
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     return localStorage.getItem("theme") === "dark";
   });
@@ -107,9 +155,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const addToast = (message: string, type: "success" | "info" = "success") => {
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      removeToast(id);
-    }, 3000);
+    setTimeout(() => removeToast(id), 3000);
   };
 
   const removeToast = (id: number) => {
@@ -137,26 +183,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AppContext.Provider
       value={{
-        user,
-        isAdmin,
-        isAuthOpen,
-        setIsAuthOpen,
-        handleLogout,
-        cart,
-        addToCart,
-        removeFromCart,
-        isCartOpen,
-        setIsCartOpen,
-        isSearchOpen,
-        setIsSearchOpen,
-        toasts,
-        addToast,
-        removeToast,
-        isDarkMode,
-        toggleDarkMode,
-        legalModal,
-        setLegalModal,
-        clearCart,
+        user, isAdmin, isAuthOpen, setIsAuthOpen, handleLogout,
+        cart, addToCart, removeFromCart, clearCart,
+        isCartOpen, setIsCartOpen, isSearchOpen, setIsSearchOpen,
+        toasts, addToast, removeToast,
+        isDarkMode, toggleDarkMode,
+        legalModal, setLegalModal,
+        globalProducts, globalBundles, isCatalogLoading, expectedProductCount
       }}
     >
       {children}
