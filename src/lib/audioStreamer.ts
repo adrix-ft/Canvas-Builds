@@ -11,6 +11,11 @@ export class AudioStreamer {
   playChunk(base64Audio: string) {
     if (!this.context) return;
     
+    // 🔴 FIX: Force the browser to wake up the audio context if it suspended itself
+    if (this.context.state === 'suspended') {
+      this.context.resume();
+    }
+
     // 1. Decode the base64 string from Gemini into binary data
     const binaryString = atob(base64Audio);
     const len = binaryString.length;

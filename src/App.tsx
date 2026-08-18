@@ -1408,6 +1408,37 @@ const PlaceholderReview = () => (
     </span>
   </div>
 );
+const ReviewSkeletonRow = ({ reverse = false }: { reverse?: boolean }) => {
+  // Use an array of varying widths to perfectly mimic the organic, 
+  // different sizes of your actual WhatsApp screenshots.
+  const organicWidths = [320, 260, 380, 290, 350, 400]; 
+  
+  return (
+    <div className="flex whitespace-nowrap">
+      <motion.div
+        animate={{ x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
+        transition={{ repeat: Infinity, ease: "linear", duration: reverse ? 60 : 50 }}
+        className="flex gap-6 sm:gap-10 px-3 sm:px-5"
+      >
+        {[...organicWidths, ...organicWidths].map((w, i) => (
+          <div 
+            key={i} 
+            className="h-[180px] sm:h-[260px] shrink-0 bg-slate-100 dark:bg-slate-900/50 rounded-3xl sm:rounded-[2.5rem] border border-black/5 dark:border-white/5 relative overflow-hidden"
+            style={{ width: `${w}px` }} // Applies the organic width
+          >
+            <motion.div 
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}
+              className="absolute inset-0 bg-slate-200 dark:bg-slate-800/80 rounded-3xl sm:rounded-[2.5rem]"
+            />
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
+
+// ... (Keep the rest of your imports and AppContext hooks)
 
 const Testimonials = () => {
   const [reviewImages, setReviewImages] = useState<string[]>([]);
@@ -1448,7 +1479,6 @@ const Testimonials = () => {
   const row2Images = reviewImages.slice(third, third * 2);
   const row3Images = reviewImages.slice(third * 2);
 
-  // Stop background scrolling when modal is open
   useEffect(() => {
     if (selectedImage) {
       document.body.style.overflow = 'hidden';
@@ -1460,7 +1490,6 @@ const Testimonials = () => {
   return (
     <div id="reviews" className="relative w-full py-24 sm:py-32 overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-500">
       
-      {/* 1. Animated Ambient Glowing Background */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <motion.div 
           animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, -30, 0] }}
@@ -1474,7 +1503,6 @@ const Testimonials = () => {
         />
       </div>
 
-      {/* 2. Elegant Header */}
       <div className="relative z-20 max-w-3xl mx-auto text-center px-4 mb-20 sm:mb-28">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -1513,73 +1541,77 @@ const Testimonials = () => {
         </motion.p>
       </div>
 
-      {/* Edge Fade Overlays for Marquee */}
       <div className="absolute left-0 bottom-0 top-1/3 w-20 sm:w-48 bg-gradient-to-r from-white to-transparent dark:from-[#050505] dark:to-transparent z-30 pointer-events-none"></div>
       <div className="absolute right-0 bottom-0 top-1/3 w-20 sm:w-48 bg-gradient-to-l from-white to-transparent dark:from-[#050505] dark:to-transparent z-30 pointer-events-none"></div>
 
-      {/* 3. Tilted, Borderless Marquee Wrapper */}
-      {isLoading ? (
-        <div className="flex justify-center items-center py-20 relative z-20">
-          <div className="w-10 h-10 border-4 border-rose-400 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      ) : reviewImages.length === 0 ? (
-        <div className="text-center text-sm opacity-50 py-12 relative z-20">No review screenshots found in the 'reviews' bucket.</div>
-      ) : (
-        <div className="relative z-10 flex flex-col gap-6 sm:gap-10 transform -rotate-3 scale-110 origin-center my-10">
-          {/* Row 1 */}
-          {row1Images.length > 0 && (
-            <div className="flex whitespace-nowrap">
-              <motion.div
-                animate={{ x: ["0%", "-50%"] }}
-                transition={{ repeat: Infinity, ease: "linear", duration: 50 }}
-                className="flex gap-6 sm:gap-10 px-3 sm:px-5"
-              >
-                {[...row1Images, ...row1Images].map((url, i) => (
-                  <div key={`r1-${i}`} onClick={() => setSelectedImage(url)} className="h-[180px] sm:h-[260px] w-max shrink-0 transition-transform duration-500 hover:scale-[1.03] cursor-zoom-in">
-                    <img src={url} alt="Review Screenshot" className="h-full w-auto object-cover rounded-3xl sm:rounded-[2.5rem] shadow-xl shadow-black/10 dark:shadow-black/40 border border-black/5 dark:border-white/5" loading="lazy" />
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          )}
+      <div className="relative z-10 flex flex-col gap-6 sm:gap-10 transform -rotate-3 scale-110 origin-center my-10">
+        
+        {isLoading ? (
+          <>
+            <ReviewSkeletonRow />
+            <ReviewSkeletonRow reverse={true} />
+            <ReviewSkeletonRow />
+          </>
+        ) : reviewImages.length === 0 ? (
+          <div className="text-center text-sm opacity-50 py-12 relative z-20 transform rotate-3">
+            No review screenshots found in the 'reviews' bucket.
+          </div>
+        ) : (
+          <>
+            {row1Images.length > 0 && (
+              <div className="flex whitespace-nowrap">
+                <motion.div
+                  animate={{ x: ["0%", "-50%"] }}
+                  transition={{ repeat: Infinity, ease: "linear", duration: 50 }}
+                  className="flex gap-6 sm:gap-10 px-3 sm:px-5"
+                >
+                  {[...row1Images, ...row1Images].map((url, i) => (
+                    // Removed hover scaling class for scroll performance
+                    <div key={`r1-${i}`} onClick={() => setSelectedImage(url)} className="h-[180px] sm:h-[260px] w-max shrink-0 cursor-zoom-in">
+                      <img src={url} alt="Review Screenshot" className="h-full w-auto object-contain rounded-3xl sm:rounded-[2.5rem] shadow-xl shadow-black/10 dark:shadow-black/40 border border-black/5 dark:border-white/5" loading="lazy" />
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+            )}
 
-          {/* Row 2 - Reverse Scroll */}
-          {row2Images.length > 0 && (
-            <div className="flex whitespace-nowrap">
-              <motion.div
-                animate={{ x: ["-50%", "0%"] }}
-                transition={{ repeat: Infinity, ease: "linear", duration: 60 }}
-                className="flex gap-6 sm:gap-10 px-3 sm:px-5"
-              >
-                {[...row2Images, ...row2Images].map((url, i) => (
-                  <div key={`r2-${i}`} onClick={() => setSelectedImage(url)} className="h-[180px] sm:h-[260px] w-max shrink-0 transition-transform duration-500 hover:scale-[1.03] cursor-zoom-in">
-                    <img src={url} alt="Review Screenshot" className="h-full w-auto object-cover rounded-3xl sm:rounded-[2.5rem] shadow-xl shadow-black/10 dark:shadow-black/40 border border-black/5 dark:border-white/5" loading="lazy" />
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          )}
+            {row2Images.length > 0 && (
+              <div className="flex whitespace-nowrap">
+                <motion.div
+                  animate={{ x: ["-50%", "0%"] }}
+                  transition={{ repeat: Infinity, ease: "linear", duration: 60 }}
+                  className="flex gap-6 sm:gap-10 px-3 sm:px-5"
+                >
+                  {[...row2Images, ...row2Images].map((url, i) => (
+                    // Removed hover scaling class for scroll performance
+                    <div key={`r2-${i}`} onClick={() => setSelectedImage(url)} className="h-[180px] sm:h-[260px] w-max shrink-0 cursor-zoom-in">
+                      <img src={url} alt="Review Screenshot" className="h-full w-auto object-contain rounded-3xl sm:rounded-[2.5rem] shadow-xl shadow-black/10 dark:shadow-black/40 border border-black/5 dark:border-white/5" loading="lazy" />
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+            )}
 
-          {/* Row 3 */}
-          {row3Images.length > 0 && (
-            <div className="flex whitespace-nowrap">
-              <motion.div
-                animate={{ x: ["0%", "-50%"] }}
-                transition={{ repeat: Infinity, ease: "linear", duration: 45 }}
-                className="flex gap-6 sm:gap-10 px-3 sm:px-5"
-              >
-                {[...row3Images, ...row3Images].map((url, i) => (
-                  <div key={`r3-${i}`} onClick={() => setSelectedImage(url)} className="h-[180px] sm:h-[260px] w-max shrink-0 transition-transform duration-500 hover:scale-[1.03] cursor-zoom-in">
-                    <img src={url} alt="Review Screenshot" className="h-full w-auto object-cover rounded-3xl sm:rounded-[2.5rem] shadow-xl shadow-black/10 dark:shadow-black/40 border border-black/5 dark:border-white/5" loading="lazy" />
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          )}
-        </div>
-      )}
+            {row3Images.length > 0 && (
+              <div className="flex whitespace-nowrap">
+                <motion.div
+                  animate={{ x: ["0%", "-50%"] }}
+                  transition={{ repeat: Infinity, ease: "linear", duration: 45 }}
+                  className="flex gap-6 sm:gap-10 px-3 sm:px-5"
+                >
+                  {[...row3Images, ...row3Images].map((url, i) => (
+                    // Removed hover scaling class for scroll performance
+                    <div key={`r3-${i}`} onClick={() => setSelectedImage(url)} className="h-[180px] sm:h-[260px] w-max shrink-0 cursor-zoom-in">
+                      <img src={url} alt="Review Screenshot" className="h-full w-auto object-contain rounded-3xl sm:rounded-[2.5rem] shadow-xl shadow-black/10 dark:shadow-black/40 border border-black/5 dark:border-white/5" loading="lazy" />
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
-      {/* 4. Full Screen Lightbox Modal */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div
@@ -1603,7 +1635,7 @@ const Testimonials = () => {
               src={selectedImage}
               alt="Full Screen Review"
               className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl"
-              onClick={(e) => e.stopPropagation()} // Prevent clicking the image from closing it immediately
+              onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
         )}

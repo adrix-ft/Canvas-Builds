@@ -28,6 +28,10 @@ export const AIAssistant = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeMode, setActiveMode] = useState<'none' | 'voice' | 'text'>('none');
 
+  // -- SECURE TOKEN STATE --
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [wsEndpoint, setWsEndpoint] = useState<string | null>(null);
+
   // -- VOICE STATE & REFS --
   const [voiceStatus, setVoiceStatus] = useState<'idle' | 'connecting' | 'connected'>('idle');
   const wsRef = useRef<WebSocket | null>(null);
@@ -43,7 +47,7 @@ export const AIAssistant = () => {
   const [isTextLoading, setIsTextLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // SECURED: System Instruction with XML Tags
+  // SECURED: System Instruction
   const systemInstructionText = `
     <system_role>
       You are the official customer support AI for Canvas Builds. You are a friendly, high-energy voice and text assistant. You are here to help users find the perfect React website template for their needs.
@@ -74,6 +78,21 @@ export const AIAssistant = () => {
     </call_to_action>
   `;
 
+  // Fetch API Key from the original gemini-token edge function
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('gemini-token');
+        if (error || !data) throw new Error("Failed to get token");
+        setApiKey(data.token);
+        setWsEndpoint(data.wsEndpoint.replace('v1alpha', 'v1beta'));
+      } catch (err) {
+        console.error("Failed to load chat infrastructure:", err);
+      }
+    };
+    fetchToken();
+  }, []);
+
   useEffect(() => {
     if (activeMode === 'text') {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -103,11 +122,16 @@ export const AIAssistant = () => {
   };
 
   // ==========================================
-  // VOICE CONVERSATION (Routed via Proxy)
+  // VOICE CONVERSATION
   // ==========================================
   const startVoiceConversation = async () => {
     if (!user) {
       addToast("Please sign in to use the AI Voice Assistant.", "info");
+      return;
+    }
+
+    if (!apiKey || !wsEndpoint) {
+      addToast("Connection not ready yet. Please wait a moment.", "info");
       return;
     }
 
@@ -116,25 +140,21 @@ export const AIAssistant = () => {
     setVoiceStatus('connecting');
     let isSetupComplete = false;
 
+    audioStreamerRef.current = new AudioStreamer();
+    audioStreamerRef.current.init();
+
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("No active session");
-
-      audioStreamerRef.current = new AudioStreamer();
-      audioStreamerRef.current.init();
-
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const wsUrl = `${supabaseUrl.replace('https', 'wss')}/functions/v1/gemini-proxy?token=${session.access_token}`;
-
-      const ws = new WebSocket(wsUrl);
+      const ws = new WebSocket(`${wsEndpoint}?key=${apiKey}`);
       wsRef.current = ws;
 
       ws.onopen = async () => {
         try {
           ws.send(JSON.stringify({
             setup: {
-              model: "models/gemini-2.0-flash-exp",
-              systemInstruction: { parts: [{ text: systemInstructionText }] },
+              model: "models/gemini-3.1-flash-live-preview",
+              systemInstruction: { 
+                parts: [{ text: systemInstructionText }] 
+              },
               generationConfig: {
                 responseModalities: ["AUDIO"],
                 speechConfig: {
@@ -150,7 +170,6 @@ export const AIAssistant = () => {
           const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
           audioContextRef.current = audioCtx;
 
-          // FIXED: Inline the Audio Worklet directly as a Blob so it never 404s on Vercel
           const workletCode = `
             class AudioRecorderWorklet extends AudioWorkletProcessor {
               process(inputs, outputs, parameters) {
@@ -192,7 +211,10 @@ export const AIAssistant = () => {
 
                 ws.send(JSON.stringify({
                   realtimeInput: {
-                    mediaChunks: [{ mimeType: "audio/pcm;rate=16000", data: base64Data }]
+                    audio: {
+                      mimeType: "audio/pcm;rate=16000",
+                      data: base64Data
+                    }
                   }
                 }));
               }
@@ -283,11 +305,16 @@ export const AIAssistant = () => {
   };
 
   // ==========================================
-  // TEXT CONVERSATION (Routed via Proxy)
+  // TEXT CONVERSATION
   // ==========================================
   const handleSendText = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isTextLoading) return;
+
+    if (!apiKey) {
+      addToast("Chat is connecting. Please wait.", "info");
+      return;
+    }
 
     const userText = input.trim();
 
@@ -305,22 +332,19 @@ export const AIAssistant = () => {
     setIsTextLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Authentication required");
-
       const apiMessages = newMessages.filter(msg => msg.id !== '1');
       const payload = {
-        systemInstruction: { parts: [{ text: systemInstructionText }] },
+        systemInstruction: { 
+          role: "system", 
+          parts: [{ text: systemInstructionText }] 
+        },
         contents: apiMessages.map(msg => ({ role: msg.role, parts: [{ text: msg.text }] }))
       };
 
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      
-      const response = await fetch(`${supabaseUrl}/functions/v1/gemini-proxy`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
       });
